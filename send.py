@@ -52,67 +52,162 @@ def send_grip_data(uid, grip_value):
         save_log({"error": "找不到使用者資料"})
         return {"error": "找不到使用者資料"}, 500
 
-    target = next((u for u in users if u.get("uid") == uid), None)
-    if not target:
-        save_log({"error": f"找不到對應的uid: {uid}"})
-        return {"error": f"找不到對應的uid: {uid}"}, 404
+    # 尋找對應 uid 的 Line userId
+    target_user_id = None
+    for user_entry in users:
+        if user_entry.get("uid") == uid and "line_account" in user_entry:
+            target_user_id = user_entry["line_account"]["userId"]
+            break
 
-    user_id = target["userId"]
-    # goal = float(target["target"]) # 這裡的 target 似乎沒有在 users.json 中定義，如果需要請自行添加
+    if not target_user_id:
+        save_log({"error": f"找不到對應的uid: {uid} 或未綁定 Line 帳戶"})
+        return {"error": f"找不到對應的uid: {uid} 或未綁定 Line 帳戶"}, 404
+
     message = {
         "type": "text",
         "text": f"今日握力紀錄：{grip_value} kg"
     }
-    status, response = send_push_message(user_id, [message])
-    save_log({"message": f"已發送給 {user_id}：{status}, {response}"})
-    return {"message": f"已發送給 {user_id}：{status}, {response}"}, 200
+    status, response = send_push_message(target_user_id, [message])
+    save_log({"message": f"已發送給 {target_user_id}：{status}, {response}"})
+    return {"message": f"已發送給 {target_user_id}：{status}, {response}"}, 200
 
 def get_uid():
     """把users.json中所有的uid讀出來"""
-    uid = []
+    uid_list = []
     if os.path.exists(USER_FILE):
         with open(USER_FILE, "r", encoding="utf-8") as f:
-            users = json.load(f)
-    else:
-        users = []
+            try:
+                users = json.load(f)
+                for user_entry in users:
+                    if 'uid' in user_entry:
+                        uid_list.append(user_entry['uid'])
+            except json.JSONDecodeError:
+                pass # 檔案為空或格式錯誤時，回傳空列表
+    return uid_list
 
-    for i in users:
-        if 'uid' in i:
-            uid.append(i['uid'])
-        
-    return uid
-
-def save_user_uid(user_id, uid, login_type='line'):
-    """新增或更新userid及其對應的uid，並記錄登入類型"""
+def update_user_profile(uid, login_type=None, user_id=None, display_name=None, email=None, username=None):
+    """
+    新增或更新使用者資料，包括綁定帳戶資訊和使用者名稱。
+    uid: 系統內部唯一識別碼
+    login_type: 'line' 或 'google'
+    user_id: 來自 Line 或 Google 的使用者 ID
+    display_name: 來自 Line 或 Google 的顯示名稱
+    email: 來自 Line 或 Google 的 Email
+    username: 使用者自行設定的名稱
+    """
+    # 確保目錄存在
+    os.makedirs(os.path.dirname(USER_FILE), exist_ok=True)
+    
     if not os.path.exists(USER_FILE):
         with open(USER_FILE, "w", encoding="utf-8") as f:
             json.dump([], f)
-    
+
     with open(USER_FILE, "r", encoding="utf-8") as f:
         try:
             users = json.load(f)
         except json.JSONDecodeError:
             users = []
 
-    found = False
-    for user in users:
-        if user.get("userId") == user_id:
-            user["uid"] = uid
-            user["login_type"] = login_type
-            found = True
+    user_found = False
+    for user_entry in users:
+        if user_entry.get("uid") == uid:
+            user_found = True
+            if username is not None:
+                user_entry["username"] = username
+            if login_type and user_id:
+                account_key = f"{login_type}_account"
+                user_entry[account_key] = {
+                    "userId": user_id,
+                    "display_name": display_name,
+                    "email": email
+                }
             break
-    
-    if not found:
-        users.append({"userId": user_id, 
-                      "uid": uid,
-                      "login_type": login_type})
+
+    if not user_found:
+        new_user_entry = {"uid": uid}
+        if username is not None:
+            new_user_entry["username"] = username
+        if login_type and user_id:
+            account_key = f"{login_type}_account"
+            new_user_entry[account_key] = {
+                "userId": user_id,
+                "display_name": display_name,
+                "email": email
+            }
+        users.append(new_user_entry)
 
     with open(USER_FILE, "w", encoding="utf-8") as f:
         json.dump(users, f, indent=4, ensure_ascii=False)
 
     return "success", 200
+
+def get_user_data(uid):
+    """根據 uid 獲取完整的用戶資料"""
+    if not os.path.exists(USER_FILE):
+        return None
+    with open(USER_FILE, "r", encoding="utf-8") as f:
+        try:
+            users = json.load(f)
+            for user_entry in users:
+                if user_entry.get("uid") == uid:
+                    return user_entry
+        except json.JSONDecodeError:
+            return None
+    return None
+
+def get_user_by_email(email):
+    """根據 email 獲取用戶資料"""
+    if not os.path.exists(USER_FILE):
+        return None
+    with open(USER_FILE, "r", encoding="utf-8") as f:
+        try:
+            users = json.load(f)
+            for user_entry in users:
+                # 檢查 Google 帳戶
+                if "google_account" in user_entry and user_entry["google_account"].get("email") == email:
+                    return user_entry
+                # 檢查 Line 帳戶
+                if "line_account" in user_entry and user_entry["line_account"].get("email") == email:
+                    return user_entry
+        except json.JSONDecodeError:
+            return None
+    return None
+
+def get_user_emails():
+    """獲取所有用戶的 email 列表，用於群發郵件"""
+    emails = []
+    if not os.path.exists(USER_FILE):
+        return emails
     
+    with open(USER_FILE, "r", encoding="utf-8") as f:
+        try:
+            users = json.load(f)
+            for user_entry in users:
+                # 優先使用 Google 帳戶的 email
+                if "google_account" in user_entry and user_entry["google_account"].get("email"):
+                    emails.append({
+                        "uid": user_entry.get("uid"),
+                        "username": user_entry.get("username", "未設定"),
+                        "email": user_entry["google_account"]["email"]
+                    })
+                    continue
+                
+                # 如果沒有 Google 帳戶，則使用 Line 帳戶的 email
+                if "line_account" in user_entry and user_entry["line_account"].get("email"):
+                    emails.append({
+                        "uid": user_entry.get("uid"),
+                        "username": user_entry.get("username", "未設定"),
+                        "email": user_entry["line_account"]["email"]
+                    })
+        except json.JSONDecodeError:
+            return emails
+    
+    return emails
+
 def save_log(text):
+    # 確保目錄存在
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    
     if not os.path.exists(LOG_FILE):
         with open(LOG_FILE, "w", encoding="utf8") as f:
             json.dump([], f)

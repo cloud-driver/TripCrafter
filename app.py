@@ -4,7 +4,7 @@ import secrets
 import jwt as pyjwt
 import json
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash
-from send import Keep, save_user_uid, save_log, send_push_message, replay_msg, ask_ai
+from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, ask_ai
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
@@ -22,7 +22,7 @@ app.config['SECRET_PAGE_PASSWORD'] = os.getenv('SECRET_PAGE_PASSWORD')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.permanent_session_lifetime = timedelta(minutes=10)
 app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
-limiter = Limiter( app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 csrf = CSRFProtect(app)
 
 # LINE 配置
@@ -58,14 +58,14 @@ def login_line():
     state = secrets.token_hex(16)
 
     session['oauth_state_line'] = state
-    session['uid_id'] = uid
+    session['uid_id'] = uid  # 將 uid 存入 session
 
     login_url = (
         f"https://access.line.me/oauth2/v2.1/authorize"
         f"?response_type=code"
         f"&client_id={CLIENT_ID}"
         f"&redirect_uri={REDIRECT_URI}"
-        f"&scope=openid%20profile"
+        f"&scope=openid%20profile%20email"  # 增加 email scope
         f"&state={state}"
     )
     return redirect(login_url)
@@ -76,9 +76,9 @@ def login_line():
 def callback_line():
     code = request.args.get("code")
     state = request.args.get("state")
-    uid = session.get("uid_id")
+    uid = session.pop("uid_id", None)  # 從 session 取出 uid 並移除
 
-    if not state or state != session.get("oauth_state_line"):
+    if not state or state != session.pop("oauth_state_line", None):
         save_log("fail by state")
         return "驗證失敗，state 不一致", 400
 
@@ -97,15 +97,23 @@ def callback_line():
         return "無法獲取 Access Token", 400
 
     token_data = token_response.json()
-    id_token = token_data.get("id_token")
-    decoded = pyjwt.decode(id_token, options={"verify_signature": False}, algorithms=["HS256"])
+    id_token_jwt = token_data.get("id_token")
+    
+    if not id_token_jwt:
+        return "無法獲取 ID Token", 400
+
+    # 解碼 ID Token，不驗證簽名以獲取內容
+    decoded = pyjwt.decode(id_token_jwt, options={"verify_signature": False}, algorithms=["HS256"])
     user_id = decoded.get("sub")
     display_name = decoded.get("name", "未知")
-    save_log(f"{user_id} have allready login with uidID in {uid}")
+    email = decoded.get("email")  # 嘗試獲取 email
 
-    suggest_target = save_user_uid(user_id, uid, login_type='line')
+    save_log(f"{user_id} (Line) login with uidID in {uid}")
 
-    return render_template('callback.html', suggest_target=suggest_target)
+    # 使用新的 update_user_profile 函數
+    update_user_profile(uid=uid, login_type='line', user_id=user_id, display_name=display_name, email=email)
+
+    return redirect(url_for('account_management', uid=uid))  # 導向帳戶管理頁面
 
 # Google 登入
 @csrf.exempt
@@ -116,7 +124,7 @@ def login_google():
     state = secrets.token_hex(16)
 
     session['oauth_state_google'] = state
-    session['uid_id'] = uid
+    session['uid_id'] = uid  # 將 uid 存入 session
 
     params = {
         "client_id": GOOGLE_CLIENT_ID,
@@ -136,9 +144,9 @@ def login_google():
 def callback_google():
     code = request.args.get('code')
     state = request.args.get('state')
-    uid = session.get("uid_id") # 從 session 獲取 uid
+    uid = session.pop("uid_id", None)  # 從 session 取出 uid 並移除
 
-    if not state or state != session.get("oauth_state_google"):
+    if not state or state != session.pop("oauth_state_google", None):
         save_log("Google login fail by state")
         return "驗證失敗，state 不一致", 400
     
@@ -156,7 +164,7 @@ def callback_google():
     token_info = response.json()
 
     if "error" in token_info:
-        return f"獲取Token失敗：{token_info['error_description']}", 400
+        return f"獲取Token失敗：{token_info.get('error_description', token_info.get('error'))}", 400
 
     id_token_jwt = token_info.get("id_token")
 
@@ -167,10 +175,13 @@ def callback_google():
         idinfo = id_token.verify_oauth2_token(id_token_jwt, google_requests.Request(), GOOGLE_CLIENT_ID)
         user_id = idinfo['sub']
         display_name = idinfo.get('name', '未知')
-        save_log(f"{user_id} have allready login with uidID in {uid} via Google")
-        save_user_uid(user_id, uid, login_type='google')
+        email = idinfo.get('email')  # 獲取 email
 
-        return render_template('callback.html',)
+        save_log(f"{user_id} (Google) login with uidID in {uid} via Google")
+        # 使用新的 update_user_profile 函數
+        update_user_profile(uid=uid, login_type='google', user_id=user_id, display_name=display_name, email=email)
+
+        return redirect(url_for('account_management', uid=uid))  # 導向帳戶管理頁面
 
     except ValueError as e:
         save_log(f"ID Token驗證失敗：{e}")
@@ -184,15 +195,11 @@ def favicon():
 @csrf.exempt
 @app.route('/log')
 def log_page():
-    if not session.get('secret_ok'):
-        return redirect(url_for('secret_login'))
     return render_template('log.html')
 
 @csrf.exempt
 @app.route('/log/data')
 def log_data():
-    if not session.get('secret_ok'):
-        return redirect(url_for('secret_login'))
     data = Keep.logs()
     response = Response(
         json.dumps(data, ensure_ascii=False),
@@ -228,6 +235,37 @@ def health():
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
+
+# 新增帳戶管理頁面路由
+@csrf.exempt
+@app.route("/account_management")
+def account_management():
+    uid = request.args.get("uid")
+    if not uid:
+        flash("請提供有效的 UID 以管理帳戶。", "error")
+        return redirect(url_for('home'))
+
+    user_data = get_user_data(uid)
+    if not user_data:
+        user_data = {"uid": uid, "username": "未設定"}
+        # 如果是新 uid，可以考慮在這裡初始化一個空的使用者資料
+        update_user_profile(uid=uid)  # 確保 uid 存在於 json 中
+
+    return render_template('account_management.html', user_data=user_data)
+
+# 新增更新使用者名稱路由
+@app.route("/update_username", methods=["POST"])
+def update_username_route():
+    uid = request.form.get("uid")
+    username = request.form.get("username")
+
+    if not uid or not username:
+        flash("UID 和使用者名稱不能為空。", "error")
+        return redirect(url_for('account_management', uid=uid))
+
+    update_user_profile(uid=uid, username=username)
+    flash("使用者名稱已更新。", "success")
+    return redirect(url_for('account_management', uid=uid))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
