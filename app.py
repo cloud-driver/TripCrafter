@@ -1,0 +1,223 @@
+import os
+import requests
+import secrets
+import jwt as pyjwt
+import json
+from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash
+from send import Keep, save_user_device, save_log, send_push_message, replay_msg, ask_ai
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from dotenv import load_dotenv
+from flask_wtf.csrf import CSRFProtect, generate_csrf
+from datetime import timedelta
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+if os.path.exists(".env"): load_dotenv()
+
+app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
+app.secret_key = secrets.token_hex(24)
+app.config['SECRET_PAGE_PASSWORD'] = os.getenv('SECRET_PAGE_PASSWORD')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.permanent_session_lifetime = timedelta(minutes=10)
+app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
+limiter = Limiter( app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+csrf = CSRFProtect(app)
+
+# LINE 配置
+CLIENT_ID = int(os.getenv('LINE_LOGIN_CHANNEL_ID'))
+CLIENT_SECRET = str(os.getenv('LINE_LOGIN_CHANNEL_SECRET'))
+REDIRECT_URI = f"{str(os.getenv('URL'))}/callback"
+
+# Google 配置
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = f"{str(os.getenv('URL'))}/callback/google"
+
+# Google OAuth 2.0 授權終端點
+GOOGLE_AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+
+@app.context_processor
+def inject_csrf_token():
+    return dict(csrf_token=generate_csrf)
+
+@csrf.exempt
+@app.route("/")
+def home():
+    return render_template('index.html')
+
+# LINE 登入
+@csrf.exempt
+@limiter.limit("5 per minute")
+@app.route("/login/line")
+def login_line():
+    uid = request.args.get("uid")
+    state = secrets.token_hex(16)
+
+    session['oauth_state_line'] = state
+    session['device_id'] = uid
+
+    login_url = (
+        f"https://access.line.me/oauth2/v2.1/authorize"
+        f"?response_type=code"
+        f"&client_id={CLIENT_ID}"
+        f"&redirect_uri={REDIRECT_URI}"
+        f"&scope=openid%20profile"
+        f"&state={state}"
+    )
+    return redirect(login_url)
+
+@csrf.exempt
+@limiter.limit("10 per minute")
+@app.route("/callback/line")
+def callback_line():
+    code = request.args.get("code")
+    state = request.args.get("state")
+    uid = session.get("device_id")
+
+    if not state or state != session.get("oauth_state_line"):
+        save_log("fail by state")
+        return "驗證失敗，state 不一致", 400
+
+    token_url = "https://api.line.me/oauth2/v2.1/token"
+    payload = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": REDIRECT_URI,
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET
+    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    token_response = requests.post(token_url, data=payload, headers=headers)
+
+    if token_response.status_code != 200:
+        return "無法獲取 Access Token", 400
+
+    token_data = token_response.json()
+    id_token = token_data.get("id_token")
+    decoded = pyjwt.decode(id_token, options={"verify_signature": False}, algorithms=["HS256"])
+    user_id = decoded.get("sub")
+    display_name = decoded.get("name", "未知")
+    save_log(f"{user_id} have allready login with deviceID in {uid}")
+
+    suggest_target = save_user_device(user_id, uid, login_type='line')
+
+    return render_template('callback.html', suggest_target=suggest_target)
+
+# Google 登入
+@csrf.exempt
+@limiter.limit("5 per minute")
+@app.route("/login/google")
+def login_google():
+    params = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "consent"
+    }
+    auth_url = f"{GOOGLE_AUTHORIZATION_URL}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
+    return redirect(auth_url)
+
+@csrf.exempt
+@limiter.limit("10 per minute")
+@app.route("/callback/google")
+def callback_google():
+    # 處理Google OAuth回呼
+    code = request.args.get('code')
+    if not code:
+        return "授權失敗：未收到授權碼。", 400
+
+    # 用授權碼交換Access Token和ID Token
+    token_data = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    }
+    response = requests.post(GOOGLE_TOKEN_URL, data=token_data)
+    token_info = response.json()
+
+    if "error" in token_info:
+        return f"獲取Token失敗：{token_info['error_description']}", 400
+
+    access_token = token_info.get("access_token")
+    id_token_jwt = token_info.get("id_token")
+
+    if not id_token_jwt:
+        return "獲取ID Token失敗。", 400
+
+    try:
+        # 驗證ID Token並獲取使用者資訊
+        idinfo = id_token.verify_oauth2_token(id_token_jwt, google_requests.Request(), GOOGLE_CLIENT_ID)
+
+        # 將使用者資訊儲存到session
+        session['google_id'] = idinfo['sub']
+        session['name'] = idinfo.get('name', '使用者')
+        session['email'] = idinfo.get('email')
+
+        return redirect(url_for('index'))
+
+    except ValueError as e:
+        return f"ID Token驗證失敗：{e}", 400
+
+@csrf.exempt
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@csrf.exempt
+@app.route('/log')
+def log_page():
+    if not session.get('secret_ok'):
+        return redirect(url_for('secret_login'))
+    return render_template('log.html')
+
+@csrf.exempt
+@app.route('/log/data')
+def log_data():
+    if not session.get('secret_ok'):
+        return redirect(url_for('secret_login'))
+    data = Keep.logs()
+    response = Response(
+        json.dumps(data, ensure_ascii=False),
+        content_type='application/json; charset=utf-8'
+    )
+    return response
+
+@csrf.exempt
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    body = request.get_json()
+    events = body.get("events", [])
+
+    for event in events:
+        if event.get("type") == "message" and event["message"]["type"] == "text":
+            user_id = event["source"]["userId"]
+            user_message = event["message"]["text"]
+            reply_text = replay_msg(user_message)
+
+            send_push_message(user_id, [{
+                "type": "text",
+                "text": reply_text
+            }])
+
+    return jsonify({"status": "ok"})
+
+@csrf.exempt
+@app.route("/healthz")
+def health():
+    return "ok", 200
+
+@csrf.exempt
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
