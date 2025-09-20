@@ -4,7 +4,7 @@ import secrets
 import jwt as pyjwt
 import json
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash
-from send import Keep, save_user_device, save_log, send_push_message, replay_msg, ask_ai
+from send import Keep, save_user_uid, save_log, send_push_message, replay_msg, ask_ai
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
@@ -58,7 +58,7 @@ def login_line():
     state = secrets.token_hex(16)
 
     session['oauth_state_line'] = state
-    session['device_id'] = uid
+    session['uid_id'] = uid
 
     login_url = (
         f"https://access.line.me/oauth2/v2.1/authorize"
@@ -72,11 +72,11 @@ def login_line():
 
 @csrf.exempt
 @limiter.limit("10 per minute")
-@app.route("/callback/line")
+@app.route("/callback")
 def callback_line():
     code = request.args.get("code")
     state = request.args.get("state")
-    uid = session.get("device_id")
+    uid = session.get("uid_id")
 
     if not state or state != session.get("oauth_state_line"):
         save_log("fail by state")
@@ -101,9 +101,9 @@ def callback_line():
     decoded = pyjwt.decode(id_token, options={"verify_signature": False}, algorithms=["HS256"])
     user_id = decoded.get("sub")
     display_name = decoded.get("name", "未知")
-    save_log(f"{user_id} have allready login with deviceID in {uid}")
+    save_log(f"{user_id} have allready login with uidID in {uid}")
 
-    suggest_target = save_user_device(user_id, uid, login_type='line')
+    suggest_target = save_user_uid(user_id, uid, login_type='line')
 
     return render_template('callback.html', suggest_target=suggest_target)
 
@@ -112,13 +112,20 @@ def callback_line():
 @limiter.limit("5 per minute")
 @app.route("/login/google")
 def login_google():
+    uid = request.args.get("uid")
+    state = secrets.token_hex(16)
+
+    session['oauth_state_google'] = state
+    session['uid_id'] = uid
+
     params = {
         "client_id": GOOGLE_CLIENT_ID,
         "redirect_uri": GOOGLE_REDIRECT_URI,
         "response_type": "code",
         "scope": "openid email profile",
         "access_type": "offline",
-        "prompt": "consent"
+        "prompt": "consent",
+        "state": state
     }
     auth_url = f"{GOOGLE_AUTHORIZATION_URL}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
     return redirect(auth_url)
@@ -127,12 +134,17 @@ def login_google():
 @limiter.limit("10 per minute")
 @app.route("/callback/google")
 def callback_google():
-    # 處理Google OAuth回呼
     code = request.args.get('code')
+    state = request.args.get('state')
+    uid = session.get("uid_id") # 從 session 獲取 uid
+
+    if not state or state != session.get("oauth_state_google"):
+        save_log("Google login fail by state")
+        return "驗證失敗，state 不一致", 400
+    
     if not code:
         return "授權失敗：未收到授權碼。", 400
 
-    # 用授權碼交換Access Token和ID Token
     token_data = {
         "code": code,
         "client_id": GOOGLE_CLIENT_ID,
@@ -146,24 +158,22 @@ def callback_google():
     if "error" in token_info:
         return f"獲取Token失敗：{token_info['error_description']}", 400
 
-    access_token = token_info.get("access_token")
     id_token_jwt = token_info.get("id_token")
 
     if not id_token_jwt:
         return "獲取ID Token失敗。", 400
 
     try:
-        # 驗證ID Token並獲取使用者資訊
         idinfo = id_token.verify_oauth2_token(id_token_jwt, google_requests.Request(), GOOGLE_CLIENT_ID)
+        user_id = idinfo['sub']
+        display_name = idinfo.get('name', '未知')
+        save_log(f"{user_id} have allready login with uidID in {uid} via Google")
+        save_user_uid(user_id, uid, login_type='google')
 
-        # 將使用者資訊儲存到session
-        session['google_id'] = idinfo['sub']
-        session['name'] = idinfo.get('name', '使用者')
-        session['email'] = idinfo.get('email')
-
-        return redirect(url_for('index'))
+        return render_template('callback.html',)
 
     except ValueError as e:
+        save_log(f"ID Token驗證失敗：{e}")
         return f"ID Token驗證失敗：{e}", 400
 
 @csrf.exempt
