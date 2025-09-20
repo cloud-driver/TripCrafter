@@ -28,7 +28,7 @@ csrf = CSRFProtect(app)
 # LINE 配置
 CLIENT_ID = int(os.getenv('LINE_LOGIN_CHANNEL_ID'))
 CLIENT_SECRET = str(os.getenv('LINE_LOGIN_CHANNEL_SECRET'))
-REDIRECT_URI = f"{str(os.getenv('URL'))}/callback"
+REDIRECT_URI = f"{str(os.getenv('URL'))}/callback/line"
 
 # Google 配置
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
@@ -72,7 +72,7 @@ def login_line():
 
 @csrf.exempt
 @limiter.limit("10 per minute")
-@app.route("/callback")
+@app.route("/callback/line")
 def callback_line():
     code = request.args.get("code")
     state = request.args.get("state")
