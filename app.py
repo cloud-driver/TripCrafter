@@ -3,6 +3,7 @@ import requests
 import secrets
 import jwt as pyjwt
 import json
+import uuid  # 匯入 uuid 模組
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash
 from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, ask_ai
 from flask_limiter import Limiter
@@ -55,11 +56,15 @@ def home():
 @app.route("/login/line")
 def login_line():
     uid = request.args.get("uid")
+    # 如果沒有 uid (新註冊)，則生成一個新的
+    if not uid:
+        uid = str(uuid.uuid4())
+    
     username = request.args.get("username")
     state = secrets.token_hex(16)
 
     session['oauth_state_line'] = state
-    session['uid_id'] = uid
+    session['uid_id'] = uid  # 將 uid 存入 session
     if username:
         session['username'] = username
 
@@ -113,8 +118,9 @@ def callback_line():
         email = decoded.get("email")
 
         save_log(f"{user_id} (Line) login with uidID in {uid}")
-        update_user_profile(uid=uid, login_type='line', user_id=user_id, display_name=display_name, email=email, username=username)
-        return redirect(url_for('account_management', uid=uid))
+        # update_user_profile 會處理 uid 的新增或更新
+        final_uid = update_user_profile(uid=uid, login_type='line', user_id=user_id, display_name=display_name, email=email, username=username)
+        return redirect(url_for('account_management', uid=final_uid))
     except pyjwt.InvalidTokenError as e:
         save_log(f"ID Token驗證失敗：{e}")
         return f"ID Token驗證失敗：{e}", 400
@@ -125,11 +131,15 @@ def callback_line():
 @app.route("/login/google")
 def login_google():
     uid = request.args.get("uid")
+    # 如果沒有 uid (新註冊)，則生成一個新的
+    if not uid:
+        uid = str(uuid.uuid4())
+        
     username = request.args.get("username")
     state = secrets.token_hex(16)
 
     session['oauth_state_google'] = state
-    session['uid_id'] = uid
+    session['uid_id'] = uid # 將 uid 存入 session
     if username:
         session['username'] = username
 
@@ -186,8 +196,9 @@ def callback_google():
         email = idinfo.get('email')
 
         save_log(f"{user_id} (Google) login with uidID in {uid} via Google")
-        update_user_profile(uid=uid, login_type='google', user_id=user_id, display_name=display_name, email=email, username=username)
-        return redirect(url_for('account_management', uid=uid))
+        # update_user_profile 會處理 uid 的新增或更新
+        final_uid = update_user_profile(uid=uid, login_type='google', user_id=user_id, display_name=display_name, email=email, username=username)
+        return redirect(url_for('account_management', uid=final_uid))
     except ValueError as e:
         save_log(f"ID Token驗證失敗：{e}")
         return f"ID Token驗證失敗：{e}", 400
@@ -242,23 +253,24 @@ def page_not_found(error):
 @csrf.exempt
 @app.route("/account_management", methods=["GET", "POST"])
 def account_management():
+    # POST 請求處理邏輯
     if request.method == "POST":
         uid = request.form.get("uid")
         username = request.form.get("username")
 
         if not uid or not username:
             flash("UID 和使用者名稱不能為空。", "error")
-            # 如果 uid 存在，即使 username 為空也重新導向，讓使用者看到錯誤訊息
             if uid:
                 return redirect(url_for('account_management', uid=uid))
-            else: # 如果連 uid 都沒有，只能導回首頁
+            else:
                 return redirect(url_for('home'))
 
+        # 只更新 username，不涉及其他欄位
         update_user_profile(uid=uid, username=username)
         flash("使用者名稱已更新。", "success")
         return redirect(url_for('account_management', uid=uid))
 
-    # 以下為 GET 請求的處理邏輯
+    # GET 請求處理邏輯
     uid = request.args.get("uid")
     if not uid:
         flash("請提供有效的 UID 以管理帳戶。", "error")
@@ -266,8 +278,8 @@ def account_management():
 
     user_data = get_user_data(uid)
     if not user_data:
-        user_data = {"uid": uid, "username": "未設定"}
-        update_user_profile(uid=uid)
+        flash("找不到該使用者的資料。", "error")
+        return redirect(url_for('home'))
 
     return render_template('account_management.html', user_data=user_data)
 
