@@ -114,12 +114,16 @@ def get_user_data(uid):
             return None
     return None
 
-def update_user_profile(uid, login_type=None, user_id=None, display_name=None, email=None, username=None):
+def update_user_profile(uid,
+                        login_type=None,
+                        user_id=None,
+                        display_name=None,
+                        email=None,
+                        username=None):
     """
-    新增或更新使用者資料。
-    - 如果提供了 email，會優先嘗試根據 email 合併帳戶。
-    - 否則，會根據 uid 更新或新增使用者。
-    - 返回最終確定的 uid。
+    - Google 登入：若有 email，先試試用 email 找現有帳號來合併；
+      找不到就用傳入的 uid 建新帳號。
+    - LINE 登入：一律透過 uid 來建／更新 line_account。
     """
     os.makedirs(os.path.dirname(USER_FILE), exist_ok=True)
     if not os.path.exists(USER_FILE):
@@ -133,33 +137,40 @@ def update_user_profile(uid, login_type=None, user_id=None, display_name=None, e
             users = []
 
         target_user = None
-        
-        if email:
+
+        # 1. Google + email → 嘗試用 email 合併
+        if login_type == "google" and email:
             for user in users:
-                if ('google_account' in user and user.get('google_account') and user['google_account'].get('email') == email) or \
-                   ('line_account' in user and user.get('line_account') and user['line_account'].get('email') == email):
+                ga = user.get("google_account")
+                if ga and ga.get("email") == email:
                     target_user = user
-                    uid = target_user['uid']
+                    uid = user["uid"]
                     break
-        
+
+        # 2. 若還沒找到，統一使用 uid 去找
         if not target_user:
             for user in users:
                 if user.get("uid") == uid:
                     target_user = user
                     break
 
+        # 3. 更新或建立
         if target_user:
-            if username is not None and username.strip() != '':
+            # 更新使用者名稱
+            if username:
                 target_user["username"] = username
+            # 更新對應的登入方式
             if login_type and user_id:
-                account_key = f"{login_type}_account"
-                target_user[account_key] = {
+                key = f"{login_type}_account"
+                target_user[key] = {
                     "userId": user_id,
                     "display_name": display_name,
+                    # LINE 這邊的 email 可能是 None → 不影響
                     "email": email
                 }
-            save_log(f"Updated user profile for UID: {uid}")
+            save_log(f"Updated user {uid} via {login_type}")
         else:
+            # 全新使用者
             new_user = {
                 "uid": uid,
                 "username": username or display_name or "新使用者",
@@ -167,17 +178,18 @@ def update_user_profile(uid, login_type=None, user_id=None, display_name=None, e
                 "line_account": None
             }
             if login_type and user_id:
-                account_key = f"{login_type}_account"
-                new_user[account_key] = {
+                key = f"{login_type}_account"
+                new_user[key] = {
                     "userId": user_id,
                     "display_name": display_name,
                     "email": email
                 }
             users.append(new_user)
-            save_log(f"Created new user profile with UID: {uid}")
+            save_log(f"Created new user {uid} via {login_type}")
 
+        # 寫回檔案
         f.seek(0)
         json.dump(users, f, ensure_ascii=False, indent=4)
         f.truncate()
-        
-        return uid
+
+    return uid

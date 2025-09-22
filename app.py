@@ -3,7 +3,7 @@ import requests
 import secrets
 import jwt as pyjwt
 import json
-import uuid  # 匯入 uuid 模組
+import uuid
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash
 from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, ask_ai
 from flask_limiter import Limiter
