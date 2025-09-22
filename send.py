@@ -18,7 +18,6 @@ class Keep():
     """讀取各json中的資訊"""
     @staticmethod
     def logs():
-        # 確保日誌檔案存在
         if not os.path.exists(LOG_FILE):
             return []
         with open(LOG_FILE, "r", encoding="utf8") as a:
@@ -40,6 +39,21 @@ def save_log(message):
     with open(LOG_FILE, "w", encoding="utf-8") as f:
         json.dump(logs, f, ensure_ascii=False, indent=4)
 
+def ask_ai(question):
+    """呼叫 Google AI 並返回結果"""
+    try:
+        response = CLIENT.generate_content(question)
+        return response.text
+    except Exception as e:
+        save_log(f"Error calling Google AI: {e}")
+        return "抱歉，我現在無法回答問題。"
+
+def replay_msg(user_message):
+    """處理使用者訊息並回傳答覆"""
+    # 在這裡你可以加入更多判斷邏輯，例如關鍵字回覆
+    # 現在預設是將所有訊息都交給 AI 處理
+    reply = ask_ai(user_message)
+    return reply
 
 def send_push_message(user_id, messages):
     """發送打包好的訊息給指定使用者"""
@@ -120,25 +134,21 @@ def update_user_profile(uid, login_type=None, user_id=None, display_name=None, e
 
         target_user = None
         
-        # 1. 優先透過 email 尋找並合併帳戶
         if email:
             for user in users:
                 if ('google_account' in user and user.get('google_account') and user['google_account'].get('email') == email) or \
                    ('line_account' in user and user.get('line_account') and user['line_account'].get('email') == email):
                     target_user = user
-                    uid = target_user['uid']  # 使用現有帳戶的 uid
+                    uid = target_user['uid']
                     break
         
-        # 2. 如果 email 沒找到，則透過傳入的 uid 尋找
         if not target_user:
             for user in users:
                 if user.get("uid") == uid:
                     target_user = user
                     break
 
-        # 3. 處理找到的或新的使用者
         if target_user:
-            # 更新現有使用者
             if username is not None and username.strip() != '':
                 target_user["username"] = username
             if login_type and user_id:
@@ -150,7 +160,6 @@ def update_user_profile(uid, login_type=None, user_id=None, display_name=None, e
                 }
             save_log(f"Updated user profile for UID: {uid}")
         else:
-            # 建立新使用者
             new_user = {
                 "uid": uid,
                 "username": username or display_name or "新使用者",
@@ -167,9 +176,8 @@ def update_user_profile(uid, login_type=None, user_id=None, display_name=None, e
             users.append(new_user)
             save_log(f"Created new user profile with UID: {uid}")
 
-        # 將更新後的資料寫回檔案
         f.seek(0)
         json.dump(users, f, ensure_ascii=False, indent=4)
         f.truncate()
         
-        return uid # 返回最終的 uid
+        return uid
