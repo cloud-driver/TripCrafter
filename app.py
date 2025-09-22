@@ -5,7 +5,7 @@ import jwt as pyjwt
 import json
 import uuid
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash
-from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity 
+from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity, delete_user_profile
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
@@ -21,7 +21,7 @@ app.config['JSON_AS_ASCII'] = False
 app.secret_key = secrets.token_hex(24)
 app.config['SECRET_PAGE_PASSWORD'] = os.getenv('SECRET_PAGE_PASSWORD')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.permanent_session_lifetime = timedelta(minutes=10)
+app.permanent_session_lifetime = timedelta(days=1)
 app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 csrf = CSRFProtect(app)
@@ -48,7 +48,41 @@ def inject_csrf_token():
 @csrf.exempt
 @app.route("/")
 def home():
-    return render_template('index.html')
+    uid = session.get('uid')
+    if not uid:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('account_management', uid=uid))
+    
+@csrf.exempt
+@app.route("/logout")
+def logout():
+    uid = session.pop('uid', None)
+    if uid:
+        userdata = get_user_data(uid)
+        username = userdata.get("username", "使用者") if userdata else "使用者"
+        flash(f"{username} 已成功登出。")
+    else:
+        flash("您已登出。")
+    return redirect(url_for('home'))
+
+@app.route('/delete_account/<uid>')
+@limiter.limit("3 per hour")
+def delete_account(uid):
+    logged_in_uid = session.get('uid')
+    if not logged_in_uid or logged_in_uid != uid:
+        flash("權限不足，無法刪除此帳號。", "error")
+        return redirect(url_for('home'))
+
+    success = delete_user_profile(uid)
+
+    if success:
+        session.clear()
+        flash("您的帳號已成功刪除。", "success")
+        return redirect(url_for('home'))
+    else:
+        flash("刪除帳號失敗，請稍後再試。", "error")
+        return redirect(url_for('account_management', uid=uid))
 
 # LINE 登入
 @csrf.exempt

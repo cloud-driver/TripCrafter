@@ -185,6 +185,13 @@
         </div>
         
         <a href="/" class="btn">返回首頁</a>
+        <a href="/logout" class="btn">登出</a>
+        <a href="{{ url_for('delete_account', uid=user_data.uid) }}" 
+            class="btn" 
+            style="background-color: red;" 
+            onclick="return confirm('您確定要永久刪除您的帳號嗎？此操作將無法復原！');">
+            刪除帳號
+        </a>  
     </div>
 </body>
 </html>

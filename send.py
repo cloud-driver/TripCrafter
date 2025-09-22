@@ -114,6 +114,45 @@ def get_user_data(uid):
             return None
     return None
 
+def get_all_users():
+    """讀取並返回所有使用者的資料列表"""
+    if not os.path.exists(USER_FILE):
+        return []
+    if os.path.getsize(USER_FILE) == 0:
+        return []
+    with open(USER_FILE, "r", encoding="utf-8") as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            return []
+
+def save_all_users(users):
+    """將使用者資料列表寫回 users.json"""
+    os.makedirs(os.path.dirname(USER_FILE), exist_ok=True)
+    with open(USER_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, ensure_ascii=False, indent=4)
+
+def delete_user_profile(uid):
+    """
+    根據 UID 刪除使用者設定檔。
+
+    Args:
+        uid (str): 要刪除的使用者的唯一識別碼。
+
+    Returns:
+        bool: 如果成功刪除則返回 True，否則返回 False (例如找不到使用者)。
+    """
+    users = get_all_users()
+    user_found = any(user.get('uid') == uid for user in users)
+    if not user_found:
+        save_log(f"Attempted to delete UID {uid}, but user was not found.")
+        return False
+    updated_users = [user for user in users if user.get('uid') != uid]
+    save_all_users(updated_users)
+    save_log(f"Successfully deleted user profile for UID: {uid}")
+    return True
+
+
 def update_user_profile(uid,
                         login_type=None,
                         user_id=None,
