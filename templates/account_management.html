@@ -128,13 +128,15 @@
             </div>
             
             <!-- 更新使用者名稱表單 -->
-            <form action="{{ url_for('update_username_route') }}" method="post">
+            <form action="{{ url_for('update_username_route', uid=user_data.uid) }}" method="post">
+                <!-- CSRF token -->
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="uid" value="{{ user_data.uid }}">
-                <div class="form-group">
-                    <label for="username">更新使用者名稱:</label>
-                    <input type="text" id="username" name="username" value="{{ user_data.username|default('') }}" required>
-                </div>
+                <!-- 如果你想用 hidden field 傳 uid，也可以這樣做： -->
+                <!-- <input type="hidden" name="uid" value="{{ user_data.uid }}"> -->
+
+                <label for="username">新的使用者名稱：</label>
+                <input id="username" name="username" type="text" value="{{ user_data.username }}" required>
+
                 <button type="submit" class="btn">更新名稱</button>
             </form>
         </div>
@@ -152,7 +154,6 @@
             {% if user_data.line_account %}
                 <div class="account-info">
                     <p><strong>顯示名稱:</strong> {{ user_data.line_account.display_name|default('未提供') }}</p>
-                    <p><strong>Email:</strong> {{ user_data.line_account.email|default('未提供') }}</p>
                 </div>
                 <a href="{{ url_for('login_line', uid=user_data.uid) }}" class="btn">重新連結 LINE</a>
             {% else %}

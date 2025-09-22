@@ -179,11 +179,17 @@ def update_user_profile(uid,
             }
             if login_type and user_id:
                 key = f"{login_type}_account"
-                new_user[key] = {
-                    "userId": user_id,
-                    "display_name": display_name,
-                    "email": email
-                }
+                if login_type == "google":
+                    new_user[key] = {
+                        "userId": user_id,
+                        "display_name": display_name,
+                        "email": email
+                    }
+                else:
+                    new_user[key] = {
+                        "userId": user_id,
+                        "display_name": display_name
+                    }
             users.append(new_user)
             save_log(f"Created new user {uid} via {login_type}")
 
@@ -193,3 +199,30 @@ def update_user_profile(uid,
         f.truncate()
 
     return uid
+
+def find_user_by_identity(login_type, provider_id=None, email=None):
+    """
+    根據登入類型 (line/google) 和其唯一識別碼 (provider_id/email) 查找使用者。
+    - login_type: 'line' 或 'google'
+    - provider_id: LINE 的 user ID
+    - email: Google 的 email
+    返回：找到的使用者資料 (dict) 或 None
+    """
+    if not os.path.exists(USER_FILE):
+        return None
+    with open(USER_FILE, "r", encoding="utf-8") as f:
+        try:
+            users = json.load(f)
+        except json.JSONDecodeError:
+            return None
+
+    for user in users:
+        if login_type == 'google' and email:
+            account = user.get('google_account')
+            if account and account.get('email') == email:
+                return user
+        elif login_type == 'line' and provider_id:
+            account = user.get('line_account')
+            if account and account.get('userId') == provider_id:
+                return user
+    return None

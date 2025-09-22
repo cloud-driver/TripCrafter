@@ -116,6 +116,16 @@
 <body>
     <div class="container">
         <h1>歡迎使用我們的服務</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="padding: 10px; margin-bottom: 15px; border-radius: 5px; color: #fff; background-color: {{ '#dc3545' if category == 'error' else '#28a745' }};">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
         
         <div class="tab-container">
             <button class="tab active" onclick="showTab('login', event)">登入</button>
