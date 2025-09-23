@@ -101,12 +101,23 @@
                     <!-- Header Actions -->
                     <div class="header_actions">
                         <ul>
-                            <li>
-                                <a href="login" class="login_btn">
-                                    <i class="fal fa-user-circle me-2"></i>
-                                    登入/註冊
-                                </a>
-                            </li>
+                            {% if session['uid'] %}
+                                <!-- 如果 session 中有 uid (已登入) -->
+                                <li>
+                                    <a href="/account_management" class="login_btn">
+                                        <i class="fal fa-user-circle me-2"></i>
+                                        已登入
+                                    </a>
+                                </li>
+                            {% else %}
+                                <!-- 如果 session 中沒有 uid (未登入) -->
+                                <li>
+                                    <a href="login" class="login_btn">
+                                        <i class="fal fa-user-circle me-2"></i>
+                                        登入/註冊
+                                    </a>
+                                </li>
+                            {% endif %}
                             <li>
                                 <a href="active/all" class="thm-btn btn-rounded">
                                     <i class="bi-search"></i>
