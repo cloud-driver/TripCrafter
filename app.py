@@ -16,7 +16,7 @@ from google.auth.transport import requests as google_requests
 
 if os.path.exists(".env"): load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='assets', static_url_path='/assets')
 app.config['JSON_AS_ASCII'] = False
 app.secret_key = secrets.token_hex(24)
 app.config['SECRET_PAGE_PASSWORD'] = os.getenv('SECRET_PAGE_PASSWORD')
@@ -48,9 +48,14 @@ def inject_csrf_token():
 @csrf.exempt
 @app.route("/")
 def home():
+    return render_template('index.html')
+
+@csrf.exempt
+@app.route("/login")
+def login():
     uid = session.get('uid')
     if not uid:
-        return render_template('index.html')
+        return render_template('login.html')
     else:
         return redirect(url_for('account_management', uid=uid))
     

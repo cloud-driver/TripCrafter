@@ -1,190 +1,247 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="zh-Hant">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登入/註冊頁面</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>台灣活動資訊網 - 探索你身邊的精彩活動</title>
+    <link rel="icon" href="../static/favicon.ico">
+    <!-- Css -->
+    <link href="assets/css/plugins/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/fonts/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/plugins/slick.css" rel="stylesheet">
+    <link href="assets/css/plugins/nice-select.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/responsive.css" rel="stylesheet">
+    <!-- Custom Styles -->
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
+        :root {
+            --thm-color-one: #FF6600;
         }
-        .container {
-            text-align: center;
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 350px;
+        .thm-color-one {
+            color: #FF6600;
         }
-        .tab-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
+        .thm-btn {
+            background-color: #FF6600;
         }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: #777;
+        .thm-btn:hover, .thm-btn:focus {
+            background-color: #e65c00;
         }
-        .tab.active {
-            color: #4285F4;
-            border-bottom: 2px solid #4285F4;
+        .section-header .title span {
+            color: #FF6600;
         }
-        .form-container {
-            margin-top: 20px;
+        .ft_widgets .ft_title {
+            color: #FF6600;
         }
-        .form {
-            display: none;
+        .copyright a {
+            color: #FF6600 !important;
         }
-        .form.active {
-            display: block;
+        .back-to-top {
+            background-color: #FF6600;
         }
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .input-group input {
+        #taiwan-map svg {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            height: auto;
+            max-width: 600px;
+            display: block;
+            margin: 0 auto;
         }
-        button.auth-btn {
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
+        #taiwan-map .land {
+            fill: #cccccc;
+            stroke: #FFFFFF;
+            stroke-width: 1px;
+        }
+        #taiwan-map .clickable {
+            fill: #a5d6a7; /* A calm, clickable color */
             cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            width: calc(100% - 20px);
+            transition: fill 0.3s ease;
         }
-        #line-login, #line-register {
-            background-color: #00B900;
+        #taiwan-map .clickable:hover {
+            fill: #FF6600; /* Highlight with theme color */
         }
-        #google-login, #google-register {
-            background-color: #4285F4;
-        }
-        button:hover {
-            opacity: 0.9;
-        }
-        .divider {
-            margin: 20px 0;
-            text-align: center;
-            position: relative;
-        }
-        .divider::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: #ddd;
-            z-index: 1;
-        }
-        .divider span {
-            position: relative;
-            background-color: white;
-            padding: 0 10px;
-            color: #777;
-            z-index: 2;
-        }
-        .error-message {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
+        #taiwan-map text {
+            font-size: 12px;
+            fill: #333;
+            pointer-events: none; /* Make text non-interactive */
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>歡迎使用我們的服務</h1>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div style="padding: 10px; margin-bottom: 15px; border-radius: 5px; color: #fff; background-color: {{ '#dc3545' if category == 'error' else '#28a745' }};">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        
-        <div class="tab-container">
-            <button class="tab active" onclick="showTab('login', event)">登入</button>
-            <button class="tab" onclick="showTab('register', event)">註冊</button>
-        </div>
-        
-        <div class="form-container">
-            <!-- 登入 -->
-            <div id="login-form" class="form active">
-                <p>請選擇一種方式登入</p>
-                <button id="line-login" class="auth-btn" onclick="location.href='/login/line'">使用 LINE 登入</button>
-                <button id="google-login" class="auth-btn" onclick="location.href='/login/google'">使用 Gmail 登入</button>
-            </div>
-            
-            <!-- 註冊 -->
-            <div id="register-form" class="form">
-                <div class="input-group">
-                    <label for="username">用戶名稱</label>
-                    <input type="text" id="username" name="username" placeholder="請輸入您的用戶名稱" required>
-                    <div id="username-error" class="error-message">請輸入用戶名稱</div>
+<body>
+    <!-- Header Start -->
+    <header class="header can-sticky">
+        <div class="container">
+            <div class="header_inner">
+                <!-- logo -->
+                <div class="logo">
+                    <a href="/" class="d-flex h-100">
+                        <img src="assets/images/logo_copy.png" alt="logo" class="image-fit-contain">                    
+                    </a>
                 </div>
-                
-                <div class="divider"><span>使用以下方式註冊</span></div>
-                
-                <button id="line-register" class="auth-btn" onclick="handleRegister('/login/line')">使用 LINE 註冊</button>
-                <button id="google-register" class="auth-btn" onclick="handleRegister('/login/google')">使用 Gmail 註冊</button>
+                <!-- logo -->
+                <!-- Nav & Actions -->
+                <div class="nav_actions">
+                    <!-- Navigation -->
+                    <nav class="navigation">
+                        <ul class="main-menu">
+                            <li class="menu-item">
+                                <a href="/" class="active">首頁</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="active/all">探索活動</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/contact">聯絡我們</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- Navigation -->
+                    <!-- Header Actions -->
+                    <div class="header_actions">
+                        <ul>
+                            <li>
+                                <a href="login" class="login_btn">
+                                    <i class="fal fa-user-circle me-2"></i>
+                                    登入/註冊
+                                </a>
+                            </li>
+                            <li>
+                                <a href="active/all" class="thm-btn btn-rounded">
+                                    <i class="bi-search"></i>
+                                    搜尋活動
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="hamburger">
+                            <div class="hamburger_btn">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Header Actions -->
+                </div>
+                <!-- Nav & Actions -->
+            </div>
+        </div>
+    </header>
+    <!-- Header End -->
+
+    <!-- Banner Start -->
+    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;">
+        <div class="relative text-center">
+            <div class="container">
+                <div class="banner_text">
+                    <h1 class="title" style="color: white;">
+                        探索台灣的
+                        <span class="fw-bold" style="color: #FFD700;">精彩活動</span>
+                    </h1>
+                    <p class="subtitle" style="color: white;">即刻尋找您感興趣的節慶、展覽、與表演</p>
+                </div>
+            </div>
+        </div>
+        <span class="left_skew"></span>
+        <span class="right_skew"></span>
+    </div>
+    <!-- Banner End -->
+
+    <!-- Find Activity Section Start -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h3 class="title">開始尋找<span>活動</span></h3>
+                <p class="text">您可以點擊地圖上的縣市，或直接瀏覽所有活動</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div id="taiwan-map">
+                        <img src="assets/images/taiwanedit.png" class="image-fit-contain">
+                    </div>
+                </div>
+                <div class="col-12 text-center mt-5">
+                    <a href="active/all" class="thm-btn btn-rounded btn-lg">
+                        <i class="bi-grid-3x3-gap-fill me-2"></i> 瀏覽所有活動
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Find Activity Section End -->
+
+    <!-- Footer Start -->
+    <footer class="footer section-padding section-bg" style="background-image: url(assets/images/bg/footer.jpg);">
+        <div class="container">
+            <div class="row">
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <div class="ft_about">
+                            <div class="ft_logo">
+                                <img src="assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                            </div>
+                            <p>分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 #活動瘋台灣</p>
+                            <ul class="ft_social">
+                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">網站導覽</h5>
+                        <ul class="ft_menu">
+                            <li><a href="/">首頁</a></li>
+                            <li><a href="active/all">探索活動</a></li>
+                            <li><a href="#">常見問題</a></li>
+                            <li><a href="contact.html">聯絡我們</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">聯絡資訊</h5>
+                        <p>有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
+                        <ul class="ft_contact ft_menu">
+                            <li><a href="tel:0800123456"><i class="fas fa-phone-volume"></i> 0800-123-456</a></li>
+                            <li><a href="mailto:service@example.com"><i class="fas fa-envelope"></i> service@example.com</a></li>
+                            <li><a href="#"><i class="fas fa-map-marker-alt"></i> 台灣，台北市信義區</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+    <!-- Copyright Start -->
+    <div class="thm-bg-color-one">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="copyright">
+                        <p class="mb-0 text-white">Copyright © <span id="year">2025</span>. 台灣活動資訊網. All Right Reserved.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
-    <script>
-        function showTab(tabName, event) {
-            document.querySelectorAll('.form').forEach(form => {
-                form.classList.remove('active');
-            });
-            document.getElementById(tabName + '-form').classList.add('active');
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
-            document.getElementById('username-error').style.display = 'none';
-        }
-        
-        function handleRegister(baseUrl) {
-            const usernameInput = document.getElementById('username');
-            const username = usernameInput.value.trim();
-            const errorDiv = document.getElementById('username-error');
-            
-            if (username === '') {
-                errorDiv.style.display = 'block';
-                return false;
-            }
-            errorDiv.style.display = 'none';
-            
-            // 將 username 作為查詢參數附加到 URL 中
-            const redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
-            window.location.href = redirectUrl;
-            return false;
-        }
-    </script>
+    <!-- Copyright End -->
+    <a href="#" data-target="html" class="back-to-top ft-sticky">
+        <i class="fal fa-chevron-up"></i>
+    </a>
+    <!-- Scripts -->
+    <script src="assets/js/plugins/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.min.js"></script>
+    <script src="assets/js/plugins/jquery.nice-select.js"></script>
+    <script src="assets/js/custom.js"></script>
 </body>
+
 </html>

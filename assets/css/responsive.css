@@ -1,0 +1,178 @@
+@charset "UTF-8";
+
+/*-----------------------------------------------------------------------------------
+    Template Name: Simpex
+    Description: Directory & Listing HTML5 Template
+    Author: Codezion 
+    Author URI: https://www.templatemonster.com/authors/codezion/
+    Version: 1.0
+-----------------------------------------------------------------------------------*/
+@media (max-width: 991px) {
+    /*navigation*/
+
+    .header .hamburger {
+        display: flex;
+    }
+
+    .header .navigation.open {
+        left: 0;
+    }
+
+    .header .navigation .main-menu {
+        display: block;
+    }
+
+    .header .navigation {
+        display: block;
+        position: fixed;
+        left: -100%;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        width: 250px;
+        background-color: var(--thm-color-two);
+        transition: 0.5s all;
+        z-index: 100;
+    }
+
+    .header .navigation .menu-item-has-children .sub-menu .menu-item>a,
+    .header .navigation .main-menu>.menu-item>a {
+        width: 100%;
+        padding: 12px;
+        border-bottom: 2px solid var(--thm-white);
+        color: var(--thm-white);
+        font-size: 14px;
+        justify-content: space-between;
+        display: flex;
+    }
+
+    .header .navigation .menu-item-has-children .sub-menu {
+        position: relative;
+        top: 0;
+        display: none;
+        opacity: 1;
+        visibility: visible;
+        width: 100%;
+    }
+
+    .header .navigation .menu-item-has-children .sub-menu .menu-item-has-children>a:after {
+        position: relative;
+        right: 0;
+        transform: none;
+    }
+
+    .header .navigation .menu-item-has-children .sub-menu .menu-item-has-children>.sub-menu {
+        left: 0;
+    }
+
+    .header.sticky .navigation .main-menu>.menu-item>a {
+        color: var(--thm-white);
+    }
+
+    .header.sticky .navigation .main-menu>.menu-item>a.active,
+    .header.sticky .navigation .main-menu>.menu-item:hover>a {
+        color: var(--thm-color-one);
+    }
+
+    /*banenr form*/
+    .banner_form .input-group .form-control {
+        width: 50%;
+        border-right: 0;
+    }
+
+    /*contact*/
+    .contact_image,
+    .contact_form {
+        border-radius: 6px;
+    }
+}
+
+@media (max-width: 767px) {
+
+    /*box layout*/
+    .page_actions .box_layout {
+        justify-content: center;
+    }
+
+    /*comments*/
+    .comments .children {
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 575px) {
+
+    /*Header*/
+    .header .header_actions ul {
+        display: none;
+    }
+
+    /*banenr form*/
+    .banner_form .input-group .input-group-append,
+    .banner_form .input-group .form-control {
+        width: 100%;
+        border-radius: 0;
+    }
+
+    .banner_form .input-group .input-group-append .thm-btn {
+        height: auto;
+    }
+
+    /*comments*/
+    .comments .comment .comment_text {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .comments .comment .comment_text .rating {
+        position: relative;
+    }
+}
+
+@media (max-width: 480px) {
+
+    /*listing*/
+    .listing_box .listing_caption {
+        padding: 20px;
+        padding-bottom: 10px;
+    }
+
+    .listing_box .listing_footer {
+        padding: 15px 20px 5px;
+    }
+
+    /*testimonials*/
+    .testimonial_item .author_image {
+        width: 70px;
+        height: 70px;
+        border-width: 3px;
+        margin-right: -35px;
+        margin-top: 20px;
+    }
+
+    .testimonial_item .testimonial_text {
+        padding: 20px;
+        padding-left: 55px;
+        width: calc(100% - 35px);
+    }
+
+    .testimonial_item .testimonial_text:before {
+        font-size: 70px;
+        line-height: 0.6;
+        right: 20px;
+        bottom: 20px;
+    }
+
+    .testimonial_item .testimonial_text:after {
+        left: 50px;
+    }
+
+    .testimonial_item .testimonial_text .comment {
+        max-width: 100%;
+    }
+
+    .listing_details_box,
+    .sign_in_up_box {
+        padding: 20px;
+    }
+}

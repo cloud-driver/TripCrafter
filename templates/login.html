@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入/註冊頁面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #777;
+        }
+        .tab.active {
+            color: #4285F4;
+            border-bottom: 2px solid #4285F4;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        .form {
+            display: none;
+        }
+        .form.active {
+            display: block;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button.auth-btn {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            width: calc(100% - 20px);
+        }
+        #line-login, #line-register {
+            background-color: #00B900;
+        }
+        #google-login, #google-register {
+            background-color: #4285F4;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .divider {
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #ddd;
+            z-index: 1;
+        }
+        .divider span {
+            position: relative;
+            background-color: white;
+            padding: 0 10px;
+            color: #777;
+            z-index: 2;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>歡迎使用我們的服務</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="padding: 10px; margin-bottom: 15px; border-radius: 5px; color: #fff; background-color: {{ '#dc3545' if category == 'error' else '#28a745' }};">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <div class="tab-container">
+            <button class="tab active" onclick="showTab('login', event)">登入</button>
+            <button class="tab" onclick="showTab('register', event)">註冊</button>
+        </div>
+        
+        <div class="form-container">
+            <!-- 登入 -->
+            <div id="login-form" class="form active">
+                <p>請選擇一種方式登入</p>
+                <button id="line-login" class="auth-btn" onclick="location.href='/login/line'">使用 LINE 登入</button>
+                <button id="google-login" class="auth-btn" onclick="location.href='/login/google'">使用 Gmail 登入</button>
+            </div>
+            
+            <!-- 註冊 -->
+            <div id="register-form" class="form">
+                <div class="input-group">
+                    <label for="username">用戶名稱</label>
+                    <input type="text" id="username" name="username" placeholder="請輸入您的用戶名稱" required>
+                    <div id="username-error" class="error-message">請輸入用戶名稱</div>
+                </div>
+                
+                <div class="divider"><span>使用以下方式註冊</span></div>
+                
+                <button id="line-register" class="auth-btn" onclick="handleRegister('/login/line')">使用 LINE 註冊</button>
+                <button id="google-register" class="auth-btn" onclick="handleRegister('/login/google')">使用 Gmail 註冊</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName, event) {
+            document.querySelectorAll('.form').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(tabName + '-form').classList.add('active');
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            document.getElementById('username-error').style.display = 'none';
+        }
+        
+        function handleRegister(baseUrl) {
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value.trim();
+            const errorDiv = document.getElementById('username-error');
+            
+            if (username === '') {
+                errorDiv.style.display = 'block';
+                return false;
+            }
+            errorDiv.style.display = 'none';
+            
+            // 將 username 作為查詢參數附加到 URL 中
+            const redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
+            window.location.href = redirectUrl;
+            return false;
+        }
+    </script>
+</body>
+</html>
