@@ -59,7 +59,72 @@
             display: none; /* 預設隱藏 */
             pointer-events: none; /* 防止影響滑鼠事件 */
         }
-        
+        .search-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .search-wrapper button {
+            /* 確保變數可用於按鈕 */
+            background-color: var(--thm-color-one);
+            color: #fff;
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;        /* 緊貼按鈕下邊 */
+            right: 0;         /* 右邊貼齊按鈕 */
+            min-width: 100%;  /* 寬度至少與按鈕一樣 */
+            background-color: var(--thm-color-one);
+            color: #fff;
+            border: none;
+            border-radius: 0.25rem 0.25rem 0.25rem 0.25rem; /* 底部兩角導圓 */
+            padding: 0.5rem;
+            transform-origin: top right;
+            transform: scaleY(0);
+            opacity: 0;
+            visibility: hidden;
+            transition:
+            transform 0.2s ease-out,
+            opacity   0.2s ease-out,
+            visibility 0s linear 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+            display: flex !important;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+            /* 整個下拉區塊設定一個最小寬度 */
+            min-width: 250px;  
+        }
+
+        .search-dropdown input {
+            flex: 1 1 auto;
+            min-width: 200px;    
+            width: auto !important;
+            margin: 0;           /* 清除上下 margin */
+            width: calc(100% - 3rem); /* 留出 Go 按鈕空間 */
+            padding: 0.25rem;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            margin-right: 0.25rem;
+        }
+
+        /* 按鈕保持原本大小 */
+        .search-dropdown button {
+            flex: 0 0 auto;
+            margin: 0;
+        }
+
+        .search-wrapper:hover .search-dropdown {
+            visibility: visible;
+            transform: scaleY(1);
+            opacity: 1;
+            transition:
+            transform 0.2s ease-out,
+            opacity   0.2s ease-out,
+            visibility 0s;
+        }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -152,10 +217,20 @@
                                 </li>
                             {% endif %}
                             <li>
-                                <a href="active/all" class="thm-btn btn-rounded">
-                                    <i class="bi-search"></i>
-                                    搜尋活動
-                                </a>
+                                <div class="search-wrapper">
+                                <button class="thm-btn btn-rounded">
+                                    <i class="bi-search"></i> 搜尋活動
+                                </button>
+                                <div class="search-dropdown">
+                                    <input
+                                    type="text"
+                                    id="search-input"
+                                    placeholder="輸入關鍵字 可用空格分割"
+                                    onkeydown="if(event.key==='Enter') goSearch()"
+                                    />
+                                    <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                </div>
+                                </div>
                             </li>
                         </ul>
                         <div class="hamburger">
@@ -434,6 +509,13 @@
     <script src="assets/js/plugins/slick.min.js"></script>
     <script src="assets/js/plugins/jquery.nice-select.js"></script>
     <script src="assets/js/custom.js"></script>
+    <script>
+    function goSearch(){
+        const kw = document.getElementById('search-input').value.trim();
+        if(!kw) return;
+        window.location.href = `/search/${encodeURIComponent(kw)}`;
+    }
+    </script>
 </body>
 
 </html>

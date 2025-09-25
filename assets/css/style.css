@@ -1019,10 +1019,10 @@ textarea.form-control-custom+i {
 .single_banner .left_skew {
     background-color: var(--thm-white);
     position: absolute;
-    bottom: -60px;
+    bottom: -75px;
     left: 0;
     right: 0;
-    height: 120px;
+    height: 180px;
     width: 50%;
     transform: skew(0deg, 10deg);
 }

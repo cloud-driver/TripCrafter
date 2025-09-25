@@ -78,7 +78,6 @@ def inject_csrf_token():
 @csrf.exempt
 @app.route("/")
 def home():
-    session['uid'] = "123123"
     return render_template('index.html')
 
 @csrf.exempt
@@ -503,6 +502,64 @@ def active(county_en):
         county=display_county,
         events=events,
         error=None
+    )
+
+@csrf.exempt
+@app.route("/search/<keyword>")
+def search(keyword):
+    """
+    以多關鍵字搜尋「文字描述」，共用 active.html 呈現結果
+    關鍵字之間請用空白分隔，例如：/search/音樂%20文化
+    採 AND 邏輯：描述須同時包含所有關鍵字
+    """
+    # 原始關鍵字，例如 "音樂 文化"
+    raw_keyword = keyword.strip()
+    # 小寫並切分，去除多餘空白
+    keywords = [k for k in raw_keyword.lower().split() if k]
+
+    events = []
+    with open("datas/活動.csv", newline="", encoding="utf-8-sig") as fp:
+        reader = csv.DictReader(fp)
+        for row in reader:
+            # 1. 取出並清洗文字描述
+            raw_desc = row.get("文字描述", "").strip()
+            m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', raw_desc, flags=re.S)
+            desc = m.group(1).strip() if m else raw_desc
+            desc = re.sub(r'<[^>]+>', '', desc)
+            desc = html.unescape(desc).strip()
+
+            # 2. 小寫版描述
+            desc_lower = desc.lower()
+
+            # 3. AND 比對：所有關鍵字都必須出現在 desc_lower 裡
+            if not all(kw in desc_lower for kw in keywords):
+                continue
+
+            # 4. 組地址
+            parts = [row.get("行政區","").strip(), row.get("街道名稱","").strip()]
+            address = " ".join([p for p in parts if p]) or row.get("資料提供單位","").strip()
+
+            events.append({
+                "name":    row.get("資料名稱","").strip(),
+                "desc":    desc,
+                "contact": row.get("聯絡電話","").strip(),
+                "time":    row.get("活動場次時間","").strip(),
+                "address": address,
+                "county":  row.get("縣市名稱","").strip(),
+            })
+
+    # 如果沒找到
+    if not events:
+        error_msg = f"找不到同時含有「{'、'.join(keywords)}」的活動"
+    else:
+        error_msg = None
+
+    # 共用 active.html，將 county 顯示為搜尋關鍵字
+    return render_template(
+        "active.html",
+        county=f"{'、'.join(list(raw_keyword.split()))}相關",
+        events=events,
+        error=error_msg
     )
 
 if __name__ == "__main__":

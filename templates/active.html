@@ -72,6 +72,10 @@
       margin-right: .25rem;
       color: var(--thm-color-one);
     }
+    .single_banner .right_skew,
+    .single_banner .left_skew {
+        background-color: #f8f9fa;
+    }
   </style>
 </head>
 
@@ -81,7 +85,7 @@
     <div class="container">
       <div class="header_inner">
         <div class="logo">
-          <a href="index" class="d-flex h-100">
+          <a href="{{ url_for('home')}}" class="d-flex h-100">
             <img src="../assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
           </a>
         </div>
