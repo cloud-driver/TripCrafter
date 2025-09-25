@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>台灣活動資訊網 – {{ county }} 活動列表</title>
+  <link rel="icon" href="favicon.ico">
+
+  <!-- Css -->
+  <link href="../assets/css/plugins/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/fonts/font-awesome.min.css" rel="stylesheet">
+  <link href="../assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/css/plugins/slick.css" rel="stylesheet">
+  <link href="../assets/css/plugins/nice-select.css" rel="stylesheet">
+  <link href="../assets/css/style.css" rel="stylesheet">
+  <link href="../assets/css/responsive.css" rel="stylesheet">
+
+  <style>
+    :root {
+        --thm-color-one: #FF6600;
+    }
+    .thm-color-one {
+        color: #FF6600;
+    }
+    .thm-btn {
+        background-color: #FF6600;
+    }
+    .thm-btn:hover, .thm-btn:focus {
+        background-color: #e65c00;
+    }
+    .section-header .title span {
+        color: #FF6600;
+    }
+    .ft_widgets .ft_title {
+        color: #FF6600;
+    }
+    .copyright a {
+        color: #FF6600 !important;
+    }
+    .back-to-top {
+        background-color: #FF6600;
+    }
+    /* 活動卡片 */
+    .event-item {
+      background-color: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: .75rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .event-item h4.event-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: .5rem;
+    }
+    /* 截短描述 */
+    .event-desc {
+      color: #6c757d;
+      margin-bottom: .75rem;
+    }
+    /* 地址 */
+    .event-location {
+      color: #999;
+      font-size: .9rem;
+      display: flex;
+      align-items: center;
+    }
+    .event-location i {
+      margin-right: .25rem;
+      color: var(--thm-color-one);
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+  <!-- Header Start -->
+  <header class="header can-sticky">
+    <div class="container">
+      <div class="header_inner">
+        <div class="logo">
+          <a href="index" class="d-flex h-100">
+            <img src="../assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+          </a>
+        </div>
+        <div class="nav_actions">
+          <nav class="navigation">
+            <ul class="main-menu">
+              <li class="menu-item"><a href="{{ url_for('home')}}">首頁</a></li>
+              <li class="menu-item"><a href="all" class="active">探索活動</a></li>
+              <li class="menu-item"><a href="'/contact">聯絡我們</a></li>
+            </ul>
+          </nav>
+          <div class="header_actions">
+            <ul>
+              <li>
+              {% if session['uid'] %}
+              <li>
+                  <!-- 將 session['uid'] 的值動態加入到 href 的 query string 中 -->
+                  <a href="/account_management?uid={{ session['uid'] }}" class="login_btn">
+                      <i class="fal fa-user-circle me-2"></i>
+                      已登入
+                  </a>
+              {% else %}
+                  <!-- 如果 session 中沒有 uid (未登入) -->
+                  <li>
+                      <a href="login" class="login_btn">
+                          <i class="fal fa-user-circle me-2"></i>
+                          登入/註冊
+                      </a>
+                  </li>
+              {% endif %}
+              <li>
+                <a href="all" class="thm-btn btn-rounded">
+                  <i class="bi-search"></i> 搜尋活動
+                </a>
+              </li>
+            </ul>
+            <div class="hamburger">
+              <div class="hamburger_btn"><span></span><span></span><span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- Header End -->
+
+  <!-- Banner Start -->
+  <div class="single_banner section-bg"
+       style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP);
+              background-position: center;">
+    <div class="relative text-center">
+      <div class="container">
+        <div class="banner_text">
+          <h1 class="title" style="color: white;">
+            {{ county }}
+            <span class="fw-bold" style="color: #FFD700;">活動列表</span>
+          </h1>
+        </div>
+      </div>
+    </div>
+    <span class="left_skew"></span>
+    <span class="right_skew"></span>
+  </div>
+  <!-- Banner End -->
+
+  <!-- 活動列表 Section Start -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h3 class="title">{{ county }}<span> 活動</span></h3>
+        <p class="text">共 {{ events|length }} 筆活動</p>
+      </div>
+
+      <!-- 卡片列表 -->
+      <div class="event-list">
+        {% if events %}
+          {% for e in events %}
+            <div class="event-item">
+              <h4 class="event-title">{{ e.name }}</h4>
+              <p class="event-desc">
+                {{ e.desc[:150] }}{% if e.desc|length > 150 %}...{% endif %}
+              </p>
+              <div class="event-location">
+                <i class="bi bi-geo-alt"></i>{{ e.address }}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="alert alert-info">目前無任何活動。</div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  <!-- 活動列表 Section End -->
+
+  <!-- Bootstrap JS -->
+  <script src="../assets/js/plugins/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

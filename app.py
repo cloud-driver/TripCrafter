@@ -13,6 +13,35 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+import csv
+import re
+import html
+
+COUNTY_MAP = {
+    "Lienchiang": "連江縣",
+    "Taipei":    "臺北市",
+    "NewTaipei": "新北市",
+    "Taoyuan":   "桃園市",
+    "Taichung":  "臺中市",
+    "Tainan":    "臺南市",
+    "Kaohsiung": "高雄市",
+    "Keelung":   "基隆市",
+    "HsinchuCity":   "新竹市",
+    "Hsinchu": "新竹縣",
+    "Miaoli":    "苗栗縣",
+    "Changhua":  "彰化縣",
+    "Nantou":    "南投縣",
+    "Yunlin":    "雲林縣",
+    "ChiayiCity":    "嘉義市",
+    "Chiayi":"嘉義縣",
+    "Pingtung":  "屏東縣",
+    "Yilan":     "宜蘭縣",
+    "Hualien":   "花蓮縣",
+    "Taitung":   "臺東縣",
+    "Penghu":    "澎湖縣",
+    "Kinmen":    "金門縣",
+    "Matsu":     "連江縣"
+}
 
 if os.path.exists(".env"): load_dotenv()
 
@@ -25,6 +54,7 @@ app.permanent_session_lifetime = timedelta(days=1)
 app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 csrf = CSRFProtect(app)
+
 
 # LINE 配置
 CLIENT_ID = int(os.getenv('LINE_LOGIN_CHANNEL_ID'))
@@ -48,6 +78,7 @@ def inject_csrf_token():
 @csrf.exempt
 @app.route("/")
 def home():
+    session['uid'] = "123123"
     return render_template('index.html')
 
 @csrf.exempt
@@ -69,7 +100,7 @@ def logout():
         flash(f"{username} 已成功登出。")
     else:
         flash("您已登出。")
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))
 
 @app.route('/delete_account/<uid>')
 @limiter.limit("3 per hour")
@@ -77,14 +108,14 @@ def delete_account(uid):
     logged_in_uid = session.get('uid')
     if not logged_in_uid or logged_in_uid != uid:
         flash("權限不足，無法刪除此帳號。", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     success = delete_user_profile(uid)
 
     if success:
         session.clear()
         flash("您的帳號已成功刪除。", "success")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
     else:
         flash("刪除帳號失敗，請稍後再試。", "error")
         return redirect(url_for('account_management', uid=uid))
@@ -133,7 +164,7 @@ def callback_line():
     if not state or state != session.pop("oauth_state_line", None):
         save_log("fail by state")
         flash("驗證失敗，請重試。", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     token_url = "https://api.line.me/oauth2/v2.1/token"
     payload = {
@@ -145,14 +176,14 @@ def callback_line():
 
     if token_response.status_code != 200:
         flash("無法從 LINE 獲取 Access Token", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     token_data = token_response.json()
     id_token_jwt = token_data.get("id_token")
     
     if not id_token_jwt:
         flash("無法從 LINE 獲取 ID Token", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     try:
         decoded = pyjwt.decode(id_token_jwt, CLIENT_SECRET, audience=str(CLIENT_ID), algorithms=["HS256"])
@@ -186,16 +217,16 @@ def callback_line():
             else:
                 save_log(f"Login failed: Line user {user_id} not found. Asking to register.")
                 flash("此 LINE 帳號尚未註冊，請先註冊。", "error")
-                return redirect(url_for('home'))
+                return redirect(url_for('login'))
         else:
             save_log(f"Unknown flow type: {flow}")
             flash("發生未知錯誤，請重試。", "error")
-            return redirect(url_for('home'))
+            return redirect(url_for('login'))
 
     except pyjwt.InvalidTokenError as e:
         save_log(f"ID Token驗證失敗：{e}")
         flash(f"ID Token驗證失敗：{e}", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
 @csrf.exempt
 @limiter.limit("5 per minute")
@@ -241,11 +272,11 @@ def callback_google():
     if not state or state != session.pop("oauth_state_google", None):
         save_log("Google login fail by state")
         flash("驗證失敗，請重試。", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
     
     if not code:
         flash("授權失敗：未收到授權碼。", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     token_data = {
         "code": code, "client_id": GOOGLE_CLIENT_ID, "client_secret": GOOGLE_CLIENT_SECRET,
@@ -256,12 +287,12 @@ def callback_google():
 
     if "error" in token_info:
         flash(f"獲取Token失敗：{token_info.get('error_description', token_info.get('error'))}", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     id_token_jwt = token_info.get("id_token")
     if not id_token_jwt:
         flash("獲取ID Token失敗。", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     try:
         idinfo = id_token.verify_oauth2_token(id_token_jwt, google_requests.Request(), GOOGLE_CLIENT_ID)
@@ -295,16 +326,16 @@ def callback_google():
             else:
                 save_log(f"Login failed: Google user {email} not found. Asking to register.")
                 flash("此 Google 帳號尚未註冊，請先註冊。", "error")
-                return redirect(url_for('home'))
+                return redirect(url_for('login'))
         else:
             save_log(f"Unknown flow type: {flow}")
             flash("發生未知錯誤，請重試。", "error")
-            return redirect(url_for('home'))
+            return redirect(url_for('login'))
 
     except ValueError as e:
         save_log(f"ID Token驗證失敗：{e}")
         flash(f"ID Token驗證失敗：{e}", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
 @csrf.exempt
 @app.route('/favicon.ico')
@@ -365,7 +396,8 @@ def account_management():
             if uid:
                 return redirect(url_for('account_management', uid=uid))
             else:
-                return redirect(url_for('home'))
+                session.clear()
+                return redirect(url_for('login'))
 
         update_user_profile(uid=uid, username=username)
         flash("使用者名稱已更新。", "success")
@@ -374,13 +406,15 @@ def account_management():
     # GET 請求處理邏輯
     uid = request.args.get("uid")
     if not uid:
+        session.clear()
         flash("請提供有效的 UID 以管理帳戶。", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     user_data = get_user_data(uid)
-    if not user_data:
+    if not user_data or user_data == []:
+        session.clear()
         flash("找不到該使用者的資料。", "error")
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     return render_template('account_management.html', user_data=user_data)
 
@@ -402,6 +436,74 @@ def update_username_route():
 
     flash('使用者名稱更新成功', 'success')
     return redirect(url_for('account_management', uid=uid))
+
+@csrf.exempt
+@app.route("/active/<county_en>")
+def active(county_en):
+    # all 模式不需轉換；否則先檢查參數合法
+    if county_en != 'all':
+        county_zh = COUNTY_MAP.get(county_en)
+        if not county_zh:
+            return render_template(
+                "active.html",
+                county=county_en,
+                events=[],
+                error="找不到對應的縣市"
+            ), 404
+    else:
+        county_zh = None  # all 模式無此值
+
+    events = []
+    with open("datas/活動.csv", newline="", encoding="utf-8-sig") as fp:
+        reader = csv.DictReader(fp)
+        for row in reader:
+            if county_en != 'all' and row.get("縣市名稱") != county_zh:
+                continue
+
+            # 1. 讀原始描述並去除最外層 <p>…</p>
+            raw_desc = row.get("文字描述", "").strip()
+            m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', raw_desc, flags=re.S)
+            desc = m.group(1).strip() if m else raw_desc
+
+            # 2. 移除所有 HTML 標籤
+            desc = re.sub(r'<[^>]+>', '', desc)
+
+            # 3. 解碼 HTML 實體（&nbsp; &amp;…）
+            desc = html.unescape(desc).strip()
+
+            # 組「行政區 + 街道名稱」
+            parts = [
+                row.get("行政區", "").strip(),
+                row.get("街道名稱", "").strip()
+            ]
+            address = " ".join([p for p in parts if p])
+            if not address:
+                address = row.get("資料提供單位", "").strip()
+
+            events.append({
+                "name":    row.get("資料名稱", "").strip(),
+                "desc":    desc,
+                "contact": row.get("聯絡電話", "").strip(),
+                "time":    row.get("活動場次時間", "").strip(),
+                "address": address,
+                "county":  row.get("縣市名稱", "").strip(),  # 用於 all 模式排序
+            })
+
+    # all 模式：依照 COUNTY_MAP 的插入順序做排序
+    if county_en == 'all':
+        ordered = list(COUNTY_MAP.values())
+        order_map = {c: idx for idx, c in enumerate(ordered)}
+        events.sort(key=lambda e: order_map.get(e['county'], float('inf')))
+        display_county = "所有縣市"
+    else:
+        display_county = county_zh
+
+    return render_template(
+        "active.html",
+        county=display_county,
+        events=events,
+        error=None
+    )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
