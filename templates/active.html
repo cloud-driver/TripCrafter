@@ -184,10 +184,10 @@
           <div class="header_actions">
             <ul>
               <li>
-              {% if session['uid'] %}
+              {% if session['token'] %}
               <li>
                   <!-- 將 session['uid'] 的值動態加入到 href 的 query string 中 -->
-                  <a href="/account_management?uid={{ session['uid'] }}" class="login_btn">
+                  <a href="/account_management?token={{ session['token'] }}" class="login_btn">
                       <i class="fal fa-user-circle me-2"></i>
                       已登入
                   </a>
