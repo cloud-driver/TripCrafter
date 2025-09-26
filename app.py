@@ -4,7 +4,7 @@ import secrets
 import jwt as pyjwt
 import json
 import uuid
-from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash
+from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash, abort
 from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity, delete_user_profile
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -16,6 +16,7 @@ from google.auth.transport import requests as google_requests
 import csv
 import re
 import html
+import math
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -70,6 +71,14 @@ GOOGLE_REDIRECT_URI = f"{str(os.getenv('URL'))}/callback/google"
 GOOGLE_AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+
+#打開活動.csv
+EVENTS = {}
+with open('datas/活動.csv', encoding='utf-8-sig') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        eid = row['唯一識別碼']
+        EVENTS[eid] = row
 
 @app.context_processor
 def inject_csrf_token():
@@ -439,128 +448,160 @@ def update_username_route():
 @csrf.exempt
 @app.route("/active/<county_en>")
 def active(county_en):
-    # all 模式不需轉換；否則先檢查參數合法
+    # 1. 參數合法性檢查（與您原本相同）
     if county_en != 'all':
         county_zh = COUNTY_MAP.get(county_en)
         if not county_zh:
-            return render_template(
-                "active.html",
-                county=county_en,
-                events=[],
-                error="找不到對應的縣市"
-            ), 404
+            return render_template("active.html",
+                                   county=county_en,
+                                   events=[],
+                                   error="找不到對應的縣市"), 404
     else:
-        county_zh = None  # all 模式無此值
+        county_zh = None
 
+    # 2. 讀 CSV，蒐集所有符合縣市／all 的 events
     events = []
     with open("datas/活動.csv", newline="", encoding="utf-8-sig") as fp:
         reader = csv.DictReader(fp)
         for row in reader:
-            if county_en != 'all' and row.get("縣市名稱") != county_zh:
+            if county_en!='all' and row["縣市名稱"]!=county_zh:
                 continue
 
-            # 1. 讀原始描述並去除最外層 <p>…</p>
-            raw_desc = row.get("文字描述", "").strip()
+            # 清洗描述、組地址…（沿用您原本的邏輯）
+            raw_desc = row.get("文字描述","").strip()
             m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', raw_desc, flags=re.S)
             desc = m.group(1).strip() if m else raw_desc
-
-            # 2. 移除所有 HTML 標籤
-            desc = re.sub(r'<[^>]+>', '', desc)
-
-            # 3. 解碼 HTML 實體（&nbsp; &amp;…）
+            desc = re.sub(r'<[^>]+>','', desc)
             desc = html.unescape(desc).strip()
 
-            # 組「行政區 + 街道名稱」
-            parts = [
-                row.get("行政區", "").strip(),
-                row.get("街道名稱", "").strip()
-            ]
-            address = " ".join([p for p in parts if p])
-            if not address:
-                address = row.get("資料提供單位", "").strip()
+            parts = [row.get("行政區","").strip(), row.get("街道名稱","").strip()]
+            address = " ".join(p for p in parts if p) or row.get("資料提供單位","").strip()
 
             events.append({
-                "name":    row.get("資料名稱", "").strip(),
-                "desc":    desc,
-                "contact": row.get("聯絡電話", "").strip(),
-                "time":    row.get("活動場次時間", "").strip(),
-                "address": address,
-                "county":  row.get("縣市名稱", "").strip(),  # 用於 all 模式排序
+              "name":    row.get("資料名稱","").strip(),
+              "desc":    desc,
+              "contact": row.get("聯絡電話","").strip(),
+              "time":    row.get("活動場次時間","").strip(),
+              "address": address,
+              "county":  row.get("縣市名稱","").strip(),
+              "id":      row.get("唯一識別碼","").strip()
             })
 
-    # all 模式：依照 COUNTY_MAP 的插入順序做排序
-    if county_en == 'all':
+    # 3. all 模式：依 order_map 排序
+    if county_en=='all':
         ordered = list(COUNTY_MAP.values())
-        order_map = {c: idx for idx, c in enumerate(ordered)}
-        events.sort(key=lambda e: order_map.get(e['county'], float('inf')))
+        order_map = {c:i for i,c in enumerate(ordered)}
+        events.sort(key=lambda e: order_map.get(e["county"], float("inf")))
         display_county = "所有縣市"
     else:
         display_county = county_zh
 
-    return render_template(
-        "active.html",
+    # 4. 讀取分頁參數
+    try:
+        per_page = int(request.args.get("per_page", 10))
+    except ValueError:
+        per_page = 10
+    try:
+        page = int(request.args.get("page", 1))
+    except ValueError:
+        page = 1
+
+    total = len(events)
+    total_pages = math.ceil(total / per_page) or 1
+    page = max(1, min(page, total_pages))
+
+    # 5. 切片分頁
+    start = (page - 1) * per_page
+    events_page = events[start : start + per_page]
+
+    # 6. render
+    return render_template("active.html",
         county=display_county,
-        events=events,
-        error=None
+        events=events_page,
+        error=None,
+        page=page,
+        per_page=per_page,
+        total=total,
+        total_pages=total_pages
     )
 
 @csrf.exempt
 @app.route("/search/<keyword>")
 def search(keyword):
-    """
-    以多關鍵字搜尋「文字描述」，共用 active.html 呈現結果
-    關鍵字之間請用空白分隔，例如：/search/音樂%20文化
-    採 AND 邏輯：描述須同時包含所有關鍵字
-    """
-    # 原始關鍵字，例如 "音樂 文化"
-    raw_keyword = keyword.strip()
-    # 小寫並切分，去除多餘空白
-    keywords = [k for k in raw_keyword.lower().split() if k]
+    # --- 1. 解析分頁參數 ---
+    try:
+        per_page = int(request.args.get("per_page", 10))
+    except ValueError:
+        per_page = 10
 
-    events = []
-    with open("datas/活動.csv", newline="", encoding="utf-8-sig") as fp:
+    try:
+        page = int(request.args.get("page", 1))
+    except ValueError:
+        page = 1
+
+    # --- 2. 關鍵字分詞（全轉小寫） ---
+    words = [w.strip().lower() for w in keyword.split() if w.strip()]
+
+    # --- 3. 讀 CSV 並過濾 ---
+    matched = []
+    with open("datas/活動.csv", encoding="utf-8-sig", newline="") as fp:
         reader = csv.DictReader(fp)
         for row in reader:
-            # 1. 取出並清洗文字描述
-            raw_desc = row.get("文字描述", "").strip()
-            m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', raw_desc, flags=re.S)
-            desc = m.group(1).strip() if m else raw_desc
+            # 先整理描述
+            raw = row.get("文字描述", "").strip()
+            m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', raw, flags=re.S)
+            desc = m.group(1).strip() if m else raw
             desc = re.sub(r'<[^>]+>', '', desc)
             desc = html.unescape(desc).strip()
 
-            # 2. 小寫版描述
-            desc_lower = desc.lower()
+            # 組地址
+            addr_parts = [row.get("行政區","").strip(), row.get("街道名稱","").strip()]
+            address = " ".join(p for p in addr_parts if p)
+            if not address:
+                address = row.get("資料提供單位","").strip()
 
-            # 3. AND 比對：所有關鍵字都必須出現在 desc_lower 裡
-            if not all(kw in desc_lower for kw in keywords):
-                continue
-
-            # 4. 組地址
-            parts = [row.get("行政區","").strip(), row.get("街道名稱","").strip()]
-            address = " ".join([p for p in parts if p]) or row.get("資料提供單位","").strip()
-
-            events.append({
+            # 建立單筆 event
+            event = {
                 "name":    row.get("資料名稱","").strip(),
                 "desc":    desc,
-                "contact": row.get("聯絡電話","").strip(),
                 "time":    row.get("活動場次時間","").strip(),
                 "address": address,
                 "county":  row.get("縣市名稱","").strip(),
-            })
+                "id":      row.get("唯一識別碼","").strip()
+            }
 
-    # 如果沒找到
-    if not events:
-        error_msg = f"找不到同時含有「{'、'.join(keywords)}」的活動"
-    else:
-        error_msg = None
+            # 做關鍵字全包含檢查
+            text = " ".join([event["name"], event["desc"], event["address"]]).lower()
+            if all(w in text for w in words):
+                matched.append(event)
 
-    # 共用 active.html，將 county 顯示為搜尋關鍵字
+    # --- 4. 分頁計算 ---
+    total = len(matched)
+    total_pages = math.ceil(total / per_page) or 1
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * per_page
+    events_page = matched[start : start + per_page]
+
+    # --- 5. 回傳 render_template ---
+    # 這裡我們用 active.html，並把 county 欄位傳成「搜尋『keyword'』」
     return render_template(
         "active.html",
-        county=f"{'、'.join(list(raw_keyword.split()))}相關",
-        events=events,
-        error=error_msg
+        county=f"{'、'.join(list(keyword.split()))}相關",
+        events=events_page,
+        error=None,
+        page=page,
+        per_page=per_page,
+        total=total,
+        total_pages=total_pages
     )
+
+@app.route('/info')
+def info():
+    eid = request.args.get('id')
+    if not eid or eid not in EVENTS:
+        abort(404)
+    event = EVENTS[eid]
+    return render_template('info.html', event=event)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))

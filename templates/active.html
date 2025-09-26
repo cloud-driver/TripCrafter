@@ -72,9 +72,93 @@
       margin-right: .25rem;
       color: var(--thm-color-one);
     }
+
+    .event-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .event-item {
+      width: 100%;
+      transition: box-shadow 0.3s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .event-item:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
     .single_banner .right_skew,
     .single_banner .left_skew {
         background-color: #f8f9fa;
+    }
+
+    .search-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .search-wrapper button {
+      /* 確保變數可用於按鈕 */
+      background-color: var(--thm-color-one);
+        color: #fff;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: 100%;        /* 緊貼按鈕下邊 */
+      right: 0;         /* 右邊貼齊按鈕 */
+      min-width: 100%;  /* 寬度至少與按鈕一樣 */
+      background-color: var(--thm-color-one);
+      color: #fff;
+      border: none;
+      border-radius: 0.25rem 0.25rem 0.25rem 0.25rem; /* 底部兩角導圓 */
+      padding: 0.5rem;
+      transform-origin: top right;
+      transform: scaleY(0);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+      transform 0.2s ease-out,
+      opacity   0.2s ease-out,
+      visibility 0s linear 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 10;
+      display: flex !important;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+      /* 整個下拉區塊設定一個最小寬度 */
+      min-width: 250px;  
+    }
+
+    .search-dropdown input {
+      flex: 1 1 auto;
+      min-width: 200px;    
+      width: auto !important;
+      margin: 0;           /* 清除上下 margin */
+      width: calc(100% - 3rem); /* 留出 Go 按鈕空間 */
+      padding: 0.25rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      margin-right: 0.25rem;
+    }
+
+    /* 按鈕保持原本大小 */
+    .search-dropdown button {
+      flex: 0 0 auto;
+      margin: 0;
+    }
+
+    .search-wrapper:hover .search-dropdown {
+      visibility: visible;
+      transform: scaleY(1);
+      opacity: 1;
+      transition:
+      transform 0.2s ease-out,
+      opacity   0.2s ease-out,
+      visibility 0s;
     }
   </style>
 </head>
@@ -117,9 +201,20 @@
                   </li>
               {% endif %}
               <li>
-                <a href="all" class="thm-btn btn-rounded">
+                <div class="search-wrapper">
+                <button class="thm-btn btn-rounded">
                   <i class="bi-search"></i> 搜尋活動
-                </a>
+                </button>
+                <div class="search-dropdown">
+                  <input
+                  type="text"
+                  id="search-input"
+                  placeholder="輸入關鍵字 可用空格分割"
+                  onkeydown="if(event.key==='Enter') goSearch()"
+                  />
+                  <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                </div>
+                </div>
               </li>
             </ul>
             <div class="hamburger">
@@ -154,15 +249,29 @@
   <!-- 活動列表 Section Start -->
   <section class="section">
     <div class="container">
-      <div class="section-header">
+      <!-- 1. 標題 + 每頁顯示，已移到同一行 -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="section-header text-center">
         <h3 class="title">{{ county }}<span> 活動</span></h3>
-        <p class="text">共 {{ events|length }} 筆活動</p>
+      </div>
+        <form method="get" class="d-flex align-items-center mb-0">
+          <label class="me-2 mb-0">每頁顯示：</label>
+          <select name="per_page"
+                  class="form-select form-select-sm me-2"
+                  onchange="this.form.submit()">
+            <option value="10" {% if per_page==10 %}selected{% endif %}>10</option>
+            <option value="20" {% if per_page==20 %}selected{% endif %}>20</option>
+            <option value="50" {% if per_page==50 %}selected{% endif %}>50</option>
+          </select>
+          <noscript><button class="btn btn-sm btn-primary">確定</button></noscript>
+        </form>
       </div>
 
       <!-- 卡片列表 -->
       <div class="event-list">
         {% if events %}
           {% for e in events %}
+          <a href="{{ url_for('info') }}?id={{ e.id }}">
             <div class="event-item">
               <h4 class="event-title">{{ e.name }}</h4>
               <p class="event-desc">
@@ -172,17 +281,52 @@
                 <i class="bi bi-geo-alt"></i>{{ e.address }}
               </div>
             </div>
+          </a>
           {% endfor %}
         {% else %}
           <div class="alert alert-info">目前無任何活動。</div>
         {% endif %}
       </div>
+      <!-- 分頁導航 -->
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <li class="page-item {% if page<=1 %}disabled{% endif %}">
+            <a class="page-link"
+              href="?page={{ page-1 }}&per_page={{ per_page }}">
+              上一頁
+            </a>
+          </li>
+
+          {% for p in range(1, total_pages+1) %}
+          <li class="page-item {% if p==page %}active{% endif %}">
+            <a class="page-link"
+              href="?page={{ p }}&per_page={{ per_page }}">
+              {{ p }}
+            </a>
+          </li>
+          {% endfor %}
+
+          <li class="page-item {% if page>=total_pages %}disabled{% endif %}">
+            <a class="page-link"
+              href="?page={{ page+1 }}&per_page={{ per_page }}">
+              下一頁
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </section>
   <!-- 活動列表 Section End -->
 
   <!-- Bootstrap JS -->
   <script src="../assets/js/plugins/bootstrap.bundle.min.js"></script>
+  <script>
+    function goSearch(){
+        const kw = document.getElementById('search-input').value.trim();
+        if(!kw) return;
+        window.location.href = `/search/${encodeURIComponent(kw)}`;
+    }
+  </script>
 </body>
 
 </html>
