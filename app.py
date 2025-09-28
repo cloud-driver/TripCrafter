@@ -127,24 +127,29 @@ def decrypt_token(token: str, check_ip=False) -> dict:
         cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
         pt = cipher.decrypt(ct)
         payload = json.loads(_unpad(pt).decode("utf-8"))
-    except Exception:
+    except Exception as e:
+        save_log(f"Token 解密失敗: {str(e)}")
         raise ValueError("無效的 token")
 
     now = int(time.time())
     # 驗證 1 小時過期
     if now - payload.get("iat", 0) > 3600:
+        save_log("Token 過期")
         raise ValueError("Token 已過期，請重新登入")
 
     # 可選的 IP 驗證（預設關閉）
     if check_ip and payload.get("ip") != request.remote_addr:
+        save_log("IP 驗證失敗")
         raise ValueError("IP 錯誤，請重新登入")
 
     return payload
 
+
 def require_login(f):
     """登入驗證裝飾器"""
     from functools import wraps
-    
+    from flask import g
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # 優先從 URL 獲取 token，其次從 session
@@ -157,7 +162,6 @@ def require_login(f):
         try:
             payload = decrypt_token(token, check_ip=False)
             # 將解密後的資訊存入 g 供後續使用
-            from flask import g
             g.current_user_uid = payload['uid']
             g.current_token = token
             
@@ -165,9 +169,16 @@ def require_login(f):
             session['token'] = token
             session.permanent = True
             
-        except Exception as e:
+        except ValueError as e:
+            # 捕捉具體錯誤並記錄日誌
+            save_log(f"Token 驗證失敗: {str(e)}")
             session.pop('token', None)
-            flash("登入已過期，請重新登入。", "error")
+            flash("登入已過期或無效，請重新登入。", "error")
+            return redirect(url_for('login'))
+        except Exception as e:
+            save_log(f"未知錯誤: {str(e)}")
+            session.pop('token', None)
+            flash("發生未知錯誤，請重新登入。", "error")
             return redirect(url_for('login'))
         
         return f(*args, **kwargs)
@@ -452,8 +463,8 @@ def callback_google():
             return redirect(url_for('login'))
 
     except ValueError as e:
-        save_log(f"ID Token驗證失敗：{e}")
-        flash(f"ID Token驗證失敗：{e}", "error")
+        save_log(f"ID Token 驗證失敗：{e}")
+        flash(f"ID Token 驗證失敗：{e}", "error")
         return redirect(url_for('login'))
 
 @csrf.exempt
@@ -506,6 +517,13 @@ def page_not_found(error):
 @app.route("/account_management", methods=["GET", "POST"])
 def account_management():
     from flask import g
+
+    # 確認 g.current_user_uid 是否存在
+    if not hasattr(g, 'current_user_uid'):
+        save_log("未能獲取用戶 ID，可能是裝飾器未正確執行")
+        flash("登入失敗，請重新登入。", "error")
+        return redirect(url_for('login'))
+
     uid = g.current_user_uid
     token = g.current_token
 
@@ -529,6 +547,7 @@ def account_management():
     return render_template('account_management.html',
                            user_data=user_data,
                            token=token)
+
 
 @require_login
 @csrf.exempt
