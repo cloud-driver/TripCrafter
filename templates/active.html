@@ -1,332 +1,313 @@
-<!DOCTYPE HTML>
-<html lang="zh-Hant">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>台灣活動資訊網 – {{ county }} 活動列表</title>
-  <link rel="icon" href="favicon.ico">
-
-  <!-- Css -->
-  <link href="../assets/css/plugins/bootstrap.min.css" rel="stylesheet">
-  <link href="../assets/fonts/font-awesome.min.css" rel="stylesheet">
-  <link href="../assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="../assets/css/plugins/slick.css" rel="stylesheet">
-  <link href="../assets/css/plugins/nice-select.css" rel="stylesheet">
-  <link href="../assets/css/style.css" rel="stylesheet">
-  <link href="../assets/css/responsive.css" rel="stylesheet">
-
-  <style>
-    :root {
-        --thm-color-one: #FF6600;
-    }
-    .thm-color-one {
-        color: #FF6600;
-    }
-    .thm-btn {
-        background-color: #FF6600;
-    }
-    .thm-btn:hover, .thm-btn:focus {
-        background-color: #e65c00;
-    }
-    .section-header .title span {
-        color: #FF6600;
-    }
-    .ft_widgets .ft_title {
-        color: #FF6600;
-    }
-    .copyright a {
-        color: #FF6600 !important;
-    }
-    .back-to-top {
-        background-color: #FF6600;
-    }
-    /* 活動卡片 */
-    .event-item {
-      background-color: #fff;
-      border: 1px solid #e5e5e5;
-      border-radius: .75rem;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .event-item h4.event-title {
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin-bottom: .5rem;
-    }
-    /* 截短描述 */
-    .event-desc {
-      color: #6c757d;
-      margin-bottom: .75rem;
-    }
-    /* 地址 */
-    .event-location {
-      color: #999;
-      font-size: .9rem;
-      display: flex;
-      align-items: center;
-    }
-    .event-location i {
-      margin-right: .25rem;
-      color: var(--thm-color-one);
-    }
-
-    .event-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .event-item {
-      width: 100%;
-      transition: box-shadow 0.3s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .event-item:hover {
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-
-    .single_banner .right_skew,
-    .single_banner .left_skew {
-        background-color: #f8f9fa;
-    }
-
-    .search-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-
-    .search-wrapper button {
-      /* 確保變數可用於按鈕 */
-      background-color: var(--thm-color-one);
-        color: #fff;
-    }
-
-    .search-dropdown {
-      position: absolute;
-      top: 100%;        /* 緊貼按鈕下邊 */
-      right: 0;         /* 右邊貼齊按鈕 */
-      min-width: 100%;  /* 寬度至少與按鈕一樣 */
-      background-color: var(--thm-color-one);
-      color: #fff;
-      border: none;
-      border-radius: 0.25rem 0.25rem 0.25rem 0.25rem; /* 底部兩角導圓 */
-      padding: 0.5rem;
-      transform-origin: top right;
-      transform: scaleY(0);
-      opacity: 0;
-      visibility: hidden;
-      transition:
-      transform 0.2s ease-out,
-      opacity   0.2s ease-out,
-      visibility 0s linear 0.2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      z-index: 10;
-      display: flex !important;
-      flex-direction: row;
-      align-items: center;
-      gap: 0.5rem;
-      /* 整個下拉區塊設定一個最小寬度 */
-      min-width: 250px;  
-    }
-
-    .search-dropdown input {
-      flex: 1 1 auto;
-      min-width: 200px;    
-      width: auto !important;
-      margin: 0;           /* 清除上下 margin */
-      width: calc(100% - 3rem); /* 留出 Go 按鈕空間 */
-      padding: 0.25rem;
-      border: 1px solid #ddd;
-      border-radius: 0.25rem;
-      margin-right: 0.25rem;
-    }
-
-    /* 按鈕保持原本大小 */
-    .search-dropdown button {
-      flex: 0 0 auto;
-      margin: 0;
-    }
-
-    .search-wrapper:hover .search-dropdown {
-      visibility: visible;
-      transform: scaleY(1);
-      opacity: 1;
-      transition:
-      transform 0.2s ease-out,
-      opacity   0.2s ease-out,
-      visibility 0s;
-    }
-  </style>
-</head>
-
-<body class="bg-light">
-  <!-- Header Start -->
-  <header class="header can-sticky">
-    <div class="container">
-      <div class="header_inner">
-        <div class="logo">
-          <a href="{{ url_for('home')}}" class="d-flex h-100">
-            <img src="../assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
-          </a>
-        </div>
-        <div class="nav_actions">
-          <nav class="navigation">
-            <ul class="main-menu">
-              <li class="menu-item"><a href="{{ url_for('home')}}">首頁</a></li>
-              <li class="menu-item"><a href="all" class="active">探索活動</a></li>
-              <li class="menu-item"><a href="'/contact">聯絡我們</a></li>
-            </ul>
-          </nav>
-          <div class="header_actions">
-            <ul>
-              <li>
-              {% if session['token'] %}
-              <li>
-                  <!-- 將 session['uid'] 的值動態加入到 href 的 query string 中 -->
-                  <a href="/account_management?token={{ session['token'] }}" class="login_btn">
-                      <i class="fal fa-user-circle me-2"></i>
-                      已登入
-                  </a>
-              {% else %}
-                  <!-- 如果 session 中沒有 uid (未登入) -->
-                  <li>
-                      <a href="login" class="login_btn">
-                          <i class="fal fa-user-circle me-2"></i>
-                          登入/註冊
-                      </a>
-                  </li>
-              {% endif %}
-              <li>
-                <div class="search-wrapper">
-                <button class="thm-btn btn-rounded">
-                  <i class="bi-search"></i> 搜尋活動
-                </button>
-                <div class="search-dropdown">
-                  <input
-                  type="text"
-                  id="search-input"
-                  placeholder="輸入關鍵字 可用空格分割"
-                  onkeydown="if(event.key==='Enter') goSearch()"
-                  />
-                  <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+<!DOCTYPE HTML> 
+<html lang="zh-Hant"> 
+  <head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+    <title>台灣活動資訊網 – {{ county }} 活動列表</title> 
+    <!-- Css --> 
+     <link href="../assets/css/plugins/bootstrap.min.css" rel="stylesheet"> 
+     <link href="../assets/fonts/font-awesome.min.css" rel="stylesheet"> 
+     <link href="../assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet"> 
+     <link href="../assets/css/plugins/slick.css" rel="stylesheet"> 
+     <link href="../assets/css/plugins/nice-select.css" rel="stylesheet"> 
+     <link href="../assets/css/style.css" rel="stylesheet"> 
+     <link href="../assets/css/responsive.css" rel="stylesheet"> 
+     <style> 
+      :root { --thm-color-one: #FF6600; } 
+      .thm-color-one { color: #FF6600; } 
+      .thm-btn { background-color: #FF6600; } 
+      .thm-btn:hover, .thm-btn:focus { background-color: #e65c00; } 
+      .section-header .title span { color: #FF6600; } 
+      .ft_widgets .ft_title { color: #FF6600; } 
+      .copyright a { color: #FF6600 !important; } 
+      .back-to-top { background-color: #FF6600; } 
+      /* 活動卡片 */ 
+      .event-item { 
+        background-color: #fff; 
+        border: 1px solid #e5e5e5; 
+        border-radius: .75rem; padding: 1rem 1.25rem; 
+        margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        } 
+      .event-item h4.event-title { 
+        font-size: 1.25rem; 
+        font-weight: 500; 
+        margin-bottom: .5rem; 
+        } 
+      .event-desc { 
+        color: #6c757d; 
+        margin-bottom: .75rem; 
+      } 
+      .event-location { 
+        color: #999; 
+        font-size: .9rem; 
+        display: flex; 
+        align-items: center; 
+        } 
+      .event-location i { 
+        margin-right: .25rem; 
+        color: var(--thm-color-one); 
+        } 
+      .event-list { 
+        display: grid; 
+        grid-template-columns: 
+        repeat(auto-fill, 
+        minmax(280px, 1fr)); 
+        gap: 1rem; margin-bottom: 2rem; 
+      } 
+      .event-item { 
+        width: 100%; 
+        transition: box-shadow 0.3s ease; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        } 
+      .event-item:hover { 
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15); 
+        } 
+      .single_banner .right_skew, .single_banner .left_skew { 
+        background-color: #f8f9fa; 
+        } 
+      .search-wrapper { 
+        position: relative; 
+        display: inline-block; 
+      } 
+      .search-wrapper button {
+        background-color: var(--thm-color-one); 
+        color: #fff; 
+        } 
+      .search-dropdown { 
+        position: absolute; 
+        top: 100%; 
+        right: 0; 
+        min-width: 100%; 
+        background-color: var(--thm-color-one); 
+        color: #fff; 
+        border: none; 
+        border-radius: 0.25rem; 
+        padding: 0.5rem; 
+        transform-origin: top right; 
+        transform: scaleY(0); 
+        opacity: 0; visibility: hidden; 
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+        z-index: 10; 
+        display: flex !important; 
+        flex-direction: row; 
+        align-items: center; 
+        gap: 0.5rem; 
+        min-width: 250px; 
+        } 
+      .search-dropdown input { 
+        flex: 1 1 auto; 
+        min-width: 200px; 
+        width: auto !important; 
+        margin: 0; width: calc(100% - 3rem); 
+        padding: 0.25rem; border: 1px solid #ddd; 
+        border-radius: 0.25rem; 
+        margin-right: 0.25rem; 
+        } 
+      .search-dropdown button { 
+        flex: 0 0 auto; 
+        margin: 0; 
+        } 
+      .search-wrapper:hover .search-dropdown { 
+        visibility: visible; 
+        transform: scaleY(1); 
+        opacity: 1; 
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s; 
+        } 
+        /* 分頁扁平化微調（可選） */ 
+        .pagination .page-link { 
+          border-radius: .375rem; 
+          } 
+        .pagination .page-item.disabled .page-link { 
+          color:#adb5bd; 
+        } 
+        </style> 
+      </head> 
+    <body class="bg-light"> 
+      
+    <!-- Header Start --> 
+    <header class="header can-sticky"> 
+      <div class="container"> 
+        <div class="header_inner"> 
+          <div class="logo"> 
+            <a href="{{ url_for('home')}}" class="d-flex h-100"> 
+              <img src="../assets/images/logo_copy.png" alt="logo" class="image-fit-contain"> 
+            </a> 
+          </div> 
+          <div class="nav_actions"> 
+            <nav class="navigation"> 
+              <ul class="main-menu"> 
+                <li class="menu-item">
+                  <a href="{{ url_for('home')}}">首頁</a>
+                </li> 
+                <li class="menu-item">
+                  <a href="/active/all" class="active">探索活動</a>
+                </li> 
+                <li class="menu-item">
+                  <a href="'/contact">聯絡我們</a>
+                </li> 
+              </ul> 
+            </nav> 
+            <div class="header_actions"> 
+              <ul> 
+                <li> {% if session['token'] %} 
+                  <li> 
+                    <a href="/account_management?token={{ session['token'] }}" class="login_btn"> 
+                      <i class="fal fa-user-circle me-2"></i> 已登入 </a> {% else %} 
+                      <li> 
+                        <a href="/login" class="login_btn"> 
+                          <i class="fal fa-user-circle me-2"></i> 登入/註冊 
+                        </a> 
+                      </li> {% endif %} 
+                      <li> 
+                        <div class="search-wrapper"> 
+                          <button class="thm-btn btn-rounded"> 
+                            <i class="bi-search"></i> 搜尋活動 
+                          </button> 
+                          <div class="search-dropdown"> 
+                            <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" /> 
+                            <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button> 
+                          </div> 
+                        </div> 
+                      </li> 
+                    </ul> 
+                    <div class="hamburger"> 
+                      <div class="hamburger_btn"><span></span><span></span><span></span>
+                      </div> 
+                    </div> 
+                  </div> 
+                </div> 
+              </div> 
+            </div> 
+          </header> 
+          <!-- Header End --> 
+           
+          <!-- Banner Start --> 
+          <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;"> 
+            <div class="relative text-center"> 
+              <div class="container"> 
+                <div class="banner_text"> 
+                  <h1 class="title" style="color: white;"> {{ county }} <span class="fw-bold" style="color: #FFD700;">活動列表</span> </h1> 
+                </div> 
+              </div> 
+            </div> 
+            <span class="left_skew"></span> 
+            <span class="right_skew"></span> 
+          </div> 
+          <!-- Banner End --> 
+           
+          <!-- 活動列表 Section Start --> 
+          <section class="section"> 
+            <div class="container"> 
+              <!-- 1. 標題 + 每頁顯示 --> 
+              <div class="d-flex flex-column align-items-center mb-4" style="position: relative;">
+                <!-- 標題 -->
+                <div class="section-header text-center" style="z-index: 10; margin-bottom: 20px;">
+                  <h3 class="title">{{ county }} <span> 活動</span></h3>
                 </div>
+
+                <!-- 表單 -->
+                <form method="get" class="d-flex align-items-center mb-0" style="z-index: 5;">
+                  <label class="me-2 mb-0" style="width:150px;">每頁顯示：</label>
+                  <select name="per_page" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+                    <option value="10" {% if per_page==10 %}selected{% endif %}>10</option>
+                    <option value="20" {% if per_page==20 %}selected{% endif %}>20</option>
+                    <option value="50" {% if per_page==50 %}selected{% endif %}>50</option>
+                  </select>
+                  <noscript>
+                    <button class="btn btn-sm btn-primary">確定</button>
+                  </noscript>
+                </form>
+              </div>
+
+          <!-- 卡片列表 -->
+          <div class="event-list">
+            {% if events %}
+              {% for e in events %}
+              <a href="{{ url_for('info') }}?id={{ e.id }}">
+                <div class="event-item">
+                  <h4 class="event-title">{{ e.name }}</h4>
+                  <p class="event-desc">
+                    {{ e.desc[:150] }}{% if e.desc|length > 150 %}...{% endif %}
+                  </p>
+                  <div class="event-location">
+                    <i class="bi bi-geo-alt"></i>{{ e.address }}
+                  </div>
                 </div>
+              </a>
+              {% endfor %}
+            {% else %}
+              <div class="alert alert-info">目前無任何活動。</div>
+            {% endif %}
+          </div>
+
+          <!-- 分頁導航：首頁/上一頁/第X頁／共Y頁/下一頁/尾頁/跳至第N頁 -->
+          <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination justify-content-center align-items-center flex-wrap" style="gap:.5rem">
+              <!-- 首頁 -->
+              <li class="page-item {% if page<=1 %}disabled{% endif %}">
+                <a class="page-link" href="?page=1&per_page={{ per_page }}">首頁</a>
+              </li>
+
+              <!-- 上一頁 -->
+              <li class="page-item {% if page<=1 %}disabled{% endif %}">
+                <a class="page-link" href="?page={{ page-1 }}&per_page={{ per_page }}">上一頁</a>
+              </li>
+
+              <!-- 中央資訊 -->
+              <li class="page-item disabled">
+                <span class="page-link" style="background:#fff;color:#6c757d;border:none">
+                  第 {{ page }} 頁／共 {{ total_pages }} 頁
+                </span>
+              </li>
+
+              <!-- 下一頁 -->
+              <li class="page-item {% if page>=total_pages %}disabled{% endif %}">
+                <a class="page-link" href="?page={{ page+1 }}&per_page={{ per_page }}">下一頁</a>
+              </li>
+
+              <!-- 尾頁 -->
+              <li class="page-item {% if page>=total_pages %}disabled{% endif %}">
+                <a class="page-link" href="?page={{ total_pages }}&per_page={{ per_page }}">尾頁</a>
+              </li>
+
+              <!-- 跳至第 N 頁 -->
+              <li class="page-item" style="display:flex;align-items:center;gap:.5rem;border:none">
+                <span class="page-link" style="background:#fff;color:#6c757d;border:none">跳至第</span>
+                <input id="jump-input" type="number" min="1" max="{{ total_pages }}" class="form-control form-control-sm" style="width:5rem" placeholder="{{ page }}"
+                      onkeydown="if(event.key==='Enter'){jumpToPage()}">
+                <span class="page-link" style="background:#fff;color:#6c757d;border:none">頁</span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="jumpToPage()">前往</button>
               </li>
             </ul>
-            <div class="hamburger">
-              <div class="hamburger_btn"><span></span><span></span><span></span></div>
-            </div>
-          </div>
+          </nav>
         </div>
-      </div>
-    </div>
-  </header>
-  <!-- Header End -->
-
-  <!-- Banner Start -->
-  <div class="single_banner section-bg"
-       style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP);
-              background-position: center;">
-    <div class="relative text-center">
-      <div class="container">
-        <div class="banner_text">
-          <h1 class="title" style="color: white;">
-            {{ county }}
-            <span class="fw-bold" style="color: #FFD700;">活動列表</span>
-          </h1>
-        </div>
-      </div>
-    </div>
-    <span class="left_skew"></span>
-    <span class="right_skew"></span>
-  </div>
-  <!-- Banner End -->
-
-  <!-- 活動列表 Section Start -->
-  <section class="section">
-    <div class="container">
-      <!-- 1. 標題 + 每頁顯示，已移到同一行 -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-      <div class="section-header text-center">
-        <h3 class="title">{{ county }}<span> 活動</span></h3>
-      </div>
-        <form method="get" class="d-flex align-items-center mb-0">
-          <label class="me-2 mb-0">每頁顯示：</label>
-          <select name="per_page"
-                  class="form-select form-select-sm me-2"
-                  onchange="this.form.submit()">
-            <option value="10" {% if per_page==10 %}selected{% endif %}>10</option>
-            <option value="20" {% if per_page==20 %}selected{% endif %}>20</option>
-            <option value="50" {% if per_page==50 %}selected{% endif %}>50</option>
-          </select>
-          <noscript><button class="btn btn-sm btn-primary">確定</button></noscript>
-        </form>
-      </div>
-
-      <!-- 卡片列表 -->
-      <div class="event-list">
-        {% if events %}
-          {% for e in events %}
-          <a href="{{ url_for('info') }}?id={{ e.id }}">
-            <div class="event-item">
-              <h4 class="event-title">{{ e.name }}</h4>
-              <p class="event-desc">
-                {{ e.desc[:150] }}{% if e.desc|length > 150 %}...{% endif %}
-              </p>
-              <div class="event-location">
-                <i class="bi bi-geo-alt"></i>{{ e.address }}
-              </div>
-            </div>
-          </a>
-          {% endfor %}
-        {% else %}
-          <div class="alert alert-info">目前無任何活動。</div>
-        {% endif %}
-      </div>
-      <!-- 分頁導航 -->
-      <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-          <li class="page-item {% if page<=1 %}disabled{% endif %}">
-            <a class="page-link"
-              href="?page={{ page-1 }}&per_page={{ per_page }}">
-              上一頁
-            </a>
-          </li>
-
-          {% for p in range(1, total_pages+1) %}
-          <li class="page-item {% if p==page %}active{% endif %}">
-            <a class="page-link"
-              href="?page={{ p }}&per_page={{ per_page }}">
-              {{ p }}
-            </a>
-          </li>
-          {% endfor %}
-
-          <li class="page-item {% if page>=total_pages %}disabled{% endif %}">
-            <a class="page-link"
-              href="?page={{ page+1 }}&per_page={{ per_page }}">
-              下一頁
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </section>
-  <!-- 活動列表 Section End -->
-
-  <!-- Bootstrap JS -->
-  <script src="../assets/js/plugins/bootstrap.bundle.min.js"></script>
-  <script>
-    function goSearch(){
-        const kw = document.getElementById('search-input').value.trim();
-        if(!kw) return;
-        window.location.href = `/search/${encodeURIComponent(kw)}`;
-    }
-  </script>
-</body>
-
+  </section> 
+  <!-- 活動列表 Section End --> 
+  <!-- Bootstrap JS --> 
+    <script src="../assets/js/plugins/bootstrap.bundle.min.js"></script> 
+    <script> 
+    function goSearch(){ 
+      const kw = document.getElementById('search-input').value.trim(); 
+      if(!kw) return; 
+      window.location.href = `/search/${encodeURIComponent(kw)}`; 
+    } 
+    function jumpToPage(){ 
+      const input = document.getElementById('jump-input'); 
+      if(!input) return; 
+      let p = parseInt(input.value, 10); 
+      const total = {{ total_pages }}; 
+      const per = {{ per_page }}; 
+      if(isNaN(p)) return; 
+      if(p < 1) p = 1; 
+      if(p > total) p = total; 
+      // 保留現有查詢參數（如 per_page 等） 
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', p); 
+      params.set('per_page', per); 
+      window.location.search = params.toString(); 
+    } 
+    </script> 
+  </body> 
 </html>

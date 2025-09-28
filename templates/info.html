@@ -7,17 +7,21 @@
 </head>
 <body>
   <div class="container">
-    <h1>{{ event.title }}</h1>
-    <p>唯一識別碼：{{ event.id }}</p>
+    <h1>{{ event.資料名稱 }}</h1>
+    <p>唯一識別碼：{{ event.唯一識別碼 }}</p>
     <table class="table">
       {% for key, value in event.items() %}
       <tr>
         <th>{{ key }}</th>
-        <td>{{ value }}</td>
+        {% if value %}
+          <td>{{ value }}</td>
+        {% else %}
+          <td><em>無資料</em></td>
+        {% endif %}
       </tr>
       {% endfor %}
     </table>
-    <a href="/">回到列表</a>
+    <input type ="button" onclick="history.back()" value="回到上一頁"></input>
   </div>
 </body>
 </html>
