@@ -126,13 +126,17 @@
                 <p><strong>使用者名稱:</strong> {{ user_data.username|default('未設定') }}</p>
             </div>
             
-            <!-- 更新使用者名稱表單 - 移除 token 參數 -->
-            <form action="{{ url_for('account_management') }}" method="post">
+            <!-- 更新使用者名稱表單 -->
+            <form action="{{ url_for('update_username_route', token=token) }}" method="post">
+                <!-- CSRF token -->
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                
+                <input type="hidden" name="token" value="{{ token }}">
+                <!-- 如果你想用 hidden field 傳 token，也可以這樣做： -->
+                <!-- <input type="hidden" name="token" value="{{ user_data.token }}"> -->
+
                 <label for="username">新的使用者名稱：</label>
                 <input id="username" name="username" type="text" value="{{ user_data.username }}" required>
-                
+
                 <button type="submit" class="btn">更新名稱</button>
             </form>
         </div>
@@ -151,10 +155,10 @@
                 <div class="account-info">
                     <p><strong>顯示名稱:</strong> {{ user_data.line_account.display_name|default('未提供') }}</p>
                 </div>
-                <a href="{{ url_for('login_line') }}" class="btn">重新連結 LINE</a>
+                <a href="{{ url_for('login_line', token=token) }}" class="btn">重新連結 LINE</a>
             {% else %}
                 <p>連結您的 LINE 帳戶以啟用更多功能。</p>
-                <a href="{{ url_for('login_line') }}" class="btn">連結 LINE 帳戶</a>
+                <a href="{{ url_for('login_line', token=token) }}" class="btn">連結 LINE 帳戶</a>
             {% endif %}
         </div>
         
@@ -173,16 +177,16 @@
                     <p><strong>顯示名稱:</strong> {{ user_data.google_account.display_name|default('未提供') }}</p>
                     <p><strong>Email:</strong> {{ user_data.google_account.email|default('未提供') }}</p>
                 </div>
-                <a href="{{ url_for('login_google') }}" class="btn">重新連結 Google</a>
+                <a href="{{ url_for('login_google', token=token) }}" class="btn">重新連結 Google</a>
             {% else %}
                 <p>連結您的 Google 帳戶以啟用更多功能。</p>
-                <a href="{{ url_for('login_google') }}" class="btn">連結 Google 帳戶</a>
+                <a href="{{ url_for('login_google', token=token) }}" class="btn">連結 Google 帳戶</a>
             {% endif %}
         </div>
         
         <a href="/" class="btn">返回首頁</a>
         <a href="/logout" class="btn">登出</a>
-        <a href="{{ url_for('delete_account') }}" 
+        <a href="{{ url_for('delete_account', token=token) }}" 
             class="btn" 
             style="background-color: red;" 
             onclick="return confirm('您確定要永久刪除您的帳號嗎？此操作將無法復原！');">
