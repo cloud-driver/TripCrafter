@@ -19,6 +19,7 @@ import html
 import math
 import base64
 from Crypto.Cipher import AES
+import time
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -86,8 +87,8 @@ with open('datas/活動.csv', encoding='utf-8-sig') as f:
         eid = row['唯一識別碼']
         EVENTS[eid] = row
 
-#實作 pad / unpad
 BS = AES.block_size
+
 def _pad(s: bytes) -> bytes:
     padding = BS - len(s) % BS
     return s + bytes([padding] * padding)
@@ -95,23 +96,54 @@ def _pad(s: bytes) -> bytes:
 def _unpad(s: bytes) -> bytes:
     return s[:-s[-1]]
 
-#加／解密函式
 def encrypt_token(uid: str) -> str:
+    """
+    1. payload = {"uid": uid, "iat": timestamp, "ip": requester IP}
+    2. pad + AES-CBC 加密
+    3. base64.urlsafe_b64encode(iv + ct)
+    """
     iv = secrets.token_bytes(BS)
     cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
-    ct = cipher.encrypt(_pad(uid.encode('utf-8')))
-    return base64.urlsafe_b64encode(iv + ct).decode('utf-8')
 
-def decrypt_token(token: str) -> str:
+    payload = {
+        "uid": uid,
+        "iat": int(time.time()),
+        "ip": request.remote_addr
+    }
+    raw = json.dumps(payload).encode("utf-8")
+    ct = cipher.encrypt(_pad(raw))
+    return base64.urlsafe_b64encode(iv + ct).decode("utf-8")
+
+def decrypt_token(token: str) -> dict:
+    """
+    1. base64 解碼 → iv, ct
+    2. AES 解密 + unpad → JSON bytes
+    3. 解析出 payload
+    4. 驗證過期 iat + IP 綁定
+    5. 回傳 payload dict
+    """
     if token:
-        data = base64.urlsafe_b64decode(token.encode('utf-8'))
-        iv, ct = data[:BS], data[BS:]
-        cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
-        pt = cipher.decrypt(ct)
-        return _unpad(pt).decode('utf-8')
+        try:
+            data = base64.urlsafe_b64decode(token.encode("utf-8"))
+            iv, ct = data[:BS], data[BS:]
+            cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
+            pt = cipher.decrypt(ct)
+            payload = json.loads(_unpad(pt).decode("utf-8"))
+        except Exception:
+            abort(403, description="無效的 token")
+
+        now = int(time.time())
+        # 驗證 1 小時過期
+        if now - payload.get("iat", 0) > 3600:
+            abort(403, description="Token 已過期，請重新登入")
+
+        # 驗證 IP 綁定
+        if payload.get("ip") != request.remote_addr:
+            abort(403, description="IP 錯誤，請重新登入")
+
+        return payload    
     else:
         return ""
-    
 
 @app.context_processor
 def inject_csrf_token():
@@ -137,13 +169,14 @@ def logout():
     token = session.pop('token', None)
     if token:
         try:
-            uid = decrypt_token(token)
+            info = decrypt_token(token)
+            uid  = info["uid"]
             username = get_user_data(uid).get("username", "使用者")
-            flash(f"{username} 已成功登出。")
+            flash(f"{username} 已成功登出。", "success")
         except:
             pass
     else:
-        flash("您已登出。")
+        flash("您已登出。", "info")
     return redirect(url_for('login'))
 
 @app.route('/delete_account')
@@ -154,7 +187,7 @@ def delete_account():
         flash("權限不足，無法刪除此帳號。", "error")
         return redirect(url_for('login'))
 
-    success = delete_user_profile(decrypt_token(token))
+    success = delete_user_profile(decrypt_token(token))["uid"]
 
     if success:
         session.clear()
@@ -169,7 +202,12 @@ def delete_account():
 @limiter.limit("5 per minute")
 @app.route("/login/line")
 def login_line():
-    uid = decrypt_token(request.args.get("token"))
+    try:
+        info = decrypt_token(request.args.get("token"))
+        uid = info["uid"]
+    except Exception:
+        flash("無效的 token，請重新登入。", "error")
+        return redirect(url_for('login'))
     username = request.args.get("username")
     state = secrets.token_hex(16)
 
@@ -276,7 +314,8 @@ def callback_line():
 @limiter.limit("5 per minute")
 @app.route("/login/google")
 def login_google():
-    uid = decrypt_token(request.args.get("token"))
+    info = decrypt_token(request.args.get("token"))
+    uid  = info["uid"]
     username = request.args.get("username")
     state = secrets.token_hex(16)
 
@@ -436,7 +475,7 @@ def account_management():
         flash("缺少 token，請重新登入。", "error")
         return redirect(url_for('login'))
     try:
-        uid = decrypt_token(token)
+        uid = decrypt_token(token)["uid"]
     except Exception:
         flash("無效的 token，請重新登入。", "error")
         return redirect(url_for('login'))
@@ -469,7 +508,7 @@ def update_username_route():
         flash("缺少 token，更新失敗。", "error")
         return redirect(url_for('login'))
     try:
-        uid = decrypt_token(token)
+        uid = decrypt_token(token)["uid"]
     except Exception:
         flash("無效的 token，更新失敗。", "error")
         return redirect(url_for('login'))
