@@ -122,28 +122,28 @@ def decrypt_token(token: str) -> dict:
     4. 驗證過期 iat + IP 綁定
     5. 回傳 payload dict
     """
-    if token:
-        try:
-            data = base64.urlsafe_b64decode(token.encode("utf-8"))
-            iv, ct = data[:BS], data[BS:]
-            cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
-            pt = cipher.decrypt(ct)
-            payload = json.loads(_unpad(pt).decode("utf-8"))
-        except Exception:
-            abort(403, description="無效的 token")
+    if not token:
+        raise ValueError("Missing token")
 
-        now = int(time.time())
-        # 驗證 1 小時過期
-        if now - payload.get("iat", 0) > 3600:
-            abort(403, description="Token 已過期，請重新登入")
+    try:
+        data = base64.urlsafe_b64decode(token.encode("utf-8"))
+        iv, ct = data[:BS], data[BS:]
+        cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
+        pt = cipher.decrypt(ct)
+        payload = json.loads(_unpad(pt).decode("utf-8"))
+    except Exception:
+        abort(403, description="無效的 token")
 
-        # 驗證 IP 綁定
-        if payload.get("ip") != request.remote_addr:
-            abort(403, description="IP 錯誤，請重新登入")
+    now = int(time.time())
+    # 驗證 1 小時過期
+    if now - payload.get("iat", 0) > 3600:
+        abort(403, description="Token 已過期，請重新登入")
 
-        return payload    
-    else:
-        return ""
+    # 驗證 IP 綁定
+    if payload.get("ip") != request.remote_addr:
+        abort(403, description="IP 錯誤，請重新登入")
+
+    return payload    
 
 @app.context_processor
 def inject_csrf_token():
@@ -202,12 +202,16 @@ def delete_account():
 @limiter.limit("5 per minute")
 @app.route("/login/line")
 def login_line():
-    try:
-        info = decrypt_token(request.args.get("token"))
-        uid = info["uid"]
-    except Exception:
-        flash("無效的 token，請重新登入。", "error")
-        return redirect(url_for('login'))
+    uid = None
+    token = request.args.get("token")
+    if token:
+        try:
+            info = decrypt_token(token)
+            uid = info.get("uid")
+        except Exception:
+            flash("無效的 token，請重新登入。", "error")
+            return redirect(url_for("login"))
+        
     username = request.args.get("username")
     state = secrets.token_hex(16)
 
@@ -314,35 +318,49 @@ def callback_line():
 @limiter.limit("5 per minute")
 @app.route("/login/google")
 def login_google():
-    info = decrypt_token(request.args.get("token"))
-    uid  = info["uid"]
+    # 1. 嘗試從 URL token 解密，若沒帶就 uid = None
+    uid = None
+    token = request.args.get("token")
+    if token:
+        try:
+            info = decrypt_token(token)
+            uid = info.get("uid")
+        except Exception:
+            flash("無效的 token，請重新登入。", "error")
+            return redirect(url_for("login"))
+
+    # 2. 檢查前端是否帶 username → 註冊流程
     username = request.args.get("username")
     state = secrets.token_hex(16)
 
-    # 根據參數判斷流程
     if username:
-        session['flow'] = 'register'
-        session['username'] = username
-        if not uid: uid = str(uuid.uuid4())
+        session['flow']    = 'register'
+        session['username']= username
+        # 若 URL 上雖帶 token 但 token 解不出 uid，則給新 uid
+        if not uid:
+            uid = str(uuid.uuid4())
+    # 3. 如果有合法 uid（表示已登入），且沒帶 username → 連結流程
     elif uid:
-        session['flow'] = 'link'
+        session['flow']    = 'link'
+    # 4. 否則視為一般登入
     else:
-        session['flow'] = 'login'
+        session['flow']    = 'login'
         uid = str(uuid.uuid4())
 
+    # 5. 存 state / uid_id 並跳去 OAuth endpoint
     session['oauth_state_google'] = state
-    session['uid_id'] = uid
+    session['uid_id']             = uid
 
     params = {
-        "client_id": GOOGLE_CLIENT_ID,
-        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "client_id":     GOOGLE_CLIENT_ID,
+        "redirect_uri":  GOOGLE_REDIRECT_URI,
         "response_type": "code",
-        "scope": "openid email profile",
-        "access_type": "offline",
-        "prompt": "consent",
-        "state": state
+        "scope":         "openid email profile",
+        "access_type":   "offline",
+        "prompt":        "consent",
+        "state":         state
     }
-    auth_url = f"{GOOGLE_AUTHORIZATION_URL}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
+    auth_url = f"{GOOGLE_AUTHORIZATION_URL}?{'&'.join([f'{k}={v}' for k,v in params.items()])}"
     return redirect(auth_url)
 
 @csrf.exempt
