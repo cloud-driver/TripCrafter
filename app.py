@@ -114,13 +114,9 @@ def encrypt_token(uid: str) -> str:
     ct = cipher.encrypt(_pad(raw))
     return base64.urlsafe_b64encode(iv + ct).decode("utf-8")
 
-def decrypt_token(token: str) -> dict:
+def decrypt_token(token: str, check_ip=False) -> dict:
     """
-    1. base64 解碼 → iv, ct
-    2. AES 解密 + unpad → JSON bytes
-    3. 解析出 payload
-    4. 驗證過期 iat + IP 綁定
-    5. 回傳 payload dict
+    解密 token，預設不檢查 IP
     """
     if not token:
         raise ValueError("Missing token")
@@ -132,18 +128,51 @@ def decrypt_token(token: str) -> dict:
         pt = cipher.decrypt(ct)
         payload = json.loads(_unpad(pt).decode("utf-8"))
     except Exception:
-        abort(403, description="無效的 token")
+        raise ValueError("無效的 token")
 
     now = int(time.time())
     # 驗證 1 小時過期
     if now - payload.get("iat", 0) > 3600:
-        abort(403, description="Token 已過期，請重新登入")
+        raise ValueError("Token 已過期，請重新登入")
 
-    # 驗證 IP 綁定
-    if payload.get("ip") != request.remote_addr:
-        abort(403, description="IP 錯誤，請重新登入")
+    # 可選的 IP 驗證（預設關閉）
+    if check_ip and payload.get("ip") != request.remote_addr:
+        raise ValueError("IP 錯誤，請重新登入")
 
-    return payload    
+    return payload
+
+def require_login(f):
+    """登入驗證裝飾器"""
+    from functools import wraps
+    
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # 優先從 URL 獲取 token，其次從 session
+        token = request.args.get('token') or session.get('token')
+        
+        if not token:
+            flash("請先登入。", "error")
+            return redirect(url_for('login'))
+        
+        try:
+            payload = decrypt_token(token, check_ip=False)
+            # 將解密後的資訊存入 g 供後續使用
+            from flask import g
+            g.current_user_uid = payload['uid']
+            g.current_token = token
+            
+            # 確保 session 中有有效的 token
+            session['token'] = token
+            session.permanent = True
+            
+        except Exception as e:
+            session.pop('token', None)
+            flash("登入已過期，請重新登入。", "error")
+            return redirect(url_for('login'))
+        
+        return f(*args, **kwargs)
+    
+    return decorated_function
 
 @app.context_processor
 def inject_csrf_token():
@@ -157,20 +186,25 @@ def home():
 @csrf.exempt
 @app.route("/login")
 def login():
+    # 檢查 session 中的 token
     token = session.get('token')
-    if not token:
-        return render_template('login.html')
-    else:
-        return redirect(url_for('account_management', token=token))
+    if token:
+        try:
+            decrypt_token(token, check_ip=False)
+            return redirect(url_for('account_management'))
+        except:
+            session.pop('token', None)
     
+    return render_template('login.html')
+
 @csrf.exempt
 @app.route("/logout")
 def logout():
     token = session.pop('token', None)
     if token:
         try:
-            info = decrypt_token(token)
-            uid  = info["uid"]
+            info = decrypt_token(token, check_ip=False)
+            uid = info["uid"]
             username = get_user_data(uid).get("username", "使用者")
             flash(f"{username} 已成功登出。", "success")
         except:
@@ -179,34 +213,33 @@ def logout():
         flash("您已登出。", "info")
     return redirect(url_for('login'))
 
+@require_login
 @app.route('/delete_account')
 def delete_account():
-    token = request.args.get('token')
-    logged_in_token = session.get('token')
-    if not logged_in_token or logged_in_token != token:
-        flash("權限不足，無法刪除此帳號。", "error")
-        return redirect(url_for('login'))
-
-    success = delete_user_profile(decrypt_token(token))["uid"]
-
+    from flask import g
+    uid = g.current_user_uid
+    
+    success = delete_user_profile(uid)
+    
     if success:
         session.clear()
         flash("您的帳號已成功刪除。", "success")
         return redirect(url_for('login'))
     else:
         flash("刪除帳號失敗，請稍後再試。", "error")
-        return redirect(url_for('account_management', token=token))
+        return redirect(url_for('account_management'))
 
-# LINE 登入
 @csrf.exempt
 @limiter.limit("5 per minute")
 @app.route("/login/line")
 def login_line():
     uid = None
-    token = request.args.get("token")
+    # 優先從 URL 獲取，其次從 session
+    token = request.args.get("token") or session.get('token')
+    
     if token:
         try:
-            info = decrypt_token(token)
+            info = decrypt_token(token, check_ip=False)
             uid = info.get("uid")
         except Exception:
             flash("無效的 token，請重新登入。", "error")
@@ -219,16 +252,15 @@ def login_line():
     if username:
         session['flow'] = 'register'
         session['username'] = username
-        # 註冊流程，若無uid則產生新的
         if not uid: uid = str(uuid.uuid4())
     elif uid:
-        session['flow'] = 'link' # 從帳號管理頁來，有uid但無username
+        session['flow'] = 'link'
     else:
-        session['flow'] = 'login' # 從首頁登入來，無uid也無username
-        uid = str(uuid.uuid4()) # 為登入流程產生一個暫時的uid
+        session['flow'] = 'login'
+        uid = str(uuid.uuid4())
 
     session['oauth_state_line'] = state
-    session['uid_id'] = uid  # 將 uid 存入 session
+    session['uid_id'] = uid
 
     login_url = (
         f"https://access.line.me/oauth2/v2.1/authorize"
@@ -282,24 +314,19 @@ def callback_line():
         username = session.pop("username", None)
 
         if flow in ['register', 'link']:
-            # 註冊 或 連結流程
             final_uid = update_user_profile(uid=uid, login_type='line', user_id=user_id, display_name=display_name, email=email, username=username)
             if flow == 'register':
                 save_log(f"{user_id} (Line) registered with uid {final_uid}")
-                flash("註冊成功！", "success")
+                return handle_login_success(final_uid, "註冊成功！")
             else: # link
                 save_log(f"Linked Line account {user_id} to uid {final_uid}")
-                flash("LINE 帳號連結成功！", "success")
-            return redirect(url_for('account_management', token=encrypt_token(final_uid)))
+                return handle_login_success(final_uid, "LINE 帳號連結成功！")
         
         elif flow == 'login':
-            # 登入流程
             found_user = find_user_by_identity(login_type='line', provider_id=user_id)
             if found_user:
                 save_log(f"{user_id} (Line) logged in with existing uid {found_user['uid']}")
-                flash("登入成功！", "success")
-                session['token'] = encrypt_token(found_user['uid'])
-                return redirect(url_for('account_management', token=encrypt_token(found_user['uid'])))
+                return handle_login_success(found_user['uid'])
             else:
                 save_log(f"Login failed: Line user {user_id} not found. Asking to register.")
                 flash("此 LINE 帳號尚未註冊，請先註冊。", "error")
@@ -318,47 +345,43 @@ def callback_line():
 @limiter.limit("5 per minute")
 @app.route("/login/google")
 def login_google():
-    # 1. 嘗試從 URL token 解密，若沒帶就 uid = None
     uid = None
-    token = request.args.get("token")
+    # 優先從 URL 獲取，其次從 session
+    token = request.args.get("token") or session.get('token')
+    
     if token:
         try:
-            info = decrypt_token(token)
+            info = decrypt_token(token, check_ip=False)
             uid = info.get("uid")
         except Exception:
             flash("無效的 token，請重新登入。", "error")
             return redirect(url_for("login"))
 
-    # 2. 檢查前端是否帶 username → 註冊流程
     username = request.args.get("username")
     state = secrets.token_hex(16)
 
     if username:
-        session['flow']    = 'register'
-        session['username']= username
-        # 若 URL 上雖帶 token 但 token 解不出 uid，則給新 uid
+        session['flow'] = 'register'
+        session['username'] = username
         if not uid:
             uid = str(uuid.uuid4())
-    # 3. 如果有合法 uid（表示已登入），且沒帶 username → 連結流程
     elif uid:
-        session['flow']    = 'link'
-    # 4. 否則視為一般登入
+        session['flow'] = 'link'
     else:
-        session['flow']    = 'login'
+        session['flow'] = 'login'
         uid = str(uuid.uuid4())
 
-    # 5. 存 state / uid_id 並跳去 OAuth endpoint
     session['oauth_state_google'] = state
-    session['uid_id']             = uid
+    session['uid_id'] = uid
 
     params = {
-        "client_id":     GOOGLE_CLIENT_ID,
-        "redirect_uri":  GOOGLE_REDIRECT_URI,
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
         "response_type": "code",
-        "scope":         "openid email profile",
-        "access_type":   "offline",
-        "prompt":        "consent",
-        "state":         state
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "consent",
+        "state": state
     }
     auth_url = f"{GOOGLE_AUTHORIZATION_URL}?{'&'.join([f'{k}={v}' for k,v in params.items()])}"
     return redirect(auth_url)
@@ -406,24 +429,19 @@ def callback_google():
         username = session.pop("username", None)
 
         if flow in ['register', 'link']:
-            # 註冊 或 連結流程
             final_uid = update_user_profile(uid=uid, login_type='google', user_id=user_id, display_name=display_name, email=email, username=username)
             if flow == 'register':
                 save_log(f"{user_id} (Google) registered with uid {final_uid}")
-                flash("註冊成功！", "success")
+                return handle_login_success(final_uid, "註冊成功！")
             else: # link
                 save_log(f"Linked Google account {email} to uid {final_uid}")
-                flash("Google 帳號連結成功！", "success")
-            return redirect(url_for('account_management', token=encrypt_token(final_uid)))
+                return handle_login_success(final_uid, "Google 帳號連結成功！")
 
         elif flow == 'login':
-            # 登入流程
             found_user = find_user_by_identity(login_type='google', email=email)
             if found_user:
                 save_log(f"{user_id} (Google) logged in with existing uid {found_user['uid']}")
-                flash("登入成功！", "success")
-                session['token'] = encrypt_token(found_user['uid'])
-                return redirect(url_for('account_management', token=encrypt_token(found_user['uid'])))
+                return handle_login_success(found_user['uid'])
             else:
                 save_log(f"Login failed: Google user {email} not found. Asking to register.")
                 flash("此 Google 帳號尚未註冊，請先註冊。", "error")
@@ -484,21 +502,13 @@ def health():
 def page_not_found(error):
     return render_template('404.html'), 404
 
-@csrf.exempt
+@require_login
 @app.route("/account_management", methods=["GET", "POST"])
 def account_management():
-    # 先從 query 讀 token
-    token = request.args.get("token")
-    if not token:
-        flash("缺少 token，請重新登入。", "error")
-        return redirect(url_for('login'))
-    try:
-        uid = decrypt_token(token)["uid"]
-    except Exception:
-        flash("無效的 token，請重新登入。", "error")
-        return redirect(url_for('login'))
+    from flask import g
+    uid = g.current_user_uid
+    token = g.current_token
 
-    # POST：更新 username（和原本 uid 相同）
     if request.method == "POST":
         new_name = request.form.get("username", "").strip()
         if not new_name:
@@ -506,30 +516,26 @@ def account_management():
         else:
             update_user_profile(uid=uid, username=new_name)
             flash("使用者名稱已更新。", "success")
-        # 更新完後仍留在同一頁，token 不變
-        return redirect(url_for('account_management', token=token))
+        
+        # POST 後重新導向，不帶任何參數
+        return redirect(url_for('account_management'))
 
     # GET：顯示帳號資訊
     user_data = get_user_data(uid)
     if not user_data:
         flash("找不到使用者資料，請重新登入。", "error")
         return redirect(url_for('login'))
+    
     return render_template('account_management.html',
                            user_data=user_data,
                            token=token)
 
+@require_login
 @csrf.exempt
 @app.route('/update_username', methods=['POST'])
 def update_username_route():
-    token = request.form.get('token') or request.args.get('token')
-    if not token:
-        flash("缺少 token，更新失敗。", "error")
-        return redirect(url_for('login'))
-    try:
-        uid = decrypt_token(token)["uid"]
-    except Exception:
-        flash("無效的 token，更新失敗。", "error")
-        return redirect(url_for('login'))
+    from flask import g
+    uid = g.current_user_uid
 
     new_name = request.form.get('username', '').strip()
     if not new_name:
@@ -537,7 +543,17 @@ def update_username_route():
     else:
         update_user_profile(uid=uid, username=new_name)
         flash('使用者名稱更新成功', 'success')
-    return redirect(url_for('account_management', token=token))
+    
+    return redirect(url_for('account_management'))
+
+# 修改登入成功後的處理
+def handle_login_success(uid, message="登入成功！"):
+    """統一處理登入成功的邏輯"""
+    token = encrypt_token(uid)
+    session['token'] = token
+    session.permanent = True
+    flash(message, "success")
+    return redirect(url_for('account_management'))
 
 @csrf.exempt
 @app.route("/active/<county_en>")
