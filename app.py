@@ -19,7 +19,6 @@ import html
 import math
 import base64
 from Crypto.Cipher import AES
-import pandas as pd
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
