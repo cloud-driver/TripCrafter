@@ -6,6 +6,7 @@ import os
 import time
 from dotenv import load_dotenv
 from google.genai import Client
+from google.genai import types
 
 if os.path.exists(".env"): load_dotenv()
 
@@ -39,10 +40,60 @@ def save_log(message):
     with open(LOG_FILE, "w", encoding="utf-8") as f:
         json.dump(logs, f, ensure_ascii=False, indent=4)
 
-def ask_ai(question):
-    """呼叫 Google AI 並返回結果"""
+def ask_ai(trip_data):
+    """
+    使用 Google Gemini 模型生成行程規劃。
+    """
+    # 定義非常完整的 Prompt
+    prompt = f"""
+    你是一個專業的行程規劃師，負責根據輸入的活動資料和天數來設計行程。
+    請根據以下的活動資料，規劃出一個清晰、有條理的行程，並以以下格式回答：
+
+    ### 回答格式(幫我用成json)：
+    請根據行程資料生成 JSON 格式的行程表，格式如下：
+    {{
+        "1": [
+            {{
+                "title": "活動名稱",
+                "time": "活動時間",
+                "location": "活動地點",
+                "tags": "活動標籤"
+            }}
+        ],
+        "2": [
+            {{
+                "title": "第二天活動名稱",
+                "time": "第二天活動時間",
+                "location": "第二天活動地點",
+                "tags": "第二天活動標籤"
+            }}
+        ]
+        ...
+    }}
+
+    請確保輸出的 JSON 格式正確，並且活動按照天數分組。
+    
+    ### 輸入資料：
+    {trip_data}
+
+    ### 注意事項：
+    1. 如果輸入的活動資料不足以填滿所有天數，請合理分配活動並在行程中加入適合的休息時間。
+    2. 每一天的行程最多包含 3 個活動，活動之間請合理安排時間。
+    3. 如果活動有重疊，請根據地點和時間進行優化分配，避免衝突。
+    4. 請確保行程既充實又不過於緊湊，適合一般旅遊者。
+    5. 請用繁體中文回答。
+    """
+    
     try:
-        response = CLIENT.generate_content(question)
+        # 呼叫 Gemini API
+        response = CLIENT.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(thinking_budget=0)
+            )
+        )
+        save_log(f"Google AI response: {response.text}")
         return response.text
     except Exception as e:
         save_log(f"Error calling Google AI: {e}")

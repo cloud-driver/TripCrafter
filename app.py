@@ -5,7 +5,7 @@ import jwt as pyjwt
 import json
 import uuid
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash, abort
-from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity, delete_user_profile
+from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity, delete_user_profile, ask_ai
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
@@ -19,6 +19,7 @@ import html
 import math
 import base64
 from Crypto.Cipher import AES
+import pandas as pd
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -637,7 +638,68 @@ def info():
     if not eid or eid not in EVENTS:
         abort(404)
     event = EVENTS[eid]
+    m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', event["文字描述"], flags=re.S)
+    desc = m.group(1).strip() if m else event["文字描述"]
+    desc = re.sub(r'<[^>]+>', '', desc)
+    desc = html.unescape(desc).strip()
+    event["文字描述"] = desc
     return render_template('info.html', event=event)
+
+@csrf.exempt
+@app.route("/trip/<days>/<active>")
+def trip(days, active):
+    # 驗證天數是否正確
+    if days not in ['one-day', 'two-day', 'three-day']:
+        abort(404)
+
+    # 確認唯一識別碼是否存在於 EVENTS
+    if active not in EVENTS:
+        abort(404, description="No events found with the specified unique identifier.")
+
+    # 取得符合唯一識別碼的資料
+    event_data = EVENTS[active]
+
+    # 整合資料為字串格式
+    def package_data(event):
+        return f"##{event['唯一識別碼']}:{event['資料名稱']}({event['行政區(鄉鎮區)名稱']})"
+
+    packaged_data = package_data(event_data)
+
+    # 根據天數生成行程格式
+    days_map = {
+        'one-day': 1,
+        'two-day': 2,
+        'three-day': 3
+    }
+    total_days = days_map[days]
+    trip_data = f"# {total_days} Days\n{packaged_data}"
+
+    # 呼叫 AI 排行程
+    #ai_response = ask_ai(trip_data)
+    ai_response = "```json\n{\n    \"1\": [\n        {\n            \"title\": \"2024新北觀光工廠｜青春造一夏(板橋區)\",\n            \"time\": \"10:00 - 16:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"文化, 觀光, 體驗\"\n        },\n        {\n            \"title\": \"午餐與休息\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區附近餐廳\",\n            \"tags\": \"餐飲, 休息\"\n        },\n        {\n            \"title\": \"自由活動或周邊景點\",\n            \"time\": \"16:00 - 18:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"自由, 探索\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"早晨漫步與早餐\",\n            \"time\": \"08:00 - 09:30\",\n            \"location\": \"住宿地點附近\",\n            \"tags\": \"休息, 餐飲\"\n        },\n        {\n            \"title\": \"參觀板橋林家花園\",\n            \"time\": \"09:30 - 12:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"歷史, 建築, 園林\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"在地市場體驗 (如湳雅夜市)\",\n            \"time\": \"09:00 - 11:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"在地, 文化, 體驗\"\n        },\n        {\n            \"title\": \"午餐與購物\",\n            \"time\": \"11:00 - 13:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲, 購物\"\n        },\n        {\n            \"title\": \"整理行李與離開\",\n            \"time\": \"13:00 onwards\",\n            \"location\": \"住宿地點\",\n            \"tags\": \"休息, 離開\"\n        }\n    ]\n}\n```"
+
+    def fix_json_format_with_markers(json_string):
+        import json
+
+        # 移除頭尾的 ```json 和 ```
+        if json_string.startswith("```json"):
+            json_string = json_string[7:]  # 移除開頭的 ```json
+        if json_string.endswith("```"):
+            json_string = json_string[:-3]  # 移除結尾的 ```
+
+        # 清理多餘的換行符號與空格
+        cleaned_string = json_string.replace("\\n", "").replace("    ", "").strip()
+
+        try:
+            # 將清理後的字串解析為 JSON
+            parsed_json = json.loads(cleaned_string)
+            return parsed_json
+        except json.JSONDecodeError as e:
+            print(f"JSON 解析錯誤：{e}")
+            return None
+
+    # 將結果渲染到模板
+    return render_template('trip.html', days=days, active=active, ai_response=fix_json_format_with_markers(ai_response))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=True)
