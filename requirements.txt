@@ -9,3 +9,4 @@ google-genai==1.30.0
 google-generativeai
 gunicorn
 pycryptodome
+protobuf<5

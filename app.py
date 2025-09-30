@@ -19,6 +19,8 @@ import html
 import math
 import base64
 from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad as _pad, unpad as _unpad
+import time
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -88,27 +90,37 @@ with open('datas/活動.csv', encoding='utf-8-sig') as f:
 
 #實作 pad / unpad
 BS = AES.block_size
-def _pad(s: bytes) -> bytes:
-    padding = BS - len(s) % BS
-    return s + bytes([padding] * padding)
 
-def _unpad(s: bytes) -> bytes:
-    return s[:-s[-1]]
-
-#加／解密函式
+# 加密函式
 def encrypt_token(uid: str) -> str:
-    iv = secrets.token_bytes(BS)
-    cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
-    ct = cipher.encrypt(_pad(uid.encode('utf-8')))
-    return base64.urlsafe_b64encode(iv + ct).decode('utf-8')
+    # 加入時間戳記（秒）
+    timestamp = str(int(time.time()))  # 獲取當前時間戳
+    data = f"{uid}:{timestamp}"  # 將 uid 和時間戳記組合
+    iv = secrets.token_bytes(BS)  # 隨機生成 IV
+    cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)  # 建立 AES 加密器
+    ct = cipher.encrypt(_pad(data.encode('utf-8'), BS))  # 加密並填充
+    return base64.urlsafe_b64encode(iv + ct).decode('utf-8')  # 返回加密後的 Token
 
-def decrypt_token(token: str) -> str:
+# 解密函式
+def decrypt_token(token: str) -> tuple:
     if token:
-        data = base64.urlsafe_b64decode(token.encode('utf-8'))
-        iv, ct = data[:BS], data[BS:]
-        cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
-        pt = cipher.decrypt(ct)
-        return _unpad(pt).decode('utf-8')
+        try:
+            data = base64.urlsafe_b64decode(token.encode('utf-8'))  # 解碼 Base64
+            iv, ct = data[:BS], data[BS:]  # 分離 IV 和密文
+            cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)  # 建立 AES 解密器
+            pt = _unpad(cipher.decrypt(ct), BS).decode('utf-8')  # 解密並去填充
+            uid, timestamp = pt.split(":")  # 分解 uid 和時間戳記
+            
+            # 驗證時間戳記是否過期
+            current_time = int(time.time())
+            token_time = int(timestamp)
+            if current_time - token_time > 3600:
+                raise ValueError("Token 已過期")
+            
+            return uid
+        except Exception as e:
+            print(f"解密錯誤：{e}")
+            return None
     else:
         return None
 
@@ -698,7 +710,7 @@ def trip(days, active):
             return None
 
     # 將結果渲染到模板
-    return render_template('trip.html', days=days, active=active, ai_response=fix_json_format_with_markers(ai_response))
+    return render_template('trip.html', days=days, active=active, ai_response=fix_json_format_with_markers(ai_response), event=event_data)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False)

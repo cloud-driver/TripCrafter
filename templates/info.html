@@ -16,127 +16,156 @@
   
   <!-- 設置主色調 -->
   <style> 
-      :root { --thm-color-one: #FF6600; } 
-      .thm-color-one { color: #FF6600; } 
-      .thm-btn { background-color: #FF6600; } 
-      .thm-btn:hover, .thm-btn:focus { background-color: #e65c00; } 
-      .section-header .title span { color: #FF6600; } 
-      .ft_widgets .ft_title { color: #FF6600; } 
-      .copyright a { color: #FF6600 !important; } 
-      .back-to-top { background-color: #FF6600; } 
-      /* 活動卡片 */ 
-      .event-item { 
-        background-color: #fff; 
-        border: 1px solid #e5e5e5; 
-        border-radius: .75rem; padding: 1rem 1.25rem; 
-        margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-        } 
-      .event-item h4.event-title { 
-        font-size: 1.25rem; 
-        font-weight: 500; 
-        margin-bottom: .5rem; 
-        } 
-      .event-desc { 
-        color: #6c757d; 
-        margin-bottom: .75rem; 
+    :root { --thm-color-one: #FF6600; } 
+    .thm-color-one { color: #FF6600; } 
+    .thm-btn { background-color: #FF6600; } 
+    .thm-btn:hover, .thm-btn:focus { background-color: #e65c00; } 
+    .section-header .title span { color: #FF6600; } 
+    .ft_widgets .ft_title { color: #FF6600; } 
+    .copyright a { color: #FF6600 !important; } 
+    .back-to-top { background-color: #FF6600; } 
+    /* 活動卡片 */ 
+    .event-item {
+      background-color: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: .75rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      cursor: grab;
+    }
+    .event-item.dragging {
+      opacity: 0.6;
+      background-color: #d1d1d1;
+    }
+    .event-item h4.event-title { 
+      font-size: 1.25rem; 
+      font-weight: 500; 
+      margin-bottom: .5rem; 
       } 
-      .event-location { 
-        color: #999; 
-        font-size: .9rem; 
-        display: flex; 
-        align-items: center; 
-        } 
-      .event-location i { 
-        margin-right: .25rem; 
-        color: var(--thm-color-one); 
-        } 
-      .event-list { 
-        display: grid; 
-        grid-template-columns: 
-        repeat(auto-fill, 
-        minmax(280px, 1fr)); 
-        gap: 1rem; margin-bottom: 2rem; 
+    .event-desc { 
+      color: #6c757d; 
+      margin-bottom: .75rem; 
+    } 
+    .event-location { 
+      color: #999; 
+      font-size: .9rem; 
+      display: flex; 
+      align-items: center; 
       } 
-      .event-item { 
-        width: 100%; 
-        transition: box-shadow 0.3s ease; 
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-        } 
-      .event-item:hover { 
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15); 
-        } 
-      .single_banner .right_skew, .single_banner .left_skew { 
-        background-color: white; 
-        } 
-      .search-wrapper { 
-        position: relative; 
-        display: inline-block; 
+    .event-location i { 
+      margin-right: .25rem; 
+      color: var(--thm-color-one); 
       } 
-      .search-wrapper button {
+    .event-list { 
+      display: grid; 
+      grid-template-columns: 
+      repeat(auto-fill, 
+      minmax(280px, 1fr)); 
+      gap: 1rem; margin-bottom: 2rem; 
+    } 
+    .event-item { 
+      width: 100%; 
+      transition: box-shadow 0.3s ease; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+      } 
+    .event-item:hover { 
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15); 
+      } 
+    .single_banner .right_skew, .single_banner .left_skew { 
+      background-color: white; 
+      } 
+    .search-wrapper { 
+      position: relative; 
+      display: inline-block; 
+    } 
+    .search-wrapper button {
+      background-color: var(--thm-color-one); 
+      color: #fff; 
+      } 
+    .search-dropdown { 
+      position: absolute; 
+      top: 100%; 
+      right: 0; 
+      min-width: 100%; 
+      background-color: var(--thm-color-one); 
+      color: #fff; 
+      border: none; 
+      border-radius: 0.25rem; 
+      padding: 0.5rem; 
+      transform-origin: top right; 
+      transform: scaleY(0); 
+      opacity: 0; visibility: hidden; 
+      transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+      z-index: 10; 
+      display: flex !important; 
+      flex-direction: row; 
+      align-items: center; 
+      gap: 0.5rem; 
+      min-width: 250px; 
+      } 
+    .search-dropdown input { 
+      flex: 1 1 auto; 
+      min-width: 200px; 
+      width: auto !important; 
+      margin: 0; width: calc(100% - 3rem); 
+      padding: 0.25rem; border: 1px solid #ddd; 
+      border-radius: 0.25rem; 
+      margin-right: 0.25rem; 
+      } 
+    .search-dropdown button { 
+      flex: 0 0 auto; 
+      margin: 0; 
+      } 
+    .search-wrapper:hover .search-dropdown { 
+      visibility: visible; 
+      transform: scaleY(1); 
+      opacity: 1; 
+      transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s; 
+      } 
+      /* 分頁扁平化微調（可選） */ 
+      .pagination .page-link { 
+        border-radius: .375rem; 
+        } 
+      .pagination .page-item.disabled .page-link { 
+        color:#adb5bd; 
+      } 
+      input[type="button"] { 
         background-color: var(--thm-color-one); 
-        color: #fff; 
-        } 
-      .search-dropdown { 
-        position: absolute; 
-        top: 100%; 
-        right: 0; 
-        min-width: 100%; 
-        background-color: var(--thm-color-one); 
-        color: #fff; 
+        color: white; 
         border: none; 
+        padding: 0.5rem 1rem; 
         border-radius: 0.25rem; 
-        padding: 0.5rem; 
-        transform-origin: top right; 
-        transform: scaleY(0); 
-        opacity: 0; visibility: hidden; 
-        transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s; 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-        z-index: 10; 
-        display: flex !important; 
-        flex-direction: row; 
-        align-items: center; 
-        gap: 0.5rem; 
-        min-width: 250px; 
-        } 
-      .search-dropdown input { 
-        flex: 1 1 auto; 
-        min-width: 200px; 
-        width: auto !important; 
-        margin: 0; width: calc(100% - 3rem); 
-        padding: 0.25rem; border: 1px solid #ddd; 
-        border-radius: 0.25rem; 
-        margin-right: 0.25rem; 
-        } 
-      .search-dropdown button { 
-        flex: 0 0 auto; 
-        margin: 0; 
-        } 
-      .search-wrapper:hover .search-dropdown { 
-        visibility: visible; 
-        transform: scaleY(1); 
-        opacity: 1; 
-        transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s; 
-        } 
-        /* 分頁扁平化微調（可選） */ 
-        .pagination .page-link { 
-          border-radius: .375rem; 
-          } 
-        .pagination .page-item.disabled .page-link { 
-          color:#adb5bd; 
-        } 
-        input[type="button"] { 
-          background-color: var(--thm-color-one); 
-          color: white; 
-          border: none; 
-          padding: 0.5rem 1rem; 
-          border-radius: 0.25rem; 
-          cursor: pointer; 
-          margin: 0.25rem; 
-        }
-        
-      </style> 
-</head>
-<body>
+        cursor: pointer; 
+        margin: 0.25rem; 
+      }
+      .save-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #FF6600;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+      .save-btn:hover {
+        background-color: #e65c00;
+      }
+      .indicator {
+        height: 4px;
+        background-color: #FF6600;
+        margin: 0 auto;
+        border-radius: 2px;
+        position: relative;
+        width: calc(100% - 30px);
+        display: none;
+      }
+    </style> 
+  </head>
+  <body>
   <!-- Header Start --> 
   <header class="header can-sticky"> 
     <div class="container"> 
@@ -162,37 +191,42 @@
           </nav> 
           <div class="header_actions"> 
             <ul> 
-              <li> {% if session['token'] %} 
+              <li> 
+                {% if session['token'] %} 
                 <li> 
                   <a href="/account_management?token={{ session['token'] }}" class="login_btn"> 
-                    <i class="fal fa-user-circle me-2"></i> 已登入 </a> {% else %} 
-                    <li> 
-                      <a href="/login" class="login_btn"> 
-                        <i class="fal fa-user-circle me-2"></i> 登入/註冊 
-                      </a> 
-                    </li> {% endif %} 
-                    <li> 
-                      <div class="search-wrapper"> 
-                        <button class="thm-btn btn-rounded"> 
-                          <i class="bi-search"></i> 搜尋活動 
-                        </button> 
-                        <div class="search-dropdown"> 
-                          <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" /> 
-                          <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button> 
-                        </div> 
-                      </div> 
-                    </li> 
-                  </ul> 
-                  <div class="hamburger"> 
-                    <div class="hamburger_btn"><span></span><span></span><span></span>
+                    <i class="fal fa-user-circle me-2"></i> 已登入
+                  </a>
+                </li>li> 
+                {% else %} 
+                <li> 
+                  <a href="/login" class="login_btn"> 
+                    <i class="fal fa-user-circle me-2"></i> 登入/註冊 
+                  </a> 
+                </li> 
+                {% endif %} 
+                <li> 
+                  <div class="search-wrapper"> 
+                    <button class="thm-btn btn-rounded"> 
+                      <i class="bi-search"></i> 搜尋活動 
+                    </button> 
+                    <div class="search-dropdown"> 
+                      <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" /> 
+                      <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button> 
                     </div> 
                   </div> 
-                </div> 
+                </li> 
+            </ul> 
+            <div class="hamburger"> 
+              <div class="hamburger_btn"><span></span><span></span><span></span>
               </div> 
             </div> 
           </div> 
-        </header> 
-        <!-- Header End --> 
+        </div> 
+      </div> 
+    </div> 
+  </header> 
+  <!-- Header End --> 
 
                   <!-- Banner Start --> 
           <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;"> 
