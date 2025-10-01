@@ -161,7 +161,7 @@
                 <a href="/active/all" class="active">探索活動</a>
               </li> 
               <li class="menu-item">
-                <a href="'/contact">聯絡我們</a>
+                <a href="/contact">聯絡我們</a>
               </li> 
             </ul> 
           </nav> 
@@ -196,8 +196,9 @@
               </div> 
             </div> 
           </div> 
-        </header> 
-        <!-- Header End --> 
+        </div> 
+      </header> 
+      <!-- Header End --> 
 
                   <!-- Banner Start --> 
           <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;"> 
@@ -234,6 +235,11 @@
                 無法取得行程資料，請稍後再試。
             </div>
         {% endif %}
+
+        <!-- 新增儲存按鈕 -->
+        <div class="text-center mt-4">
+            <button id="save-btn" class="thm-btn">儲存行程</button>
+        </div>
     </div>
 
     <!-- Footer Start -->
@@ -352,20 +358,60 @@
         });
 
         // 更新行程順序
+        let updatedSchedule = {}; // 定義在全局範圍
         function updateSchedule() {
-            const updatedSchedule = {};
+            updatedSchedule = {};
             daySections.forEach(section => {
                 const day = section.id.split('-')[1];
                 const activities = section.querySelectorAll('.activity');
-                updatedSchedule[day] = Array.from(activities).map(activity => ({
-                    title: activity.querySelector('strong').textContent,
-                    time: activity.querySelector('.activity-content').textContent.split(' - ')[1],
-                    location: activity.querySelector('.activity-content').textContent.split(' - ')[2],
-                    tags: activity.querySelector('.activity-tags').textContent
-                }));
+                updatedSchedule[day] = Array.from(activities).map(activity => {
+                    const contentText = activity.querySelector('.activity-content').textContent.trim();
+                    const parts = contentText.split(' - ');
+                    return {
+                        title: activity.querySelector('strong')?.textContent || '',
+                        time: parts[1] || '',
+                        location: parts[2] || '',
+                        tags: activity.querySelector('.activity-tags')?.textContent || ''
+                    };
+                });
             });
             console.log('更新後的行程順序：', updatedSchedule);
         }
+
+        // 儲存按鈕事件
+        const token = "{{ token }}".trim(); // 從 Flask 模板傳入 token（確保後端有傳入）
+        document.getElementById('save-btn').addEventListener('click', () => {
+            if (!token) {
+                alert('請先登入以儲存行程。');
+                return;
+            }
+            updateSchedule(); // 確保數據最新
+            if (Object.keys(updatedSchedule).length === 0 || Object.values(updatedSchedule).every(arr => arr.length === 0)) {
+                alert('沒有行程數據可儲存，請先添加或調整活動。');
+                return;
+            }
+            fetch('/save_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token, schedule: updatedSchedule })
+            })
+            .then(response => response.json().catch(() => ({})))  // 安全解析 JSON，如果失敗返回空物件
+            .then(data => {
+                if (data.message) {
+                    alert(data.message); // 成功訊息
+                } else if (data.error) {
+                    alert(`儲存失敗：${data.error}`); // 顯示後端具體錯誤
+                } else {
+                    alert('儲存失敗：未知錯誤');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`發生錯誤：${error.message || '無法連線到伺服器'}`);
+            });
+        });
     </script>
 </body>
 </html>

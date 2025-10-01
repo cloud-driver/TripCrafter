@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import requests
 import secrets
@@ -21,6 +22,8 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad as _pad, unpad as _unpad
 import time
+import sqlite3
+from datetime import datetime
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -124,6 +127,24 @@ def decrypt_token(token: str) -> tuple:
     else:
         return None
 
+# 初始化資料庫
+def init_db():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS schedules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            uid TEXT NOT NULL,
+            trip_id TEXT NOT NULL,
+            schedule TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()  # 呼叫初始化（只在應用啟動時執行一次）
+
 @app.context_processor
 def inject_csrf_token():
     return dict(csrf_token=generate_csrf)
@@ -131,6 +152,7 @@ def inject_csrf_token():
 @csrf.exempt
 @app.route("/")
 def home():
+    session['token'] = encrypt_token("123123123321123123123") # 測試用，預設登入
     return render_template('index.html')
 
 @csrf.exempt
@@ -438,6 +460,18 @@ def health():
 def page_not_found(error):
     return render_template('404.html'), 404
 
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({"error": "Bad Request"}), 400
+
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify({"error": "Unauthorized"}), 401
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"error": "Internal Server Error"}), 500
+
 @csrf.exempt
 @app.route("/account_management", methods=["GET", "POST"])
 def account_management():
@@ -659,6 +693,8 @@ def info():
 @csrf.exempt
 @app.route("/trip/<days>/<active>")
 def trip(days, active):
+    token=session.get('token') or ''
+
     # 驗證天數是否正確
     if days not in ['one-day', 'two-day', 'three-day']:
         abort(404)
@@ -710,7 +746,63 @@ def trip(days, active):
             return None
 
     # 將結果渲染到模板
-    return render_template('trip.html', days=days, active=active, ai_response=fix_json_format_with_markers(ai_response), event=event_data)
+    return render_template('trip.html', days=days, active=active, ai_response=fix_json_format_with_markers(ai_response), event=event_data, token=token)
 
+@app.route('/save_data/<flow>', methods=['POST'])
+@csrf.exempt
+def save_data(flow):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
+    
+    token = data.get('token')
+    schedule = data.get('schedule')
+    
+    if not token:
+        return jsonify({"error": "Missing token"}), 400
+    if not schedule or not isinstance(schedule, dict) or not schedule:
+        return jsonify({"error": "Missing or invalid schedule"}), 400
+    
+    # 驗證 token（示例：檢查是否匹配 session 或資料庫）
+    if token != session.get('token'):  # 假設使用 session 驗證
+        return jsonify({"error": "Invalid token"}), 401
+    
+    if flow not in ['new', 'update']:
+        return jsonify({"error": "Invalid flow type"}), 400
+    
+    # 繼續儲存邏輯...
+    if flow == 'new':
+        trip_id = str(uuid.uuid4())
+    else:  # flow == 'update'
+        trip_id = data.get('trip_id')
+        if not trip_id:
+            return jsonify({"error": "Missing trip_id for update flow"}), 400
+        
+    try:
+        uid = decrypt_token(token)
+        if not uid:
+            return jsonify({"error": "無效的 token"}), 401
+
+        # 將 schedule 轉成 JSON 字串
+        schedule_json = json.dumps(schedule, ensure_ascii=False)
+
+        # 儲存到資料庫
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        current_time = datetime.now().isoformat()
+        cursor.execute(
+            "INSERT INTO schedules (uid, trip_id, schedule, created_at) VALUES (?, ?, ?, ?)",
+            (uid, trip_id, schedule_json, current_time)
+        )
+        conn.commit()
+        conn.close()
+
+        # 可選：記錄日誌
+        save_log(f"User {uid} saved schedule to database")
+
+        return jsonify({"message": "行程儲存成功"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False)

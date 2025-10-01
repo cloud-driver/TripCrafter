@@ -1,1 +1,16 @@
-[]
+[
+    {
+        "uid": "123123123321123123123",
+        "username": "新使用者",
+        "google_account": {
+                        "userId": "user_id_from_google",
+                        "display_name": "display_name_from_google",
+                        "email": "email_from_google"
+                    },
+        "line_account": {
+                        "userId": "user_id_from_line",
+                        "display_name": "display_name_from_line",
+                        "email": "email_from_line"
+                    }
+    }
+]
