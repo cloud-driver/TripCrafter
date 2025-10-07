@@ -24,6 +24,7 @@ from Crypto.Util.Padding import pad as _pad, unpad as _unpad
 import time
 import sqlite3
 from datetime import datetime
+import random
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -91,6 +92,56 @@ with open('datas/活動.csv', encoding='utf-8-sig') as f:
         eid = row['唯一識別碼']
         EVENTS[eid] = row
 
+ATTRACTIONS = {}
+with open('datas/景點.csv', encoding='utf-8-sig') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        eid = row['縣市名稱']
+        ATTRACTIONS[eid] = row
+
+HOTEL = {}
+with open('datas/景點.csv', encoding='utf-8-sig') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        eid = row['縣市名稱']
+        HOTEL[eid] = row
+
+RESTAURANT = {}
+with open('datas/餐飲.csv', encoding='utf-8-sig') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        eid = row['縣市名稱']
+        RESTAURANT[eid] = row
+
+
+# 根據城市名稱查找對應的資料
+def find(DATA, city_name):
+    """
+    根據城市名稱查找對應的資料。
+    如果找到的景點超過50個，則隨機選取50個。
+    回傳一個包含所有景點完整內容的純文字字串。
+    """
+    found = {}
+    for value in DATA.values():
+        if value['縣市名稱'] == city_name:
+            found[value['唯一識別碼']] = value
+
+    result_dict = {}
+    if len(found) > 50:
+        random_keys = random.sample(list(found.keys()), 50)
+        result_dict = {key: found[key] for key in random_keys}
+    else:
+        result_dict = found
+    
+    attraction_strings = []
+    for attraction_data in result_dict.values():
+        single_attraction_parts = []
+        for key, value in attraction_data.items():
+            single_attraction_parts.append(f"{key}: {value}")
+        attraction_strings.append("\n".join(single_attraction_parts))
+    
+    return "\n\n---\n\n".join(attraction_strings)
+
 #實作 pad / unpad
 BS = AES.block_size
 
@@ -153,6 +204,7 @@ def inject_csrf_token():
 @app.route("/")
 def home():
     session['token'] = encrypt_token("123123123321123123123") # 測試用，預設登入
+    session['home'] = "10001" # 測試用，預設家
     return render_template('index.html')
 
 @csrf.exempt
@@ -693,7 +745,8 @@ def info():
 @csrf.exempt
 @app.route("/trip/<days>/<active>")
 def trip(days, active):
-    token=session.get('token') or ''
+    token = session.get('token') or ''
+    home_station = session.get('home') or '1000' # 預設北車
 
     # 驗證天數是否正確
     if days not in ['one-day', 'two-day', 'three-day']:
@@ -708,7 +761,7 @@ def trip(days, active):
 
     # 整合資料為字串格式
     def package_data(event):
-        return f"##{event['唯一識別碼']}:{event['資料名稱']}({event['行政區(鄉鎮區)名稱']})"
+        return f"##{event['唯一識別碼']}:{event['資料名稱']}({event['縣市名稱']}{event['行政區(鄉鎮區)名稱']}) \n 景點資料：\n{find(ATTRACTIONS, event['縣市名稱'])}\n\n 餐廳資料：\n{find(RESTAURANT, event['縣市名稱'])}\n\n 住宿資料：\n{find(HOTEL, event['縣市名稱'])}\n\n 活動資料：\n名稱: {event['資料名稱']}\n地點: {event['行政區(鄉鎮區)名稱']} {event['街道名稱']}\n描述: {event['文字描述']}\n聯絡方式: {event['聯絡電話']}#{event['分機']}\n"
 
     packaged_data = package_data(event_data)
 
@@ -722,12 +775,10 @@ def trip(days, active):
     trip_data = f"# {total_days} Days\n{packaged_data}"
 
     # 呼叫 AI 排行程
-    #ai_response = ask_ai(trip_data)
-    ai_response = "```json\n{\n    \"1\": [\n        {\n            \"title\": \"2024新北觀光工廠｜青春造一夏(板橋區)\",\n            \"time\": \"10:00 - 16:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"文化, 觀光, 體驗\"\n        },\n        {\n            \"title\": \"午餐與休息\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區附近餐廳\",\n            \"tags\": \"餐飲, 休息\"\n        },\n        {\n            \"title\": \"自由活動或周邊景點\",\n            \"time\": \"16:00 - 18:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"自由, 探索\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"早晨漫步與早餐\",\n            \"time\": \"08:00 - 09:30\",\n            \"location\": \"住宿地點附近\",\n            \"tags\": \"休息, 餐飲\"\n        },\n        {\n            \"title\": \"參觀板橋林家花園\",\n            \"time\": \"09:30 - 12:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"歷史, 建築, 園林\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"在地市場體驗 (如湳雅夜市)\",\n            \"time\": \"09:00 - 11:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"在地, 文化, 體驗\"\n        },\n        {\n            \"title\": \"午餐與購物\",\n            \"time\": \"11:00 - 13:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲, 購物\"\n        },\n        {\n            \"title\": \"整理行李與離開\",\n            \"time\": \"13:00 onwards\",\n            \"location\": \"住宿地點\",\n            \"tags\": \"休息, 離開\"\n        }\n    ]\n}\n```"
+    ai_response = ask_ai(trip_data)
+    #ai_response = "```json\n{\n    \"1\": [\n        {\n            \"title\": \"2024新北觀光工廠｜青春造一夏(板橋區)\",\n            \"time\": \"10:00 - 16:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"文化, 觀光, 體驗\"\n        },\n        {\n            \"title\": \"午餐與休息\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區附近餐廳\",\n            \"tags\": \"餐飲, 休息\"\n        },\n        {\n            \"title\": \"自由活動或周邊景點\",\n            \"time\": \"16:00 - 18:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"自由, 探索\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"早晨漫步與早餐\",\n            \"time\": \"08:00 - 09:30\",\n            \"location\": \"住宿地點附近\",\n            \"tags\": \"休息, 餐飲\"\n        },\n        {\n            \"title\": \"參觀板橋林家花園\",\n            \"time\": \"09:30 - 12:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"歷史, 建築, 園林\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"在地市場體驗 (如湳雅夜市)\",\n            \"time\": \"09:00 - 11:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"在地, 文化, 體驗\"\n        },\n        {\n            \"title\": \"午餐與購物\",\n            \"time\": \"11:00 - 13:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲, 購物\"\n        },\n        {\n            \"title\": \"整理行李與離開\",\n            \"time\": \"13:00 onwards\",\n            \"location\": \"住宿地點\",\n            \"tags\": \"休息, 離開\"\n        }\n    ]\n}\n```"
 
     def fix_json_format_with_markers(json_string):
-        import json
-
         # 移除頭尾的 ```json 和 ```
         if json_string.startswith("```json"):
             json_string = json_string[7:]  # 移除開頭的 ```json
@@ -744,13 +795,18 @@ def trip(days, active):
         except json.JSONDecodeError as e:
             print(f"JSON 解析錯誤：{e}")
             return None
+        
+    ai_response=fix_json_format_with_markers(ai_response)
+
+    print(ai_response)
 
     # 將結果渲染到模板
-    return render_template('trip.html', days=days, active=active, ai_response=fix_json_format_with_markers(ai_response), event=event_data, token=token)
+    return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token)
 
 @app.route('/save_data/<flow>', methods=['POST'])
 @csrf.exempt
 def save_data(flow):
+    """未完成"""
     data = request.get_json()
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
@@ -805,4 +861,4 @@ def save_data(flow):
         return jsonify({"error": f"Server error: {str(e)}"}), 500
     
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=True)
