@@ -3,13 +3,19 @@ import json
 import requests
 from geopy.distance import geodesic
 from datetime import datetime, timedelta
+import os
+from dotenv import load_dotenv
+from send import save_log
 
-home_station_code = "7130"  # 蘇澳新
+if os.path.exists(".env"): load_dotenv()
+
+home_station_code = "0980"  # 南港
+home_station_name = "南港"
 departure_datetime_str = "2025-10-16T08:44:00" # 出發時間
 
 # API Keys
-API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjZXJ0IjoiMmIyYzU5YjE3MWMyY2RiMDExZDk4ZjYxN2NkYWEyZTgyNDk1YWY4YyIsImlhdCI6MTc1OTU5Njc0NX0.iyxRW1MLztK2VV2xGgLYdKzV7pE9pHYvIrz6MfdejYw"
-GOOGLE_API_KEY = "AIzaSyBupx_s-VMi7f5AgVZ8_vJ5xIMWgh0XHHI"
+API_TOKEN = os.getenv('TRAIN_API_TOKEN')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 city_code_map = {
     "臺北市": "A", "台北市": "A", "臺中市": "B", "台中市": "B", "基隆市": "C", 
@@ -29,6 +35,21 @@ big_station_map = {
 }
 big_station_name_map = {v: k for k, v in big_station_map.items()}
 
+station_regions = {
+    'EAST': ["7190", "7130", "7000", "6110", "6000"],
+    'WEST_NORTH': ["0900", "0930", "0980", "0990", "1000", "1020", "1040", "1080", "1100"],
+    'WEST_CENTRAL': ["1210", "1250", "3160", "3230", "3300", "3360", "3390"],
+    'WEST_SOUTH': ["3470", "4080", "4120", "4220", "4340", "4400"],
+    'PINGTUNG': ["5000", "5050"]
+}
+
+junction_hubs = {
+    frozenset(['EAST', 'WEST_NORTH']): ["0930", "0980", "0990", "1000", "1020"],
+    frozenset(['EAST', 'WEST_CENTRAL']): ["0930", "0980", "0990", "1000", "1020"],
+    frozenset(['EAST', 'WEST_SOUTH']): ["5000", "5050"],
+    frozenset(['EAST', 'PINGTUNG']): ["5000", "5050"],
+}
+
 ai_response = '''
 {
     "1": [
@@ -46,137 +67,164 @@ station_coords_cache = {}
 station_name_cache = {}
 
 def get_coordinates(address):
-    """將地址轉換為經緯度座標，並加入快取"""
     if address in station_coords_cache:
         return station_coords_cache[address]
     
     url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={GOOGLE_API_KEY}"
     try:
         response = requests.get(url)
+        response.raise_for_status() # 建議加上這行，方便檢查 HTTP 錯誤
         data = response.json()
         if data['status'] == 'OK':
             location = data['results'][0]['geometry']['location']
             station_coords_cache[address] = location
             return location
+        else:
+            save_log(f"Geocoding API 狀態錯誤 for '{address}': {data['status']}") # 加上錯誤訊息
         return None
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        save_log(f"Geocoding API 請求失敗 for '{address}': {e}") # 加上錯誤訊息
         return None
 
 def get_station_name(station_code):
-    """根據車站代碼獲取車站名稱，並加入快取"""
-    if station_code in station_name_cache:
-        return station_name_cache[station_code]
-    
+    if station_code in station_name_cache: return station_name_cache[station_code]
     if station_code in big_station_name_map:
         station_name_cache[station_code] = big_station_name_map[station_code]
         return big_station_name_map[station_code]
-
-    print(f"警告: 無法從快取或大站列表中找到代碼 {station_code} 的名稱。")
     return f"車站{station_code}"
 
 def find_closest_station(target_coords, stations):
-    """從車站列表中找出距離目標座標最近的車站"""
-    closest_station_info = None
-    min_distance = float('inf')
+    closest_station_info, min_distance = None, float('inf')
     for station_code, station_name in stations:
         station_coords = get_coordinates(f"{station_name}車站")
         if station_coords:
             distance = geodesic((target_coords['lat'], target_coords['lng']), (station_coords['lat'], station_coords['lng'])).km
             if distance < min_distance:
-                min_distance = distance
-                closest_station_info = (station_code, station_name, distance)
+                min_distance, closest_station_info = distance, (station_code, station_name, distance)
     return closest_station_info
 
 def find_closest_big_station(target_station_code, big_station_coords):
-    """從所有大站中，找到離目標車站最近的一個"""
     target_station_name = get_station_name(target_station_code)
     target_coords = get_coordinates(f"{target_station_name}車站")
-    if not target_coords:
-        return None
-
-    closest_hub_code = None
-    min_distance = float('inf')
+    if not target_coords: return None
+    closest_hub_code, min_distance = None, float('inf')
     for hub_code, hub_coords in big_station_coords.items():
-        if hub_code == target_station_code:
-            continue
+        if hub_code == target_station_code: continue
         distance = geodesic((target_coords['lat'], target_coords['lng']), (hub_coords['lat'], hub_coords['lng'])).km
         if distance < min_distance:
-            min_distance = distance
-            closest_hub_code = hub_code
+            min_distance, closest_hub_code = distance, hub_code
     return closest_hub_code
 
 def get_train_schedule(start_station, end_station, departure_time):
-    """查詢火車時刻表"""
-    headers = {"Content-Type": "application/json", "token": API_TOKEN}
-    payload = {"start_station": start_station, "end_station": end_station, "datetime": departure_time}
+    headers, payload = {"Content-Type": "application/json", "token": API_TOKEN}, {"start_station": start_station, "end_station": end_station, "datetime": departure_time}
     try:
-        response = requests.post(
-            "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d",
-            json=payload, headers=headers, timeout=30
-        )
+        response = requests.post("https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d", json=payload, headers=headers, timeout=30)
         response.raise_for_status()
         result = response.json()
         return result if isinstance(result, list) and len(result) > 0 else []
-    except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
-        print(f"查詢時刻表時發生錯誤 ({start_station} -> {end_station}): {e}")
-        return []
-    
-def get_station_list_by_city(destination_city):
-    """根據城市名稱獲取該城市的所有車站列表"""
-    city_prefix = city_code_map.get(destination_city)
-    if not city_prefix:
+    except Exception as e:
+        save_log(f"查詢時刻表時發生錯誤 ({start_station} -> {end_station}): {e}")
         return []
 
-    headers = {"Content-Type": "application/json", "token": API_TOKEN}
-    payload = {"city_code": [city_prefix]}
+def get_station_list_by_city(destination_city):
+    city_prefix = city_code_map.get(destination_city)
+    if not city_prefix: return []
+    headers, payload = {"Content-Type": "application/json", "token": API_TOKEN}, {"city_code": [city_prefix]}
     try:
-        response = requests.post(
-            "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e15166c84d3",
-            params={}, json=payload, headers=headers, timeout=30
-        )
+        response = requests.post("https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e15166c84d3", json=payload, headers=headers, timeout=30)
         response.raise_for_status()
         stations = response.json()
-        print(f"查詢到城市 {destination_city} 的車站列表: {stations}")
         return [(num, name) for num, name in stations[city_prefix].items()]
-    except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
-        print(f"查詢城市 {destination_city} 車站列表時發生錯誤: {e}")
+    except Exception as e:
+        save_log(f"查詢城市 {destination_city} 車站列表時發生錯誤: {e}")
         return []
 
+# *** 新增：輔助函式，用來獲取車站所屬區域 ***
+def get_station_region(station_code, big_station_coords):
+    """
+    獲取車站所屬的區域。
+    如果車站本身就是大站，直接返回其區域。
+    如果不是，則找到離它最近的大站，並返回該大站的區域。
+    """
+    # 1. 先嘗試直接從 station_regions 查找 (如果該站本身就是定義好的大站)
+    for region, codes in station_regions.items():
+        if station_code in codes:
+            return region
+
+    # 2. 如果找不到，表示這是一個小站。我們需要找到離它最近的大站。
+    #    我們使用現有的 find_closest_big_station 函式來完成這件事。
+    closest_big_station_code = find_closest_big_station(station_code, big_station_coords)
+
+    if closest_big_station_code:
+        # 3. 找到最近的大站後，再次查找這個大站所屬的區域。
+        for region, codes in station_regions.items():
+            if closest_big_station_code in codes:
+                return region
+    
+    # 4. 如果連最近的大站都找不到，才返回 None
+    return None
+
 def main():
-    """主執行函式"""
     all_found_routes = []
     departure_datetime = datetime.fromisoformat(departure_datetime_str)
 
-    for code, name in big_station_name_map.items():
-        station_name_cache[code] = name
-    station_name_cache[home_station_code] = "蘇澳新"
+    for code, name in big_station_name_map.items(): station_name_cache[code] = name
+    station_name_cache[home_station_code] = home_station_name
+
+    # --- START: 全新的大站座標初始化邏輯 ---
+    
+    BIG_STATION_CACHE_FILE = "json/big_station_coords.json"
+    big_station_coords = {}
+
+    # 步驟 1: 嘗試從快取檔案載入座標
+    if os.path.exists(BIG_STATION_CACHE_FILE):
+        try:
+            with open(BIG_STATION_CACHE_FILE, 'r', encoding='utf-8') as f:
+                big_station_coords = json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            save_log(f"⚠️ 從快取檔案讀取失敗: {e}。將重新從 API 獲取資料。")
+            big_station_coords = {} # 如果檔案損毀或讀取失敗，就清空字典以便重新抓取
+
+    # 步驟 2: 如果快取不存在或載入失敗，則從 API 獲取並儲存
+    if not big_station_coords:
+        save_log("--- 快取不存在或已失效，正在從 API 初始化大站座標資料 ---")
+        
+        # 原本的 API 呼叫邏輯
+        big_station_coords_raw = {code: get_coordinates(f"{name}車站") for name, code in big_station_map.items()}
+        # 過濾掉查詢失敗的項目
+        big_station_coords = {k: v for k, v in big_station_coords_raw.items() if v}
+        
+        save_log(f"--- 正在將新座標儲存至 {BIG_STATION_CACHE_FILE} ---")
+        try:
+            with open(BIG_STATION_CACHE_FILE, 'w', encoding='utf-8') as f:
+                json.dump(big_station_coords, f, ensure_ascii=False, indent=4)
+            save_log("--- 座標儲存完成 ---\n")
+        except IOError as e:
+            save_log(f"❌ 儲存座標快取失敗: {e}\n")
+
+    # --- END: 全新的大站座標初始化邏輯 ---
 
     try:
         travel_data = json.loads(ai_response)
         destination_address = travel_data["1"][0]["location"]
-    except (json.JSONDecodeError, KeyError, IndexError) as e:
-        print(f"解析行程 JSON 時出錯: {e}"); return
+    except Exception as e: save_log(f"解析行程 JSON 時出錯: {e}"); return
 
     destination_coords = get_coordinates(destination_address)
-    if not destination_coords: print("無法獲取目的地座標。"); return
+    if not destination_coords: save_log("無法獲取目的地座標。"); return
 
     destination_city = destination_address[0:3]
     station_list = get_station_list_by_city(destination_city)
-    if not station_list: print(f"找不到城市 '{destination_city}' 的車站列表。"); return
+    if not station_list: save_log(f"找不到城市 '{destination_city}' 的車站列表。"); return
     
     closest_station_info = find_closest_station(destination_coords, station_list)
-    if not closest_station_info: print("找不到離目的地最近的火車站。"); return
+    if not closest_station_info: save_log("找不到離目的地最近的火車站。"); return
     
     dest_station_code, dest_station_name, _ = closest_station_info
     station_name_cache[dest_station_code] = dest_station_name
-    print(f"出發站: {get_station_name(home_station_code)} ({home_station_code})")
-    print(f"目的地: {dest_station_name} ({dest_station_code})\n")
-
     # 策略一：搜尋直達車
-    print("--- 1. 正在搜尋直達路線 ---")
+    save_log("--- 1. 正在搜尋直達路線 ---")
     direct_trains = get_train_schedule(home_station_code, dest_station_code, departure_datetime_str)
     if direct_trains:
-        print("✅ 找到直達車次！")
         train = direct_trains[0]
         arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{train['arrival_time']}:00")
         if arrival_dt < departure_datetime: arrival_dt += timedelta(days=1)
@@ -186,57 +234,46 @@ def main():
             "legs_info": [f"直達: {get_station_name(home_station_code)} -> {dest_station_name}"],
             "details": [train]
         })
-    else:
-        print("⚠️ 未找到直達車次。")
-    print("--- 直達搜尋完畢 ---\n")
 
     # 策略二：搜尋單次轉乘 (經由關鍵樞紐站)
-    print("--- 2. 正在搜尋單次轉乘路線 ---")
-    
-    # *** 修改點：縮小轉乘站範圍，只搜尋最可能的北部轉乘樞紐 ***
-    key_hubs = {
-        "七堵": "0930", "南港": "0980", "松山": "0990", "臺北": "1000", "板橋": "1020"
-    }
+    key_hubs = {}
+    start_region = get_station_region(home_station_code, big_station_coords)
+    dest_region = get_station_region(dest_station_code, big_station_coords)
+    if start_region and dest_region and start_region != dest_region:
+        junction_key = frozenset([start_region, dest_region])
+        if junction_key in junction_hubs:
+            hub_codes = junction_hubs[junction_key]
+            key_hubs = {get_station_name(code): code for code in hub_codes}
 
     for hub_name, hub_code in key_hubs.items():
         if hub_code in [home_station_code, dest_station_code]: continue
-        
-        # 接下來的邏輯完全一樣，但因為查詢次數減少，會快很多且不會報錯
         leg1_trains = get_train_schedule(home_station_code, hub_code, departure_datetime_str)
         if leg1_trains:
             leg1 = leg1_trains[0]
             leg1_arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['arrival_time']}:00")
-            if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['departure_time']}:00"):
-                leg1_arrival_dt += timedelta(days=1)
+            if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['departure_time']}:00"): leg1_arrival_dt += timedelta(days=1)
             
             leg2_trains = get_train_schedule(hub_code, dest_station_code, leg1_arrival_dt.isoformat())
             if leg2_trains:
                 leg2 = leg2_trains[0]
                 leg2_arrival_dt = datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['arrival_time']}:00")
-                if leg2_arrival_dt < datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['departure_time']}:00"):
-                    leg2_arrival_dt += timedelta(days=1)
+                if leg2_arrival_dt < datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['departure_time']}:00"): leg2_arrival_dt += timedelta(days=1)
                 
                 duration = leg2_arrival_dt - departure_datetime
-                print(f"✅ 找到經由【{hub_name}】的單次轉乘路線！")
                 all_found_routes.append({
                     "type": f"轉乘一次 ({hub_name})", "duration": duration,
                     "legs_info": [f"第一段: {get_station_name(home_station_code)} -> {hub_name}", f"第二段: {hub_name} -> {dest_station_name}"],
                     "details": [leg1, leg2]
                 })
-    print("--- 單次轉乘搜尋完畢 ---\n")
 
+    
     # 策略三：搜尋兩次轉乘
-    print("--- 3. 正在搜尋兩次轉乘路線 ---")
-    big_station_coords = {code: get_coordinates(f"{name}車站") for name, code in big_station_map.items()}
-    big_station_coords = {k: v for k, v in big_station_coords.items() if v}
     start_hub = find_closest_big_station(home_station_code, big_station_coords)
     dest_hub = find_closest_big_station(dest_station_code, big_station_coords)
 
     if start_hub and dest_hub and start_hub != dest_hub:
         start_hub_name = get_station_name(start_hub)
         dest_hub_name = get_station_name(dest_hub)
-        print(f"規劃路線: {get_station_name(home_station_code)} -> {start_hub_name} -> {dest_hub_name} -> {dest_station_name}")
-
         leg1_trains = get_train_schedule(home_station_code, start_hub, departure_datetime_str)
         if leg1_trains:
             leg1 = leg1_trains[0]
@@ -259,30 +296,26 @@ def main():
                         leg3_arrival_dt += timedelta(days=1)
 
                     duration = leg3_arrival_dt - departure_datetime
-                    print("✅ 找到兩次轉乘的完整路線！")
                     all_found_routes.append({
                         "type": f"轉乘兩次 ({start_hub_name} -> {dest_hub_name})", "duration": duration,
                         "legs_info": [f"第一段: {get_station_name(home_station_code)} -> {start_hub_name}", f"第二段: {start_hub_name} -> {dest_hub_name}", f"第三段: {dest_hub_name} -> {dest_station_name}"],
                         "details": [leg1, leg2, leg3]
                     })
-    print("--- 兩次轉乘搜尋完畢 ---\n")
 
     # --- 4. 比較所有路線並找出最佳解 ---
-    print("="*40)
     if not all_found_routes:
-        print("❌ 搜尋結束，未找到任何可行的火車路線。")
-        return
+        return None
 
     best_route = sorted(all_found_routes, key=lambda x: x['duration'])[0]
 
-    print("🎉 找到最快路線！ 🎉")
-    print(f"路線類型: {best_route['type']}")
-    print(f"總耗時: {best_route['duration']}")
-    print("\n--- 詳細行程 ---")
+    save_log("🎉 找到最快路線！ 🎉")
+    save_log(f"路線類型: {best_route['type']}")
+    save_log(f"總耗時: {best_route['duration']}")
+    save_log("\n--- 詳細行程 ---")
     
     for i, leg_detail in enumerate(best_route['details']):
-        print(f"\n{best_route['legs_info'][i]}")
-        print(json.dumps(leg_detail, indent=2, ensure_ascii=False))
+        save_log(f"\n{best_route['legs_info'][i]}")
+        save_log(json.dumps(leg_detail, indent=2, ensure_ascii=False))
 
 if __name__ == "__main__":
     main()
