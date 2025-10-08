@@ -9,10 +9,6 @@ from send import save_log
 
 if os.path.exists(".env"): load_dotenv()
 
-home_station_code = "0980"  # 南港
-home_station_name = "南港"
-departure_datetime_str = "2025-10-16T08:44:00" # 出發時間
-
 # API Keys
 API_TOKEN = os.getenv('TRAIN_API_TOKEN')
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
@@ -49,19 +45,6 @@ junction_hubs = {
     frozenset(['EAST', 'WEST_SOUTH']): ["5000", "5050"],
     frozenset(['EAST', 'PINGTUNG']): ["5000", "5050"],
 }
-
-ai_response = '''
-{
-    "1": [
-        {
-            "title": "奮起湖老街",
-            "time": "上午",
-            "location": "嘉義縣竹崎鄉中和村奮起湖",
-            "tags": "景點, 老街, 懷舊"
-        }
-    ]
-}
-'''
 
 station_coords_cache = {}
 station_name_cache = {}
@@ -164,7 +147,16 @@ def get_station_region(station_code, big_station_coords):
     # 4. 如果連最近的大站都找不到，才返回 None
     return None
 
-def main():
+def search_station(home_station_code, home_station_name, departure_datetime_str, destination_address):
+    """ 
+    # 主搜尋程式邏輯 
+    ## 範例參數:
+        home_station_code = "0980"
+        home_station_name = "南港"
+        departure_datetime_str = "2025-10-16T08:44:00"
+        destination_address = "臺北市信義區松仁路100號"
+    ## 以上參數可直接帶入函式呼叫
+    """
     all_found_routes = []
     departure_datetime = datetime.fromisoformat(departure_datetime_str)
 
@@ -203,11 +195,6 @@ def main():
             save_log(f"❌ 儲存座標快取失敗: {e}\n")
 
     # --- END: 全新的大站座標初始化邏輯 ---
-
-    try:
-        travel_data = json.loads(ai_response)
-        destination_address = travel_data["1"][0]["location"]
-    except Exception as e: save_log(f"解析行程 JSON 時出錯: {e}"); return
 
     destination_coords = get_coordinates(destination_address)
     if not destination_coords: save_log("無法獲取目的地座標。"); return
@@ -308,14 +295,9 @@ def main():
 
     best_route = sorted(all_found_routes, key=lambda x: x['duration'])[0]
 
-    save_log("🎉 找到最快路線！ 🎉")
-    save_log(f"路線類型: {best_route['type']}")
-    save_log(f"總耗時: {best_route['duration']}")
-    save_log("\n--- 詳細行程 ---")
-    
-    for i, leg_detail in enumerate(best_route['details']):
-        save_log(f"\n{best_route['legs_info'][i]}")
-        save_log(json.dumps(leg_detail, indent=2, ensure_ascii=False))
+    best_route['duration'] = int(best_route['duration'].total_seconds())
 
-if __name__ == "__main__":
-    main()
+    best_route['from'] = {"code": home_station_code, "name": home_station_name}
+    best_route['to'] = {"code": dest_station_code, "name": dest_station_name}
+
+    return best_route

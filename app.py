@@ -7,6 +7,7 @@ import json
 import uuid
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash, abort
 from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity, delete_user_profile, ask_ai
+from search_station import search_station
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
@@ -25,6 +26,7 @@ import time
 import sqlite3
 from datetime import datetime
 import random
+
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -204,7 +206,8 @@ def inject_csrf_token():
 @app.route("/")
 def home():
     session['token'] = encrypt_token("123123123321123123123") # 測試用，預設登入
-    session['home'] = "10001" # 測試用，預設家
+    session['homeStationCode'] = "1000" # 測試用，預設家
+    session['homeStationName'] = "臺北" # 測試用，預設家
     return render_template('index.html')
 
 @csrf.exempt
@@ -800,6 +803,11 @@ def trip(days, active):
 
     print(ai_response)
 
+    session['destinationAddress'] = event_data.get('行政區(鄉鎮區)名稱','') + event_data.get('街道名稱','') 
+    
+    if not session.get('destinationAddress'):
+        session['destinationAddress'] = event_data.get('資料提供單位','')
+
     # 將結果渲染到模板
     return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token)
 
@@ -859,6 +867,46 @@ def save_data(flow):
         return jsonify({"message": "行程儲存成功"}), 200
     except Exception as e:
         return jsonify({"error": f"Server error: {str(e)}"}), 500
+    
+
+@csrf.exempt
+@app.route("/api/search-station", methods=["POST"])
+def api_search_station():
+    """
+    提供火車路線查詢的 API
+    """
+    try:
+        # 從請求中解析參數
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "請提供有效的 JSON 資料"}), 400
+
+        home_station_code = data.get("home_station_code")
+        home_station_name = data.get("home_station_name")
+        departure_datetime = data.get("departure_datetime")
+        destination_address = data.get("destination_address")
+
+        # 驗證參數是否完整
+        if not all([home_station_code, home_station_name, departure_datetime, destination_address]):
+            return jsonify({"error": "缺少必要的參數"}), 400
+
+        # 呼叫 search_station 函式
+        result = search_station(
+            home_station_code=home_station_code,
+            home_station_name=home_station_name,
+            departure_datetime_str=departure_datetime,
+            destination_address=destination_address,
+        )
+
+        # 如果沒有找到結果
+        if not result:
+            return jsonify({"error": "找不到適合的火車路線"}), 404
+
+        # 回傳查詢結果
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
     
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=True)

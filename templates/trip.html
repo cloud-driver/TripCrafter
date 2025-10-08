@@ -13,6 +13,8 @@
     <link href="/assets/css/plugins/nice-select.css" rel="stylesheet">
     <link href="/assets/css/style.css" rel="stylesheet">
     <link href="/assets/css/responsive.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <style>
         :root { --thm-color-one: #FF6600; } 
         .thm-color-one { color: #FF6600; } 
@@ -139,6 +141,25 @@
             cursor: pointer; 
             margin: 0.25rem; 
         }
+                .train-search-btn {
+            margin: 10px 0;
+            background-color: #FF6600;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .train-search-btn:hover {
+            background-color: #e65c00;
+        }
+        .train-results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -216,6 +237,11 @@
     <div class="container mt-4">
         <p class="text-center text-muted">唯一識別碼：{{ active }}</p>
 
+        <div>
+            <label for="departure-time-start">選擇出發時間（出發）:</label>
+            <input type="datetime-local" id="departure-time-start" class="form-control mb-2">
+            <button class="train-search-btn" onclick="searchTrain('start')">查火車（出發）</button>
+        </div>
         {% if ai_response %}
             {% for day, activities in ai_response.items() %}
                 <div class="form-container day-section" id="day-{{ day }}">
@@ -235,6 +261,18 @@
                 無法取得行程資料，請稍後再試。
             </div>
         {% endif %}
+
+        <div>
+            <label for="departure-time-end">選擇出發時間（返回）:</label>
+            <input type="datetime-local" id="departure-time-end" class="form-control mb-2">
+            <button class="train-search-btn" onclick="searchTrain('end')">查火車（返回）</button>
+        </div>
+
+                <!-- 火車查詢結果 -->
+        <div id="train-results" class="train-results" style="display: none;">
+            <h3>火車查詢結果</h3>
+            <div id="results-content"></div>
+        </div>
 
         <!-- 新增儲存按鈕 -->
         <div class="text-center mt-4">
@@ -307,6 +345,52 @@
 
     <script>
         // 拖動功能
+                // 查火車功能
+        async function searchTrain(type) {
+            // 從 Session 中獲取基站和目的地資料
+            const homeStationCode = "{{ session['homeStationCode'] }}";
+            const homeStationName = "{{ session['homeStationName'] }}";
+            const destinationAddress = "{{ session['destinationAddress'] }}";
+
+            // 獲取用戶選擇的時間
+            const departureTimeInput = type === 'start' ? 
+                document.getElementById('departure-time-start').value : 
+                document.getElementById('departure-time-end').value;
+
+            if (!departureTimeInput) {
+                alert('請選擇出發時間！');
+                return;
+            }
+
+            try {
+                // 發送 API 請求
+                const response = await axios.post('/api/search-station', {
+                    home_station_code: homeStationCode,
+                    home_station_name: homeStationName,
+                    departure_datetime: departureTimeInput,
+                    destination_address: destinationAddress
+                });
+
+                // 顯示結果
+                const trainResults = document.getElementById('train-results');
+                const resultsContent = document.getElementById('results-content');
+                trainResults.style.display = 'block';
+
+                // 格式化結果
+                const data = response.data;
+                let resultHtml = `<p>類型: ${data.type}</p>`;
+                resultHtml += `<p>耗時: ${data.duration}</p>`;
+                resultHtml += `<p>詳細資訊:</p><ul>`;
+                data.details.forEach(detail => {
+                    resultHtml += `<li>車次號碼: ${detail.train_no}, 出發時間: ${detail.departure_time}, 到達時間: ${detail.arrival_time}</li>`;
+                });
+                resultHtml += `</ul>`;
+                resultsContent.innerHTML = resultHtml;
+
+            } catch (error) {
+                alert(`查詢失敗: ${error.response?.data?.error || error.message}`);
+            }
+        }
         const activities = document.querySelectorAll('.activity');
         const daySections = document.querySelectorAll('.day-section');
         let draggedItem = null;
