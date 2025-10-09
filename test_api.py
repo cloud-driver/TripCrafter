@@ -4,10 +4,10 @@ import json
 url = "http://127.0.0.1:10000/api/search-station"
 
 payload = {
-    "home_station_code": "0980",
-    "home_station_name": "南港",
+    "home_station_code": "6180",
+    "home_station_name": "鳳林",
     "departure_datetime": "2025-10-16T08:44:00",
-    "destination_address": "花蓮縣花蓮市達固湖彎大路23號"
+    "destination_address": "嘉義市忠孝路275號"
 }
 
 headers = {
