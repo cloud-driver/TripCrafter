@@ -7,7 +7,7 @@ from geopy.distance import geodesic
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
-from send import save_log # 假設您有一個名為 send.py 的檔案來處理日誌
+from send import save_log
 
 # --- 環境設定 ---
 if os.path.exists(".env"): load_dotenv()
@@ -17,13 +17,11 @@ API_TOKEN = os.getenv('TRAIN_API_TOKEN')
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 # --- 常數與設定 ---
-# 建立一個 json 資料夾來存放快取檔案
 if not os.path.exists("json"):
     os.makedirs("json")
     
 ALL_STATIONS_CACHE_FILE = "json/all_stations_data.json"
 
-# (city_code_map, big_station_map 等常數與原始版本相同，故保留)
 city_code_map = {
     "臺北市": "A", "台北市": "A", "臺中市": "B", "台中市": "B", "基隆市": "C", 
     "臺南市": "D", "高雄市": "E", "新北市": "F", "宜蘭縣": "G", "桃園市": "H", 
@@ -57,40 +55,26 @@ junction_hubs = {
     frozenset(['EAST', 'PINGTUNG']): ["5000", "5050"],
 }
 
-# --- 優化一：快取與初始化 ---
-
 def get_coordinates(address):
-    """同步版本的座標查詢函式，僅用於首次初始化快取。"""
     url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={GOOGLE_API_KEY}"
     try:
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-        if data['status'] == 'OK':
-            return data['results'][0]['geometry']['location']
-        else:
-            save_log(f"Geocoding API 狀態錯誤 for '{address}': {data['status']}")
+        if data['status'] == 'OK': return data['results'][0]['geometry']['location']
+        else: save_log(f"Geocoding API 狀態錯誤 for '{address}': {data['status']}")
     except requests.exceptions.RequestException as e:
         save_log(f"Geocoding API 請求失敗 for '{address}': {e}")
     return None
 
 def initialize_all_stations_data():
-    """
-    核心優化：初始化所有車站的資料，包括座標。
-    如果快取檔案存在，直接從檔案讀取。
-    如果不存在，則透過 API 抓取、處理，並存成快取檔案供未來使用。
-    """
     if os.path.exists(ALL_STATIONS_CACHE_FILE):
         try:
-            with open(ALL_STATIONS_CACHE_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            with open(ALL_STATIONS_CACHE_FILE, 'r', encoding='utf-8') as f: return json.load(f)
         except (json.JSONDecodeError, IOError) as e:
             save_log(f"⚠️ 從快取檔案 {ALL_STATIONS_CACHE_FILE} 讀取失敗: {e}。將重新從 API 獲取。")
-
     save_log("--- 快取檔案不存在，正在從 API 初始化所有車站的資料 (此過程只會執行一次) ---")
     all_stations = {}
-    
-    # 1. 抓取所有城市的車站列表
     headers = {"Content-Type": "application/json", "token": API_TOKEN}
     for city_name, city_code in city_code_map.items():
         payload = {"city_code": [city_code]}
@@ -99,31 +83,20 @@ def initialize_all_stations_data():
             response.raise_for_status()
             stations_in_city = response.json().get(city_code, {})
             for code, name in stations_in_city.items():
-                if code not in all_stations:
-                    all_stations[code] = {"name": name, "city": city_name}
-        except Exception as e:
-            save_log(f"查詢城市 {city_name} 車站列表時發生錯誤: {e}")
-
-    # 2. 為每個車站加上座標
+                if code not in all_stations: all_stations[code] = {"name": name, "city": city_name}
+        except Exception as e: save_log(f"查詢城市 {city_name} 車站列表時發生錯誤: {e}")
     save_log(f"--- 正在獲取 {len(all_stations)} 個車站的座標 ---")
     for code, data in all_stations.items():
         coords = get_coordinates(f"{data['name']}車站")
         data['coords'] = coords if coords else None
-        
-    # 3. 儲存到快取檔案
     try:
         with open(ALL_STATIONS_CACHE_FILE, 'w', encoding='utf-8') as f:
             json.dump(all_stations, f, ensure_ascii=False, indent=4)
         save_log(f"--- 所有車站資料已成功快取至 {ALL_STATIONS_CACHE_FILE} ---\n")
-    except IOError as e:
-        save_log(f"❌ 儲存車站快取失敗: {e}\n")
-        
+    except IOError as e: save_log(f"❌ 儲存車站快取失敗: {e}\n")
     return all_stations
 
-# --- 優化二：非同步 API 請求 ---
-
 async def get_train_schedule_async(session, start_station, end_station, departure_time):
-    """非同步版本的時刻表查詢函式。"""
     headers = {"Content-Type": "application/json", "token": API_TOKEN}
     payload = {"start_station": start_station, "end_station": end_station, "datetime": departure_time}
     url = "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
@@ -136,105 +109,70 @@ async def get_train_schedule_async(session, start_station, end_station, departur
         save_log(f"查詢時刻表時發生錯誤 ({start_station} -> {end_station}): {e}")
         return []
 
-# --- 邏輯函式重構 ---
-
 def find_closest_station(target_coords, stations_data):
-    """重構後的函式，直接使用帶有座標的快取資料，無需任何 API 請求。"""
     closest_station_info, min_distance = None, float('inf')
-    
     for station_code, station_info in stations_data.items():
         station_coords = station_info.get('coords')
         if station_coords:
-            distance = geodesic(
-                (target_coords['lat'], target_coords['lng']),
-                (station_coords['lat'], station_coords['lng'])
-            ).km
+            distance = geodesic((target_coords['lat'], target_coords['lng']),(station_coords['lat'], station_coords['lng'])).km
             if distance < min_distance:
                 min_distance = distance
                 closest_station_info = (station_code, station_info['name'], distance)
-                
     return closest_station_info
 
 def get_station_region(station_code, all_stations_data):
-    """獲取車站區域，如果車站是小站，則尋找最近的大站來判斷其區域。"""
     for region, codes in station_regions.items():
-        if station_code in codes:
-            return region
-
+        if station_code in codes: return region
     station_info = all_stations_data.get(station_code)
-    if not station_info or not station_info.get('coords'):
-        return None
-
+    if not station_info or not station_info.get('coords'): return None
     station_coords = (station_info['coords']['lat'], station_info['coords']['lng'])
     closest_hub_code, min_distance = None, float('inf')
-
     for hub_code in big_station_map.values():
         hub_info = all_stations_data.get(hub_code)
         if hub_info and hub_info.get('coords'):
             hub_coords = (hub_info['coords']['lat'], hub_info['coords']['lng'])
             distance = geodesic(station_coords, hub_coords).km
-            if distance < min_distance:
-                min_distance, closest_hub_code = distance, hub_code
-    
+            if distance < min_distance: min_distance, closest_hub_code = distance, hub_code
     if closest_hub_code:
         for region, codes in station_regions.items():
-            if closest_hub_code in codes:
-                return region
+            if closest_hub_code in codes: return region
     return None
 
 def find_closest_big_station(station_code, all_stations_data):
-    """尋找離指定車站最近的大站。"""
     station_info = all_stations_data.get(station_code)
     if not station_info or not station_info.get('coords'): return None
-    
     target_coords = (station_info['coords']['lat'], station_info['coords']['lng'])
     closest_hub_code, min_distance = None, float('inf')
-
     for hub_code in big_station_map.values():
         if hub_code == station_code: continue
         hub_info = all_stations_data.get(hub_code)
         if hub_info and hub_info.get('coords'):
             hub_coords = (hub_info['coords']['lat'], hub_info['coords']['lng'])
             distance = geodesic(target_coords, hub_coords).km
-            if distance < min_distance:
-                min_distance, closest_hub_code = distance, hub_code
-                
+            if distance < min_distance: min_distance, closest_hub_code = distance, hub_code
     return closest_hub_code
 
-# --- 核心搜尋邏輯 (非同步) ---
-
 async def search_station_async(home_station_code, home_station_name, departure_datetime_str, destination_address, all_stations_data):
-    """
-    核心搜尋邏輯，使用非同步方式執行。
-    """
     departure_datetime = datetime.fromisoformat(departure_datetime_str)
-    
-    # 1. 尋找目的地最近的車站 (從快取中，速度極快)
-    destination_coords = get_coordinates(destination_address) # 這裡仍然需要一次API查詢目的地
+    destination_coords = get_coordinates(destination_address)
     if not destination_coords:
-        save_log("無法獲取目的地座標。")
-        return None
+        save_log("無法獲取目的地座標。"); return None
 
-    # 過濾出相同縣市的車站進行比較，提高精準度
     destination_city = destination_address[0:3]
     city_stations = {code: data for code, data in all_stations_data.items() if data['city'] in destination_city}
-
     closest_station_info = find_closest_station(destination_coords, city_stations if city_stations else all_stations_data)
     if not closest_station_info:
-        save_log("找不到離目的地最近的火車站。")
-        return None
+        save_log("找不到離目的地最近的火車站。"); return None
     
     dest_station_code, dest_station_name, _ = closest_station_info
-    
-    # --- 2. 準備所有可能的路線查詢任務 ---
     all_found_routes = []
-    tasks = []
     
-    async with aiohttp.ClientSession() as session:
-        # 策略一：直達
+    connector = aiohttp.TCPConnector(ssl=False)
+    async with aiohttp.ClientSession(connector=connector) as session:
+    
+        tasks = []
         tasks.append(get_train_schedule_async(session, home_station_code, dest_station_code, departure_datetime_str))
         
-        # 策略二：單次轉乘 (經由關鍵樞紐站)
         start_region = get_station_region(home_station_code, all_stations_data)
         dest_region = get_station_region(dest_station_code, all_stations_data)
         key_hubs = {}
@@ -249,163 +187,99 @@ async def search_station_async(home_station_code, home_station_name, departure_d
             if hub_code in [home_station_code, dest_station_code]: continue
             task = get_train_schedule_async(session, home_station_code, hub_code, departure_datetime_str)
             transfer_leg1_tasks[hub_code] = task
-
-        # 策略三：兩次轉乘
-        two_transfer_leg1_task = None
-        start_hub = find_closest_big_station(home_station_code, all_stations_data)
-        dest_hub = find_closest_big_station(dest_station_code, all_stations_data)
-        if start_hub and dest_hub and start_hub != dest_hub:
-            two_transfer_leg1_task = get_train_schedule_async(session, home_station_code, start_hub, departure_datetime_str)
-
-        # --- 3. 執行第一批次的查詢 (直達 + 所有轉乘路線的第一段) ---
-        save_log("--- 正在平行查詢 直達 + 轉乘第一段 路線 ---")
+        
+        save_log("--- 正在平行查詢 直達 & 轉乘第一段 路線 ---")
         direct_trains_result = await tasks[0]
         transfer_leg1_results = await asyncio.gather(*transfer_leg1_tasks.values())
-        two_transfer_leg1_result = await two_transfer_leg1_task if two_transfer_leg1_task else None
 
-        # --- 4. 處理第一批次的結果，並準備第二批次的查詢 ---
-        
-        # 處理直達結果
         if direct_trains_result:
             train = direct_trains_result[0]
             arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{train['arrival_time']}:00")
             if arrival_dt < departure_datetime: arrival_dt += timedelta(days=1)
             all_found_routes.append({
                 "type": "直達", "duration": arrival_dt - departure_datetime,
-                "legs_info": [f"直達: {home_station_name} -> {dest_station_name}"],
-                "details": [train]
+                "legs_info": [f"直達: {home_station_name} -> {dest_station_name}"], "details": [train]
             })
 
-        # 準備轉乘路線的第二段查詢
         transfer_leg2_tasks = {}
         hub_codes_with_results = list(transfer_leg1_tasks.keys())
         for i, leg1_trains in enumerate(transfer_leg1_results):
             if leg1_trains:
                 hub_code = hub_codes_with_results[i]
                 leg1 = leg1_trains[0]
-                leg1_arrival_dt_str = f"{departure_datetime.date()}T{leg1['arrival_time']}:00"
-                leg1_arrival_dt = datetime.fromisoformat(leg1_arrival_dt_str)
+                leg1_arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['arrival_time']}:00")
                 if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['departure_time']}:00"):
                     leg1_arrival_dt += timedelta(days=1)
-                
                 task = get_train_schedule_async(session, hub_code, dest_station_code, leg1_arrival_dt.isoformat())
-                # 儲存第一段的資訊，以便後續組合
                 transfer_leg2_tasks[task] = {"leg1_details": leg1, "hub_code": hub_code}
 
-        # 準備兩次轉乘的第二段查詢
-        two_transfer_leg2_task = None
-        if two_transfer_leg1_result:
-            leg1 = two_transfer_leg1_result[0]
-            leg1_arrival_dt_str = f"{departure_datetime.date()}T{leg1['arrival_time']}:00"
-            leg1_arrival_dt = datetime.fromisoformat(leg1_arrival_dt_str)
-            if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['departure_time']}:00"):
-                leg1_arrival_dt += timedelta(days=1)
-            two_transfer_leg2_task = get_train_schedule_async(session, start_hub, dest_hub, leg1_arrival_dt.isoformat())
-
-
-        # --- 5. 執行第二批次的查詢 ---
-        save_log("--- 正在平行查詢 轉乘第二段 路線 ---")
-        transfer_leg2_task_list = list(transfer_leg2_tasks.keys())
-        transfer_leg2_results = await asyncio.gather(*transfer_leg2_task_list)
-        two_transfer_leg2_result = await two_transfer_leg2_task if two_transfer_leg2_task else None
-
-        # --- 6. 處理第二批次的結果 ---
-
-        # 處理單次轉乘結果
-        for i, leg2_trains in enumerate(transfer_leg2_results):
-            if leg2_trains:
-                original_task = transfer_leg2_task_list[i]
-                leg1_info = transfer_leg2_tasks[original_task]
-                leg1 = leg1_info["leg1_details"]
-                hub_code = leg1_info["hub_code"]
-                hub_name = key_hubs[hub_code]
-
-                leg2 = leg2_trains[0]
-                
-                leg1_arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['arrival_time']}:00")
-                if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['departure_time']}:00"): leg1_arrival_dt += timedelta(days=1)
-                
-                leg2_arrival_dt = datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['arrival_time']}:00")
-                if leg2_arrival_dt < datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['departure_time']}:00"): leg2_arrival_dt += timedelta(days=1)
-
-                all_found_routes.append({
-                    "type": f"轉乘一次 ({hub_name})", "duration": leg2_arrival_dt - departure_datetime,
-                    "legs_info": [f"第一段: {home_station_name} -> {hub_name}", f"第二段: {hub_name} -> {dest_station_name}"],
-                    "details": [leg1, leg2]
-                })
-
-        # 準備並執行兩次轉乘的第三段查詢
-        if two_transfer_leg2_result:
-            leg2 = two_transfer_leg2_result[0]
-            leg1_arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{two_transfer_leg1_result[0]['arrival_time']}:00") # 重新計算
-            if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{two_transfer_leg1_result[0]['departure_time']}:00"): leg1_arrival_dt += timedelta(days=1)
-
-            leg2_arrival_dt = datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['arrival_time']}:00")
-            if leg2_arrival_dt < datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['departure_time']}:00"): leg2_arrival_dt += timedelta(days=1)
-            
-            save_log("--- 正在查詢 轉乘第三段 路線 ---")
-            leg3_trains = await get_train_schedule_async(session, dest_hub, dest_station_code, leg2_arrival_dt.isoformat())
-            if leg3_trains:
-                leg3 = leg3_trains[0]
-                leg3_arrival_dt = datetime.fromisoformat(f"{leg2_arrival_dt.date()}T{leg3['arrival_time']}:00")
-                if leg3_arrival_dt < datetime.fromisoformat(f"{leg2_arrival_dt.date()}T{leg3['departure_time']}:00"): leg3_arrival_dt += timedelta(days=1)
-                
-                start_hub_name = all_stations_data.get(start_hub, {}).get("name", f"車站{start_hub}")
-                dest_hub_name = all_stations_data.get(dest_hub, {}).get("name", f"車站{dest_hub}")
-
-                all_found_routes.append({
-                    "type": f"轉乘兩次 ({start_hub_name} -> {dest_hub_name})", "duration": leg3_arrival_dt - departure_datetime,
-                    "legs_info": [f"第一段: {home_station_name} -> {start_hub_name}", f"第二段: {start_hub_name} -> {dest_hub_name}", f"第三段: {dest_hub_name} -> {dest_station_name}"],
-                    "details": [two_transfer_leg1_result[0], leg2, leg3]
-                })
-
-
-    # --- 7. 比較所有路線並找出最佳解 ---
-    if not all_found_routes:
-        return None
-
+        if transfer_leg2_tasks:
+            save_log("--- 正在平行查詢 轉乘第二段 路線 ---")
+            transfer_leg2_task_list = list(transfer_leg2_tasks.keys())
+            transfer_leg2_results = await asyncio.gather(*transfer_leg2_task_list)
+            for i, leg2_trains in enumerate(transfer_leg2_results):
+                if leg2_trains:
+                    original_task = transfer_leg2_task_list[i]
+                    leg1_info = transfer_leg2_tasks[original_task]
+                    leg1, hub_code, hub_name = leg1_info["leg1_details"], leg1_info["hub_code"], key_hubs[leg1_info["hub_code"]]
+                    leg2 = leg2_trains[0]
+                    leg1_arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['arrival_time']}:00")
+                    if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['departure_time']}:00"): leg1_arrival_dt += timedelta(days=1)
+                    leg2_arrival_dt = datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['arrival_time']}:00")
+                    if leg2_arrival_dt < datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['departure_time']}:00"): leg2_arrival_dt += timedelta(days=1)
+                    all_found_routes.append({
+                        "type": f"轉乘一次 ({hub_name})", "duration": leg2_arrival_dt - departure_datetime,
+                        "legs_info": [f"第一段: {home_station_name} -> {hub_name}", f"第二段: {hub_name} -> {dest_station_name}"],
+                        "details": [leg1, leg2]
+                    })
+        
+        if not all_found_routes:
+            save_log("--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---")
+            start_hub = find_closest_big_station(home_station_code, all_stations_data)
+            dest_hub = find_closest_big_station(dest_station_code, all_stations_data)
+            if start_hub and dest_hub and start_hub != dest_hub:
+                leg1_trains = await get_train_schedule_async(session, home_station_code, start_hub, departure_datetime_str)
+                if leg1_trains:
+                    leg1 = leg1_trains[0]
+                    leg1_arrival_dt = datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['arrival_time']}:00")
+                    if leg1_arrival_dt < datetime.fromisoformat(f"{departure_datetime.date()}T{leg1['departure_time']}:00"): leg1_arrival_dt += timedelta(days=1)
+                    leg2_trains = await get_train_schedule_async(session, start_hub, dest_hub, leg1_arrival_dt.isoformat())
+                    if leg2_trains:
+                        leg2 = leg2_trains[0]
+                        leg2_arrival_dt = datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['arrival_time']}:00")
+                        if leg2_arrival_dt < datetime.fromisoformat(f"{leg1_arrival_dt.date()}T{leg2['departure_time']}:00"): leg2_arrival_dt += timedelta(days=1)
+                        leg3_trains = await get_train_schedule_async(session, dest_hub, dest_station_code, leg2_arrival_dt.isoformat())
+                        if leg3_trains:
+                            leg3 = leg3_trains[0]
+                            leg3_arrival_dt = datetime.fromisoformat(f"{leg2_arrival_dt.date()}T{leg3['arrival_time']}:00")
+                            if leg3_arrival_dt < datetime.fromisoformat(f"{leg2_arrival_dt.date()}T{leg3['departure_time']}:00"): leg3_arrival_dt += timedelta(days=1)
+                            start_hub_name = all_stations_data.get(start_hub, {}).get("name", f"車站{start_hub}")
+                            dest_hub_name = all_stations_data.get(dest_hub, {}).get("name", f"車站{dest_hub}")
+                            all_found_routes.append({
+                                "type": f"轉乘兩次 ({start_hub_name} -> {dest_hub_name})", "duration": leg3_arrival_dt - departure_datetime,
+                                "legs_info": [f"第一段: {home_station_name} -> {start_hub_name}", f"第二段: {start_hub_name} -> {dest_hub_name}", f"第三段: {dest_hub_name} -> {dest_station_name}"],
+                                "details": [leg1, leg2, leg3]
+                            })
+    
+    if not all_found_routes: return None
     best_route = sorted(all_found_routes, key=lambda x: x['duration'])[0]
     best_route['duration'] = int(best_route['duration'].total_seconds())
     best_route['from'] = {"code": home_station_code, "name": home_station_name}
     best_route['to'] = {"code": dest_station_code, "name": dest_station_name}
-
     return best_route
 
-# --- 同步入口函式 (維持使用者呼叫方式不變) ---
-
 def search_station(home_station_code, home_station_name, departure_datetime_str, destination_address):
-    """ 
-    主搜尋程式邏輯的同步封裝。
-    這個函式會呼叫非同步的核心邏輯，讓使用者可以像之前一樣直接呼叫。
-    
-    ## 範例參數:
-        home_station_code = "0980"
-        home_station_name = "南港"
-        departure_datetime_str = "2025-10-16T08:44:00"
-        destination_address = "臺北市信義區松仁路100號"
-    """
-    # 步驟 1: 初始化並快取所有車站資料
     all_stations_data = initialize_all_stations_data()
-
-    # 步驟 2: 執行非同步的搜尋邏輯
-    # Python 3.7+ 可以使用 asyncio.run()
     result = asyncio.run(search_station_async(
-        home_station_code,
-        home_station_name,
-        departure_datetime_str,
-        destination_address,
-        all_stations_data
+        home_station_code, home_station_name, departure_datetime_str, destination_address, all_stations_data
     ))
     return result
 
-# --- 測試執行區塊 ---
 if __name__ == '__main__':
-    # 使用範例參數進行測試
-    home_station_code = "1000"  # 臺北
-    home_station_name = "臺北"
+    home_station_code = "0980"
+    home_station_name = "南港"
     departure_datetime_str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    # destination_address = "花蓮縣花蓮市國聯里國聯一路100號" # 花蓮車站
-    destination_address = "嘉義市忠孝路275號"
+    destination_address = "花蓮縣花蓮市達固湖彎大路23號" # 臺南車站
 
     print(f"從 {home_station_name} 到 {destination_address}")
     print(f"出發時間: {departure_datetime_str}")
@@ -413,9 +287,7 @@ if __name__ == '__main__':
     
     import time
     start_time = time.time()
-    
     best_route = search_station(home_station_code, home_station_name, departure_datetime_str, destination_address)
-    
     end_time = time.time()
     
     if best_route:

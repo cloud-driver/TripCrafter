@@ -178,5 +178,829 @@
     {
         "timestamp": "2025-10-09 09:46:20",
         "message": "--- 正在查詢 轉乘第三段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:20:48",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:20:49",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 4220): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:20:49",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:20:49",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:06",
+        "message": "--- 正在平行查詢 直達 + 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:06",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 4070): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:06",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:06",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:42",
+        "message": "--- 正在平行查詢 直達 + 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:42",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 4070): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:42",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:21:42",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:22:24",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:22:24",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 4220): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:22:24",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:22:24",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): Cannot connect to host superiorapis-creator.cteam.com.tw:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')]"
+    },
+    {
+        "timestamp": "2025-10-09 19:26:08",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:29:31",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 19:29:34",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 21:29:02",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 21:29:03",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 21:30:56",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 21:30:57",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-09 23:03:53",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩?(斗六市)\",\n            \"time\": \"全天\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化觀光, 新春活動, 集章活動, 拍照打卡\"\n        },\n        {\n            \"title\": \"晚餐: 口湖農村社區小舖\",\n            \"time\": \"傍晚\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"在地美食, 海鮮, 蔬果料理, 穆斯林友善\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"依實際預訂情況安排於斗六市或周邊區域\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"一起久久驛站\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣口湖鄉崙東村民生路79巷28號\",\n            \"tags\": \"特色地標, 拍照打卡, 休憩空間\"\n        },\n        {\n            \"title\": \"午餐: 口湖農村社區小舖\",\n            \"time\": \"中午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"在地美食, 海鮮, 蔬果料理, 穆斯林友善\"\n        },\n        {\n            \"title\": \"自由活動/返程\",\n            \"time\": \"下午\",\n            \"location\": \"依行程安排\",\n            \"tags\": \"彈性安排\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 00:55:26",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩?(斗六市)\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化觀光, 新春活動, 集章活動\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"斗六市特色餐廳\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"他里霧文化園區新年活動\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣斗南鎮他里霧文化園區\",\n            \"tags\": \"文化體驗, 節慶活動\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"斗六市區飯店\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"雲林布袋戲館牛轉乾坤-偶戲迎新春系列活動\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣虎尾鎮布袋戲館\",\n            \"tags\": \"文化表演, 節慶活動\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"虎尾鎮特色餐廳\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"官邸兒童館Happy牛Year春節限定活動\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣斗六市官邸兒童館\",\n            \"tags\": \"親子活動, 節慶活動\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"斗六市區飯店\",\n            \"tags\": \"住宿\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 00:55:50",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩? (神氣祈福行/經典小鎮遊/甜蜜蜜之旅/輕旅慢步行/浪漫樂活遊)\",\n            \"time\": \"全天\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化體驗, 節慶活動, 景點導覽\"\n        },\n        {\n            \"title\": \"在地文化館舍集章活動\",\n            \"time\": \"全天 (配合新春期間)\",\n            \"location\": \"雲林縣內十八所地方文化館\",\n            \"tags\": \"文化體驗, 集章活動, 節慶活動\"\n        },\n        {\n            \"title\": \"新春遊雲林，打卡抽好禮 (劍湖山世界/北港遊客中心/綠隧驛站/草嶺旅遊資訊服務中心)\",\n            \"time\": \"全天 (1/25 - 2/21)\",\n            \"location\": \"雲林縣內指定地點\",\n            \"tags\": \"互動體驗, 抽獎活動, 旅遊推廣\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"一同久久驛站拍照打卡\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣口湖鄉崙東村民生路79巷28號\",\n            \"tags\": \"地標景點, 拍照留念, 休憩區\"\n        },\n        {\n            \"title\": \"午餐 - 口湖農村社區小舖\",\n            \"time\": \"中午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"在地美食, 海鮮料理, 穆斯林友善\"\n        },\n        {\n            \"title\": \"農村體驗 (摸蛤、撈蝦、DIY 或 友善耕作體驗)\",\n            \"time\": \"下午\",\n            \"location\": \"口湖遊客中心 (金湖休閒農業區)\",\n            \"tags\": \"農村體驗, 漁業體驗, DIY手作\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 01:05:25",
+        "message": "Session 'homeStationCode' not found, setting default '1000'."
+    },
+    {
+        "timestamp": "2025-10-10 01:05:25",
+        "message": "Session 'homeStationName' not found, setting default '臺北'."
+    },
+    {
+        "timestamp": "2025-10-10 01:05:27",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩?\",\n            \"time\": \"全天\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化觀光, 活動, 集章活動\"\n        },\n        {\n            \"title\": \"口湖農村社區小舖 (午餐)\",\n            \"time\": \"中午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"餐飲, 當地特色料理, 穆斯林友善\"\n        },\n        {\n            \"title\": \"一起久久驛站\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣口湖鄉崙東村民生路79巷28號\",\n            \"tags\": \"景點, 拍照打卡, 公路驛站\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"在地文化館舍參觀與集章\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣內各地方文化館舍 (需自行規劃)\",\n            \"tags\": \"文化, 教育, 集章活動\"\n        },\n        {\n            \"title\": \"「新春遊雲林，打卡抽好禮」活動參與\",\n            \"time\": \"下午\",\n            \"location\": \"指定地點 (例如：劍湖山世界、北港遊客中心等)\",\n            \"tags\": \"活動, 抽獎, 打卡\"\n        },\n        {\n            \"title\": \"自由活動或在地小吃品嚐\",\n            \"time\": \"傍晚\",\n            \"location\": \"斗六市或鄰近地區\",\n            \"tags\": \"自由行程, 美食\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 01:05:39",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:05:39",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 3470): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:05:39",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:05:39",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:11:13",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:11:13",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 3470): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:11:13",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:11:13",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:12:32",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:12:34",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:21:17",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"臺南山上花園水道博物館\",\n            \"time\": \"上午\",\n            \"location\": \"臺南市山上區山上里16號\",\n            \"tags\": \"歷史古蹟, 景點\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"山上區附近餐廳\",\n            \"tags\": \"餐飲, 休息\"\n        },\n        {\n            \"title\": \"「4-5月來臺南 住一晚送一晚」台南住宿優惠活動 (入住)\",\n            \"time\": \"下午\",\n            \"location\": \"台南市中西區配合民宿 (例如：安平AP7民宿)\",\n            \"tags\": \"住宿, 優惠活動\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"亮哥生態風味體驗養殖場\",\n            \"time\": \"上午\",\n            \"location\": \"台南市學甲區平和里西平寮67-40號\",\n            \"tags\": \"生態體驗, 餐廳, DIY\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"亮哥生態風味體驗養殖場\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"「4-5月來臺南 住一晚送一晚」台南住宿優惠活動 (續住/退房)\",\n            \"time\": \"下午\",\n            \"location\": \"台南市中西區配合民宿\",\n            \"tags\": \"住宿, 優惠活動\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 01:21:26",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:21:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 4220): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:21:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:21:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:21:26",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:21:27",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:24:02",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:24:02",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 4220): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:24:03",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:24:03",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:24:03",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:24:03",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:00",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩? (文化觀光處推出「新春遊雲林」建議遊程)\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化、景點、活動\"\n        },\n        {\n            \"title\": \"雲林布袋戲館 偶戲迎新春系列活動\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化、戲劇、親子\"\n        },\n        {\n            \"title\": \"官邸兒童館 Happy牛Year春節限定活動\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"親子、活動、節慶\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"一起久久驛站\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣口湖鄉崙東村民生路79巷28號\",\n            \"tags\": \"景點、拍照打卡、地標\"\n        },\n        {\n            \"title\": \"口湖農村社區小舖 (午餐)\",\n            \"time\": \"中午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"餐飲、在地特色、海鮮\"\n        },\n        {\n            \"title\": \"口湖遊客中心 (海、陸合併體驗遊程)\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"體驗、農漁業、DIY\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"在地文化館舍集章活動\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣內各地方文化館舍\",\n            \"tags\": \"文化、集章、文創\"\n        },\n        {\n            \"title\": \"「新春遊雲林，打卡抽好禮」活動 (劍湖山世界)\",\n            \"time\": \"下午\",\n            \"location\": \"劍湖山世界 (斗六古坑線)\",\n            \"tags\": \"活動、抽獎、拍照打卡\"\n        },\n        {\n            \"title\": \"「新春遊雲林，打卡抽好禮」活動 (北港遊客中心)\",\n            \"time\": \"下午\",\n            \"location\": \"北港遊客中心 (北港虎尾線)\",\n            \"tags\": \"活動、抽獎、拍照打卡\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:27",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:28",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 4060): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:28",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:28",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:28",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:28",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:51",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:27:53",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:31:42",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩?(雲林縣斗六市)\",\n            \"time\": \"全天\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化觀光, 新春活動, 集章活動, 抽獎活動\"\n        },\n        {\n            \"title\": \"雲林布袋戲館\",\n            \"time\": \"上午/下午\",\n            \"location\": \"雲林縣斗六市雲林路二段515號 (活動地點之一)\",\n            \"tags\": \"文化館舍, 偶戲, 春節活動\"\n        },\n        {\n            \"title\": \"官邸兒童館\",\n            \"time\": \"上午/下午\",\n            \"location\": \"雲林縣斗六市雲林路二段515號 (活動地點之一)\",\n            \"tags\": \"兒童館, 春節活動\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"一起久久驛站\",\n            \"time\": \"上午/下午\",\n            \"location\": \"雲林縣口湖鄉崙東村民生路79巷28號\",\n            \"tags\": \"景點, 公路地標, 拍照打卡\"\n        },\n        {\n            \"title\": \"口湖農村社區小舖 (午餐)\",\n            \"time\": \"中午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"餐廳, 海鮮, 地方特色料理, 穆斯林友善\"\n        },\n        {\n            \"title\": \"口湖遊客中心體驗活動\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"體驗活動, 漁業文化, DIY, 下午茶\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"劍湖山世界\",\n            \"time\": \"全天\",\n            \"location\": \"雲林縣古坑鄉永光村計畫路1號 (斗六古坑線據點之一)\",\n            \"tags\": \"主題樂園, 觀光景點, 打卡抽好禮\"\n        },\n        {\n            \"title\": \"北港遊客中心\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣北港鎮民生路140號 (北港虎尾線據點之一)\",\n            \"tags\": \"遊客中心, 觀光資訊, 打卡抽好禮\"\n        },\n        {\n            \"title\": \"綠隧驛站\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣斗六市大學路二段515號 (斗六古坑線據點之一)\",\n            \"tags\": \"休憩站, 觀光資訊, 打卡抽好禮\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 01:31:52",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:31:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 3470): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:31:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:31:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:31:53",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:31:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:34:56",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:34:56",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 3470): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:34:56",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:34:57",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:34:57",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:34:57",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:37:08",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:37:08",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 3470): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:37:08",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:37:08",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:37:08",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:37:09",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:43:51",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩? (雲林縣斗六市)\",\n            \"time\": \"上午/下午\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化觀光, 新春活動, 集章活動, 展覽, 體驗活動\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"斗六市特色餐廳 (請自行預訂)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"參觀他里霧文化園區\",\n            \"time\": \"下午\",\n            \"location\": \"斗六市他里霧文化園區\",\n            \"tags\": \"文化園區, 體驗活動\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"斗六市區飯店/民宿 (請自行預訂)\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"參觀雲林布袋戲館\",\n            \"time\": \"上午\",\n            \"location\": \"雲林布袋戲館\",\n            \"tags\": \"文化館舍, 偶戲, 展覽\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"斗六市特色餐廳 (請自行預訂)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"參觀官邸兒童館\",\n            \"time\": \"下午\",\n            \"location\": \"官邸兒童館\",\n            \"tags\": \"兒童館, 春節限定活動\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"斗六市區飯店/民宿 (請自行預訂)\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"前往口湖鄉\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣口湖鄉\",\n            \"tags\": \"交通\"\n        },\n        {\n            \"title\": \"一起久久驛站\",\n            \"time\": \"上午/中午\",\n            \"location\": \"雲林縣口湖鄉崙東村民生路79巷28號\",\n            \"tags\": \"景點, 拍照打卡, 特色地標\"\n        },\n        {\n            \"title\": \"午餐 - 口湖農村社區小舖\",\n            \"time\": \"中午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"餐飲, 當地特色料理, 穆斯林友善\"\n        },\n        {\n            \"title\": \"口湖鄉體驗活動 (如摸蛤、撈蝦、DIY)\",\n            \"time\": \"下午\",\n            \"location\": \"口湖遊客中心\",\n            \"tags\": \"體驗活動, 漁業體驗, DIY\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 01:44:21",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:44:21",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 3470): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:44:21",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:44:21",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:44:21",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:44:21",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:46:34",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2021新春怎麼玩?(斗六市)\",\n            \"time\": \"全天\",\n            \"location\": \"雲林縣斗六市雲林路二段515號\",\n            \"tags\": \"文化觀光, 新春活動, 景點\"\n        },\n        {\n            \"title\": \"劍湖山世界 (斗六古坑線)\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣古坑鄉永昌村尖山腳100號\",\n            \"tags\": \"遊樂園, 景點, 拍照打卡\"\n        },\n        {\n            \"title\": \"入住 暫無特定住宿資料，建議自行安排\",\n            \"time\": \"晚上\",\n            \"location\": \"斗六市\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"他里霧文化園區\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣斗南鎮他里霧國民小學旁\",\n            \"tags\": \"文化館舍, 新春活動, 體驗活動\"\n        },\n        {\n            \"title\": \"雲林布袋戲館\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣虎尾鎮林森路一段498號\",\n            \"tags\": \"文化館舍, 偶戲, 新春活動\"\n        },\n        {\n            \"title\": \"官邸兒童館\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣虎尾鎮信義路16號\",\n            \"tags\": \"兒童館, 新春活動, 體驗活動\"\n        },\n        {\n            \"title\": \"入住 暫無特定住宿資料，建議自行安排\",\n            \"time\": \"晚上\",\n            \"location\": \"虎尾鎮\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"北港遊客中心\",\n            \"time\": \"上午\",\n            \"location\": \"雲林縣北港鎮公園路1號\",\n            \"tags\": \"遊客中心, 景點, 拍照打卡\"\n        },\n        {\n            \"title\": \"午餐：口湖農村社區小舖\",\n            \"time\": \"中午\",\n            \"location\": \"雲林縣口湖鄉梧南村光明路163號\",\n            \"tags\": \"餐廳, 海鮮, 在地料理\"\n        },\n        {\n            \"title\": \"一起久久驛站\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣口湖鄉崙東村民生路79巷28號\",\n            \"tags\": \"景點, 拍照打卡, 特色地標\"\n        },\n        {\n            \"title\": \"賦歸\",\n            \"time\": \"下午\",\n            \"location\": \"雲林縣\",\n            \"tags\": \"離開\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-10 01:48:03",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:48:03",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 3470): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:48:03",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:48:03",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-10 01:48:03",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-10 01:48:04",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:07:54",
+        "message": "Geocoding API 請求失敗 for '嘉義市忠孝路275號': HTTPSConnectionPool(host='maps.googleapis.com', port=443): Max retries exceeded with url: /maps/api/geocode/json?address=%E5%98%89%E7%BE%A9%E5%B8%82%E5%BF%A0%E5%AD%9D%E8%B7%AF275%E8%99%9F&key=AIzaSyBupx_s-VMi7f5AgVZ8_vJ5xIMWgh0XHHI (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x000001B979DEA1C0>: Failed to resolve 'maps.googleapis.com' ([Errno 11001] getaddrinfo failed)\"))"
+    },
+    {
+        "timestamp": "2025-10-11 15:07:54",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-10-11 15:10:34",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:10:36",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:12:57",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:12:59",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:18:25",
+        "message": "Google AI response: ```json\n{\n  \"1\": [\n    {\n      \"title\": \"2025亞太高峰論壇暨全國民宿聯合會活動\",\n      \"time\": \"全天\",\n      \"location\": \"屏東縣恆春鎮 龍泉路117-1號\",\n      \"tags\": \"論壇, 交流, 屏東特色\"\n    },\n    {\n      \"title\": \"晚餐\",\n      \"time\": \"18:00\",\n      \"location\": \"恆春鎮內餐廳 (請自行選擇)\",\n      \"tags\": \"餐飲, 晚餐\"\n    },\n    {\n      \"title\": \"住宿\",\n      \"time\": \"晚上\",\n      \"location\": \"屏東縣恆春鎮 (請自行預訂)\",\n      \"tags\": \"住宿\"\n    }\n  ],\n  \"2\": [\n    {\n      \"title\": \"心伶舒芙蕾\",\n      \"time\": \"10:00 - 14:00\",\n      \"location\": \"屏東縣霧臺鄉 神山巷33號\",\n      \"tags\": \"餐飲, 甜點, 舒芙蕾\"\n    },\n    {\n      \"title\": \"涼山遊憩區\",\n      \"time\": \"14:30 - 17:30\",\n      \"location\": \"屏東縣瑪家鄉 涼山村涼山14-20號\",\n      \"tags\": \"景點, 瀑布, 森林浴, 登山步道 (請注意步道封閉情況，以現場公告為主)\"\n    },\n    {\n      \"title\": \"晚餐\",\n      \"time\": \"18:30\",\n      \"location\": \"瑪家鄉或返回恆春鎮餐廳 (請自行選擇)\",\n      \"tags\": \"餐飲, 晚餐\"\n    },\n    {\n      \"title\": \"住宿\",\n      \"time\": \"晚上\",\n      \"location\": \"屏東縣恆春鎮 (請自行預訂)\",\n      \"tags\": \"住宿\"\n    }\n  ],\n  \"3\": [\n    {\n      \"title\": \"自由活動/在地體驗\",\n      \"time\": \"上午\",\n      \"location\": \"屏東縣恆春鎮\",\n      \"tags\": \"自由活動, 觀光, 恆春半島\"\n    },\n    {\n      \"title\": \"午餐\",\n      \"time\": \"12:00\",\n      \"location\": \"恆春鎮內餐廳 (請自行選擇)\",\n      \"tags\": \"餐飲, 午餐\"\n    },\n    {\n      \"title\": \"賦歸\",\n      \"time\": \"下午\",\n      \"location\": \"自行安排\",\n      \"tags\": \"離開\"\n    }\n  ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 15:18:35",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:18:35",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5160): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:18:36",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:18:36",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:18:36",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:18:36",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:42",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:43",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:58",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:59",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5160): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:59",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:59",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:59",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:20:59",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:22:54",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:22:55",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:43:42",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025亞太高峰論壇暨全國民宿聯合會活動\",\n            \"time\": \"全天\",\n            \"location\": \"屏東縣恆春鎮 龍泉路117-1號\",\n            \"tags\": \"論壇, 產業交流, 觀光\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"涼山遊憩區\",\n            \"time\": \"上午\",\n            \"location\": \"屏東縣瑪家鄉 涼山村涼山14-20號\",\n            \"tags\": \"自然景觀, 瀑布, 休憩\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"瑪家鄉 或 霧臺鄉 餐廳\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"心伶舒芙蕾\",\n            \"time\": \"下午\",\n            \"location\": \"屏東縣霧臺鄉 神山巷33號\",\n            \"tags\": \"下午茶, 甜點\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"自由活動\",\n            \"time\": \"上午\",\n            \"location\": \"恆春鎮\",\n            \"tags\": \"自由探索, 購物\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"恆春鎮\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"離開\",\n            \"time\": \"下午\",\n            \"location\": \"恆春鎮\",\n            \"tags\": \"返程\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 15:43:52",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:43:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5160): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:43:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:43:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:43:53",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:43:53",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:50:53",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025亞太高峰論壇暨全國民宿聯合會活動\",\n            \"time\": \"全天\",\n            \"location\": \"屏東縣恆春鎮 龍泉路117-1號\",\n            \"tags\": \"論壇, 產業交流\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"涼山遊憩區\",\n            \"time\": \"上午\",\n            \"location\": \"屏東縣瑪家鄉 涼山村涼山14-20號\",\n            \"tags\": \"自然景觀, 瀑布, 戶外活動\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"涼山遊憩區周邊餐廳 (請自行尋找)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"心伶舒芙蕾\",\n            \"time\": \"下午\",\n            \"location\": \"屏東縣霧臺鄉 神山巷33號\",\n            \"tags\": \"特色甜點, 咖啡廳\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"自由活動/購物\",\n            \"time\": \"上午\",\n            \"location\": \"恆春鎮市區\",\n            \"tags\": \"自由活動, 購物\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"恆春鎮市區餐廳 (請自行尋找)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"行程結束，準備離開\",\n            \"time\": \"下午\",\n            \"location\": \"屏東縣\",\n            \"tags\": \"離開\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 15:50:57",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025亞太高峰論壇暨全國民宿聯合會活動\",\n            \"time\": \"全天\",\n            \"location\": \"屏東縣恆春鎮 龍泉路117-1號\",\n            \"tags\": \"論壇, 產業交流, 恆春文化\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"涼山遊憩區\",\n            \"time\": \"上午\",\n            \"location\": \"屏東縣瑪家鄉 涼山村涼山14-20號\",\n            \"tags\": \"自然景觀, 瀑布, 親子互動\"\n        },\n        {\n            \"title\": \"心伶舒芙蕾\",\n            \"time\": \"午餐\",\n            \"location\": \"屏東縣霧臺鄉 神山巷33號\",\n            \"tags\": \"下午茶, 甜點, 山區美食\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"自由活動/恆春半島景點探索\",\n            \"time\": \"全天\",\n            \"location\": \"屏東縣恆春鎮\",\n            \"tags\": \"自由行, 景點探索, 恆春風光\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:26",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5160): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:26",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:27",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:51",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:51:53",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:55:00",
+        "message": "Google AI response: ```json\n{\n  \"1\": [\n    {\n      \"title\": \"2025亞太高峰論壇暨全國民宿聯合會活動\",\n      \"time\": \"全天\",\n      \"location\": \"屏東縣恆春鎮 龍泉路117-1號\",\n      \"tags\": \"論壇, 交流, 觀光\"\n    },\n    {\n      \"title\": \"晚餐\",\n      \"time\": \"18:00\",\n      \"location\": \"恆春鎮內餐廳 (待定)\",\n      \"tags\": \"餐飲\"\n    },\n    {\n      \"title\": \"住宿\",\n      \"time\": \"晚間\",\n      \"location\": \"恆春鎮住宿 (待定)\",\n      \"tags\": \"住宿\"\n    }\n  ],\n  \"2\": [\n    {\n      \"title\": \"恆春古城巡禮\",\n      \"time\": \"09:00 - 12:00\",\n      \"location\": \"屏東縣恆春鎮 (四門、老街)\",\n      \"tags\": \"歷史, 文化, 景點\"\n    },\n    {\n      \"title\": \"午餐\",\n      \"time\": \"12:00 - 13:30\",\n      \"location\": \"恆春鎮內特色餐廳\",\n      \"tags\": \"餐飲\"\n    },\n    {\n      \"title\": \"涼山遊憩區\",\n      \"time\": \"14:30 - 17:30\",\n      \"location\": \"屏東縣瑪家鄉涼山村涼山14-20號\",\n      \"tags\": \"自然, 瀑布, 健行\"\n    },\n    {\n      \"title\": \"晚餐\",\n      \"time\": \"18:30\",\n      \"location\": \"霧臺鄉附近餐廳 (心伶舒芙蕾附近)\",\n      \"tags\": \"餐飲\"\n    },\n    {\n      \"title\": \"住宿\",\n      \"time\": \"晚間\",\n      \"location\": \"瑪家鄉或附近鄉鎮住宿 (待定)\",\n      \"tags\": \"住宿\"\n    }\n  ],\n  \"3\": [\n    {\n      \"title\": \"心伶舒芙蕾\",\n      \"time\": \"10:00 - 12:00\",\n      \"location\": \"屏東縣霧臺鄉神山巷33號\",\n      \"tags\": \"甜點, 咖啡, 輕食\"\n    },\n    {\n      \"title\": \"午餐\",\n      \"time\": \"12:00 - 13:30\",\n      \"location\": \"霧臺鄉或附近鄉鎮餐廳\",\n      \"tags\": \"餐飲\"\n    },\n    {\n      \"title\": \"自由活動 / 伴手禮採購\",\n      \"time\": \"13:30 - 16:00\",\n      \"location\": \"依個人興趣安排\",\n      \"tags\": \"購物, 休息\"\n    },\n    {\n      \"title\": \"賦歸\",\n      \"time\": \"16:00\",\n      \"location\": \"依各自行程\",\n      \"tags\": \"交通\"\n    }\n  ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 15:55:13",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:55:13",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5160): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:55:14",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:55:14",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:55:14",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:55:14",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:32",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:32",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:34",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:46",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:46",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:46",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5160): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:46",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:46",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:46",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 15:58:47",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:25",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:25",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-11T15:55\", \"destination_address\": \"屏東縣恆春鎮 龍泉路117-1號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:25",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:25",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5160): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 5050): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:26",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 16:03:26",
+        "message": "查詢時刻表時發生錯誤 (6180 -> 7000): 405, message='Method Not Allowed', url='https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d'"
+    },
+    {
+        "timestamp": "2025-10-11 16:04:52",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 16:04:52",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-11T15:55\", \"destination_address\": \"屏東縣恆春鎮 龍泉路117-1號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 16:04:52",
+        "message": "Formatted departure_datetime to: 2025-10-11T15:55:00"
+    },
+    {
+        "timestamp": "2025-10-11 16:04:52",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 16:04:54",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 16:04:55",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 16:06:12",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"嘉義市台灣觀光100亮點\",\n            \"time\": \"全天\",\n            \"location\": \"東區 中山路199號\",\n            \"tags\": \"景點\"\n        },\n        {\n            \"title\": \"愛木村休閒觀光工廠\",\n            \"time\": \"上午\",\n            \"location\": \"嘉義市東區文化路909-3號\",\n            \"tags\": \"觀光工廠, 體驗\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"嘉義市東區成仁街201號 (餐廳: 001)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"嘉義市立美術館\",\n            \"time\": \"下午\",\n            \"location\": \"嘉義市東區西區公園街23號\",\n            \"tags\": \"藝術, 展覽\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"待定 (建議選擇市區飯店)\",\n            \"tags\": \"住宿\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 16:06:23",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 16:06:23",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-21T09:06\", \"destination_address\": \"東區 中山路199號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 16:06:24",
+        "message": "Formatted departure_datetime to: 2025-10-21T09:06:00"
+    },
+    {
+        "timestamp": "2025-10-11 16:06:24",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 16:06:25",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:27:55",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"嘉義市台灣觀光100亮點\",\n            \"time\": \"上午\",\n            \"location\": \"東區 中山路199號\",\n            \"tags\": \"觀光景點\"\n        },\n        {\n            \"title\": \"嘉義：愛木村休閒觀光工廠\",\n            \"time\": \"下午\",\n            \"location\": \"嘉義市東區文化路909-3號\",\n            \"tags\": \"觀光工廠, 體驗\"\n        },\n        {\n            \"title\": \"晚餐\",\n            \"time\": \"晚上\",\n            \"location\": \"嘉義市東區成仁街201號 (餐廳001)\",\n            \"tags\": \"餐飲\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 17:28:03",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 17:28:03",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-30T08:27:00\", \"destination_address\": \"東區 中山路199號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 17:28:04",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:28:06",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:54",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:54",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-30T08:27:00\", \"destination_address\": \"東區 中山路199號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:54",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:55",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:55",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-30T08:27:00\", \"destination_address\": \"東區 中山路199號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:55",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:56",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:29:57",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:31:02",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 17:31:02",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-11T17:30:00\", \"destination_address\": \"嘉義市東區成仁街201號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 17:31:03",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:31:04",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:31:05",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:32:08",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 17:32:08",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-23T15:30:00\", \"destination_address\": \"嘉義市東區成仁街201號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 17:32:08",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:32:10",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:33:56",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 17:33:56",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-30T08:27:00\", \"destination_address\": \"東區 中山路199號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 17:33:57",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:33:58",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:39:02",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"嘉義市台灣觀光100亮點\",\n            \"time\": \"全天\",\n            \"location\": \"東區 中山路199號\",\n            \"tags\": \"景點,觀光,文化\"\n        },\n        {\n            \"title\": \"嘉義：愛木村休閒觀光工廠\",\n            \"time\": \"上午\",\n            \"location\": \"嘉義市東區文化路909-3號\",\n            \"tags\": \"觀光工廠,木業,文化\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午\",\n            \"location\": \"嘉義市東區成仁街201號 (餐廳001)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"嘉義市東區文化路909-3號 (愛木村休閒觀光工廠住宿)\",\n            \"tags\": \"住宿\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 17:39:17",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 17:39:17",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-23T08:39:00\", \"destination_address\": \"東區 中山路199號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 17:39:17",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 17:39:19",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 20:39:42",
+        "message": "API search-station error: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand."
+    },
+    {
+        "timestamp": "2025-10-11 20:44:21",
+        "message": "API /closest-station Unhandled Error: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand."
+    },
+    {
+        "timestamp": "2025-10-11 20:44:21",
+        "message": "Traceback (most recent call last):\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\werkzeug\\wrappers\\request.py\", line 578, in get_json\n    rv = self.json_module.loads(data)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\flask\\json\\__init__.py\", line 181, in loads\n    return _json.loads(s, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\json\\__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\json\\decoder.py\", line 337, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\json\\decoder.py\", line 355, in raw_decode\n    raise JSONDecodeError(\"Expecting value\", s, err.value) from None\njson.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\flask\\wrappers.py\", line 128, in on_json_loading_failed\n    return super().on_json_loading_failed(e)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\werkzeug\\wrappers\\request.py\", line 609, in on_json_loading_failed\n    raise BadRequest(f\"Failed to decode JSON object: {e}\")\nwerkzeug.exceptions.BadRequest: 400 Bad Request: Failed to decode JSON object: Expecting value: line 1 column 1 (char 0)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 70, in api_closest_station\n    data = request.get_json()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\werkzeug\\wrappers\\request.py\", line 587, in get_json\n    rv = self.on_json_loading_failed(e)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\flask\\wrappers.py\", line 133, in on_json_loading_failed\n    raise BadRequest() from e\nwerkzeug.exceptions.BadRequest: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.\n"
+    },
+    {
+        "timestamp": "2025-10-11 20:45:54",
+        "message": "API_PARAMS_RECEIVED: {\"address\": \"嘉義市忠孝路275號\"}"
     }
 ]

@@ -7,7 +7,6 @@ import json
 import uuid
 from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash, abort
 from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity, delete_user_profile, ask_ai
-from search_station import search_station
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
@@ -26,7 +25,7 @@ import time
 import sqlite3
 from datetime import datetime
 import random
-
+from api_routes import api_bp
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -61,11 +60,17 @@ app.config['JSON_AS_ASCII'] = False
 app.secret_key = secrets.token_hex(24)
 app.config['SECRET_PAGE_PASSWORD'] = os.getenv('SECRET_PAGE_PASSWORD')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['WTF_CSRF_EXEMPT_LIST'] = ['api.api_search_station']
 app.permanent_session_lifetime = timedelta(days=1)
 app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 csrf = CSRFProtect(app)
 
+# 註冊 Blueprint
+app.register_blueprint(api_bp)
+
+# 將整個 api_bp 從 CSRF 保護中豁免
+csrf.exempt(api_bp)
 
 # LINE 配置
 CLIENT_ID = int(os.getenv('LINE_LOGIN_CHANNEL_ID'))
@@ -203,11 +208,17 @@ def inject_csrf_token():
     return dict(csrf_token=generate_csrf)
 
 @csrf.exempt
+@app.route("/test")
+def test():
+    return render_template('test-search-station.html')
+
+@csrf.exempt
 @app.route("/")
 def home():
-    session['token'] = encrypt_token("123123123321123123123") # 測試用，預設登入
-    session['homeStationCode'] = "1000" # 測試用，預設家
-    session['homeStationName'] = "臺北" # 測試用，預設家
+    # 移除測試用的 session 設定
+    # session['token'] = encrypt_token("123123123321123123123") 
+    # session['homeStationCode'] = "6180"
+    # session['homeStationName'] = "鳳林"
     return render_template('index.html')
 
 @csrf.exempt
@@ -223,6 +234,9 @@ def login():
 @app.route("/logout")
 def logout():
     token = session.pop('token', None)
+    # 登出時一併清除車站資訊
+    session.pop('homeStationCode', None)
+    session.pop('homeStationName', None)
     if token:
         try:
             uid = decrypt_token(token)
@@ -259,12 +273,18 @@ def delete_account():
 def login_line():
     uid = decrypt_token(request.args.get("token"))
     username = request.args.get("username")
+    # 從 request 取得車站資訊
+    home_station_code = request.args.get("homeStationCode")
+    home_station_name = request.args.get("homeStationName")
     state = secrets.token_hex(16)
 
     # 根據參數判斷流程
     if username:
         session['flow'] = 'register'
         session['username'] = username
+        # 將車站資訊存入 session，以便 callback 流程使用
+        session['home_station_code'] = home_station_code
+        session['home_station_name'] = home_station_name
         # 註冊流程，若無uid則產生新的
         if not uid: uid = str(uuid.uuid4())
     elif uid:
@@ -318,7 +338,7 @@ def callback_line():
         return redirect(url_for('login'))
 
     try:
-        decoded = pyjwt.decode(id_token_jwt, CLIENT_SECRET, audience=str(CLIENT_ID), algorithms=["HS256"])
+        decoded = pyjwt.decode(id_token_jwt, CLIENT_SECRET, audience=str(CLIENT_ID), algorithms=["HS265"])
         user_id = decoded.get("sub")
         display_name = decoded.get("name", "未知")
         email = decoded.get("email")
@@ -326,13 +346,24 @@ def callback_line():
         flow = session.pop("flow", None)
         uid = session.pop("uid_id", None)
         username = session.pop("username", None)
+        # 從 session 取出車站資訊
+        home_station_code = session.pop("home_station_code", None)
+        home_station_name = session.pop("home_station_name", None)
 
         if flow in ['register', 'link']:
             # 註冊 或 連結流程
-            final_uid = update_user_profile(uid=uid, login_type='line', user_id=user_id, display_name=display_name, email=email, username=username)
+            final_uid = update_user_profile(
+                uid=uid, login_type='line', user_id=user_id, 
+                display_name=display_name, email=email, username=username,
+                home_station_code=home_station_code, home_station_name=home_station_name
+            )
             if flow == 'register':
                 save_log(f"{user_id} (Line) registered with uid {final_uid}")
                 flash("註冊成功！", "success")
+                # 註冊成功後，順便將車站資訊存入 session
+                if home_station_code and home_station_name:
+                    session['homeStationCode'] = home_station_code
+                    session['homeStationName'] = home_station_name
             else: # link
                 save_log(f"Linked Line account {user_id} to uid {final_uid}")
                 flash("LINE 帳號連結成功！", "success")
@@ -345,6 +376,10 @@ def callback_line():
                 save_log(f"{user_id} (Line) logged in with existing uid {found_user['uid']}")
                 flash("登入成功！", "success")
                 session['token'] = encrypt_token(found_user['uid'])
+                # 登入成功時，將使用者資料中的車站資訊寫入 session
+                if found_user.get("homeStationCode") and found_user.get("homeStationName"):
+                    session['homeStationCode'] = found_user["homeStationCode"]
+                    session['homeStationName'] = found_user["homeStationName"]
                 return redirect(url_for('account_management', token=encrypt_token(found_user['uid'])))
             else:
                 save_log(f"Login failed: Line user {user_id} not found. Asking to register.")
@@ -366,12 +401,18 @@ def callback_line():
 def login_google():
     uid = decrypt_token(request.args.get("token"))
     username = request.args.get("username")
+    # 從 request 取得車站資訊
+    home_station_code = request.args.get("homeStationCode")
+    home_station_name = request.args.get("homeStationName")
     state = secrets.token_hex(16)
 
     # 根據參數判斷流程
     if username:
         session['flow'] = 'register'
         session['username'] = username
+        # 將車站資訊存入 session，以便 callback 流程使用
+        session['home_station_code'] = home_station_code
+        session['home_station_name'] = home_station_name
         if not uid: uid = str(uuid.uuid4())
     elif uid:
         session['flow'] = 'link'
@@ -435,13 +476,24 @@ def callback_google():
         flow = session.pop("flow", None)
         uid = session.pop("uid_id", None)
         username = session.pop("username", None)
+        # 從 session 取出車站資訊
+        home_station_code = session.pop("home_station_code", None)
+        home_station_name = session.pop("home_station_name", None)
 
         if flow in ['register', 'link']:
             # 註冊 或 連結流程
-            final_uid = update_user_profile(uid=uid, login_type='google', user_id=user_id, display_name=display_name, email=email, username=username)
+            final_uid = update_user_profile(
+                uid=uid, login_type='google', user_id=user_id, 
+                display_name=display_name, email=email, username=username,
+                home_station_code=home_station_code, home_station_name=home_station_name
+            )
             if flow == 'register':
                 save_log(f"{user_id} (Google) registered with uid {final_uid}")
                 flash("註冊成功！", "success")
+                # 註冊成功後，順便將車站資訊存入 session
+                if home_station_code and home_station_name:
+                    session['homeStationCode'] = home_station_code
+                    session['homeStationName'] = home_station_name
             else: # link
                 save_log(f"Linked Google account {email} to uid {final_uid}")
                 flash("Google 帳號連結成功！", "success")
@@ -454,6 +506,10 @@ def callback_google():
                 save_log(f"{user_id} (Google) logged in with existing uid {found_user['uid']}")
                 flash("登入成功！", "success")
                 session['token'] = encrypt_token(found_user['uid'])
+                # 登入成功時，將使用者資料中的車站資訊寫入 session
+                if found_user.get("homeStationCode") and found_user.get("homeStationName"):
+                    session['homeStationCode'] = found_user["homeStationCode"]
+                    session['homeStationName'] = found_user["homeStationName"]
                 return redirect(url_for('account_management', token=encrypt_token(found_user['uid'])))
             else:
                 save_log(f"Login failed: Google user {email} not found. Asking to register.")
@@ -469,6 +525,7 @@ def callback_google():
         flash(f"ID Token驗證失敗：{e}", "error")
         return redirect(url_for('login'))
 
+# ... (其餘的 app.py 程式碼維持不變) ...
 @csrf.exempt
 @app.route('/favicon.ico')
 def favicon():
@@ -749,7 +806,12 @@ def info():
 @app.route("/trip/<days>/<active>")
 def trip(days, active):
     token = session.get('token') or ''
-    home_station = session.get('home') or '1000' # 預設北車
+    if 'homeStationCode' not in session:
+        session['homeStationCode'] = '1000' # 預設 臺北
+        save_log("Session 'homeStationCode' not found, setting default '1000'.")
+    if 'homeStationName' not in session:
+        session['homeStationName'] = '臺北' # 預設 臺北
+        save_log("Session 'homeStationName' not found, setting default '臺北'.")
 
     # 驗證天數是否正確
     if days not in ['one-day', 'two-day', 'three-day']:
@@ -779,7 +841,6 @@ def trip(days, active):
 
     # 呼叫 AI 排行程
     ai_response = ask_ai(trip_data)
-    #ai_response = "```json\n{\n    \"1\": [\n        {\n            \"title\": \"2024新北觀光工廠｜青春造一夏(板橋區)\",\n            \"time\": \"10:00 - 16:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"文化, 觀光, 體驗\"\n        },\n        {\n            \"title\": \"午餐與休息\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區附近餐廳\",\n            \"tags\": \"餐飲, 休息\"\n        },\n        {\n            \"title\": \"自由活動或周邊景點\",\n            \"time\": \"16:00 - 18:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"自由, 探索\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"早晨漫步與早餐\",\n            \"time\": \"08:00 - 09:30\",\n            \"location\": \"住宿地點附近\",\n            \"tags\": \"休息, 餐飲\"\n        },\n        {\n            \"title\": \"參觀板橋林家花園\",\n            \"time\": \"09:30 - 12:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"歷史, 建築, 園林\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"在地市場體驗 (如湳雅夜市)\",\n            \"time\": \"09:00 - 11:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"在地, 文化, 體驗\"\n        },\n        {\n            \"title\": \"午餐與購物\",\n            \"time\": \"11:00 - 13:00\",\n            \"location\": \"板橋區\",\n            \"tags\": \"餐飲, 購物\"\n        },\n        {\n            \"title\": \"整理行李與離開\",\n            \"time\": \"13:00 onwards\",\n            \"location\": \"住宿地點\",\n            \"tags\": \"休息, 離開\"\n        }\n    ]\n}\n```"
 
     def fix_json_format_with_markers(json_string):
         # 移除頭尾的 ```json 和 ```
@@ -803,13 +864,24 @@ def trip(days, active):
 
     print(ai_response)
 
-    session['destinationAddress'] = event_data.get('行政區(鄉鎮區)名稱','') + event_data.get('街道名稱','') 
-    
-    if not session.get('destinationAddress'):
-        session['destinationAddress'] = event_data.get('資料提供單位','')
+    raw_start = ai_response.get('1', [{}])[0].get('location', '臺北')
+    raw_end   = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')
+
+    print("▼ 原始 start_location:", raw_start)
+    print("▼ 原始 end_location:  ", raw_end)
+
+    def clean_addr(addr: str) -> str:
+        # 去掉「(…)」裡的備註，並把全形空白 / 換行都 trim 掉
+        cleaned = addr.split('(')[0].strip()
+        return cleaned.replace('\n', '').replace('\r', '').strip()
+
+    start_location = clean_addr(raw_start)
+    end_location   = clean_addr(raw_end)
+    print("▶ 清理後 start_location:", start_location)
+    print("▶ 清理後 end_location:  ", end_location)
 
     # 將結果渲染到模板
-    return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token)
+    return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token, start_location=start_location, end_location=end_location)
 
 @app.route('/save_data/<flow>', methods=['POST'])
 @csrf.exempt
@@ -869,44 +941,15 @@ def save_data(flow):
         return jsonify({"error": f"Server error: {str(e)}"}), 500
     
 
-@csrf.exempt
-@app.route("/api/search-station", methods=["POST"])
-def api_search_station():
-    """
-    提供火車路線查詢的 API
-    """
-    try:
-        # 從請求中解析參數
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "請提供有效的 JSON 資料"}), 400
-
-        home_station_code = data.get("home_station_code")
-        home_station_name = data.get("home_station_name")
-        departure_datetime = data.get("departure_datetime")
-        destination_address = data.get("destination_address")
-
-        # 驗證參數是否完整
-        if not all([home_station_code, home_station_name, departure_datetime, destination_address]):
-            return jsonify({"error": "缺少必要的參數"}), 400
-
-        # 呼叫 search_station 函式
-        result = search_station(
-            home_station_code=home_station_code,
-            home_station_name=home_station_name,
-            departure_datetime_str=departure_datetime,
-            destination_address=destination_address,
-        )
-
-        # 如果沒有找到結果
-        if not result:
-            return jsonify({"error": "找不到適合的火車路線"}), 404
-
-        # 回傳查詢結果
-        return jsonify(result), 200
-
-    except Exception as e:
-        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
+with app.app_context():
+    links = []
+    for rule in app.url_map.iter_rules():
+        # 過濾掉靜態文件路由和一些內建路由
+        if "static" not in rule.endpoint:
+            links.append(f"Endpoint: {rule.endpoint}, Methods: {','.join(rule.methods)}, URL: {rule}")
+    # 為了方便查看，我們排序後印出
+    for link in sorted(links):
+        print(link)
     
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False)

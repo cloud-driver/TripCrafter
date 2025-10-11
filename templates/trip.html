@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>行程規劃 - {{ days }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- 引入指定的 CSS -->
     <link href="/assets/css/plugins/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/fonts/font-awesome.min.css" rel="stylesheet">
     <link href="/assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
@@ -125,7 +124,6 @@
             opacity: 1; 
             transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s; 
         } 
-            /* 分頁扁平化微調（可選） */ 
         .pagination .page-link { 
             border-radius: .375rem; 
         } 
@@ -141,8 +139,7 @@
             cursor: pointer; 
             margin: 0.25rem; 
         }
-                .train-search-btn {
-            margin: 10px 0;
+        .train-search-btn {
             background-color: #FF6600;
             color: #fff;
             border: none;
@@ -160,87 +157,108 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+        
+        /* ▼▼▼ 新增的轉圈動畫 CSS ▼▼▼ */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1rem;
+        }
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #FF6600;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
     </style>
 </head>
 <body>
-    <!-- Header Start --> 
-  <header class="header can-sticky"> 
-    <div class="container"> 
-      <div class="header_inner"> 
-        <div class="logo"> 
-          <a href="{{ url_for('home')}}" class="d-flex h-100"> 
-            <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain"> 
-          </a> 
-        </div> 
-        <div class="nav_actions"> 
-          <nav class="navigation"> 
-            <ul class="main-menu"> 
-              <li class="menu-item">
-                <a href="{{ url_for('home')}}">首頁</a>
-              </li> 
-              <li class="menu-item">
-                <a href="/active/all" class="active">探索活動</a>
-              </li> 
-              <li class="menu-item">
-                <a href="/contact">聯絡我們</a>
-              </li> 
-            </ul> 
-          </nav> 
-          <div class="header_actions"> 
-            <ul> 
-              <li> {% if session['token'] %} 
-                <li> 
-                  <a href="/account_management?token={{ session['token'] }}" class="login_btn"> 
-                    <i class="fal fa-user-circle me-2"></i> 已登入 </a> {% else %} 
-                    <li> 
-                      <a href="/login" class="login_btn"> 
-                        <i class="fal fa-user-circle me-2"></i> 登入/註冊 
-                      </a> 
-                    </li> {% endif %} 
-                    <li> 
-                      <div class="search-wrapper"> 
-                        <button class="thm-btn btn-rounded"> 
-                          <i class="bi-search"></i> 搜尋活動 
-                        </button> 
-                        <div class="search-dropdown"> 
-                          <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" /> 
-                          <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button> 
+    <header class="header can-sticky"> 
+      <div class="container"> 
+        <div class="header_inner"> 
+          <div class="logo"> 
+            <a href="{{ url_for('home')}}" class="d-flex h-100"> 
+              <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain"> 
+            </a> 
+          </div> 
+          <div class="nav_actions"> 
+            <nav class="navigation"> 
+              <ul class="main-menu"> 
+                <li class="menu-item">
+                  <a href="{{ url_for('home')}}">首頁</a>
+                </li> 
+                <li class="menu-item">
+                  <a href="/active/all" class="active">探索活動</a>
+                </li> 
+                <li class="menu-item">
+                  <a href="/contact">聯絡我們</a>
+                </li> 
+              </ul> 
+            </nav> 
+            <div class="header_actions"> 
+              <ul> 
+                <li> {% if session['token'] %} 
+                  <li> 
+                    <a href="/account_management?token={{ session['token'] }}" class="login_btn"> 
+                      <i class="fal fa-user-circle me-2"></i> 已登入 </a> {% else %} 
+                      <li> 
+                        <a href="/login" class="login_btn"> 
+                          <i class="fal fa-user-circle me-2"></i> 登入/註冊 
+                        </a> 
+                      </li> {% endif %} 
+                      <li> 
+                        <div class="search-wrapper"> 
+                          <button class="thm-btn btn-rounded"> 
+                            <i class="bi-search"></i> 搜尋活動 
+                          </button> 
+                          <div class="search-dropdown"> 
+                            <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" /> 
+                            <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button> 
+                          </div> 
                         </div> 
+                      </li> 
+                    </ul> 
+                    <div class="hamburger"> 
+                      <div class="hamburger_btn"><span></span><span></span><span></span>
                       </div> 
-                    </li> 
-                  </ul> 
-                  <div class="hamburger"> 
-                    <div class="hamburger_btn"><span></span><span></span><span></span>
                     </div> 
                   </div> 
                 </div> 
               </div> 
             </div> 
           </div> 
-        </div> 
-      </header> 
-      <!-- Header End --> 
+        </header> 
 
-                  <!-- Banner Start --> 
-          <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;"> 
-            <div class="relative text-center"> 
-              <div class="container"> 
-                <div class="banner_text"> 
-                  <h1 class="title" style="color: white;"> 行程規劃 <span class="fw-bold" style="color: #FFD700;">{{ days }}</span> </h1> 
-                </div> 
-              </div> 
-            </div> 
-            <span class="left_skew"></span> 
-            <span class="right_skew"></span> 
+    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;"> 
+      <div class="relative text-center"> 
+        <div class="container"> 
+          <div class="banner_text"> 
+            <h1 class="title" style="color: white;"> 行程規劃 <span class="fw-bold" style="color: #FFD700;">{{ days }}</span> </h1> 
           </div> 
-          <!-- Banner End --> 
+        </div> 
+      </div> 
+      <span class="left_skew"></span> 
+      <span class="right_skew"></span> 
+    </div>
+
     <div class="container mt-4">
         <p class="text-center text-muted">唯一識別碼：{{ active }}</p>
 
-        <div>
-            <label for="departure-time-start">選擇出發時間（出發）:</label>
-            <input type="datetime-local" id="departure-time-start" class="form-control mb-2">
+        <div class="search-container">
+            <div>
+                <label for="departure-time-start">選擇出發時間（出發）:</label>
+                <input type="datetime-local" id="departure-time-start" class="form-control" required />
+            </div>
             <button class="train-search-btn" onclick="searchTrain('start')">查火車（出發）</button>
+            <div class="spinner" id="spinner-start" style="display: none;"></div>
         </div>
         {% if ai_response %}
             {% for day, activities in ai_response.items() %}
@@ -262,100 +280,128 @@
             </div>
         {% endif %}
 
-        <div>
-            <label for="departure-time-end">選擇出發時間（返回）:</label>
-            <input type="datetime-local" id="departure-time-end" class="form-control mb-2">
+        <div class="search-container">
+            <div>
+                <label for="departure-time-end">選擇出發時間（返回）:</label>
+                <input type="datetime-local" id="departure-time-end" class="form-control" required />
+            </div>
             <button class="train-search-btn" onclick="searchTrain('end')">查火車（返回）</button>
+            <div class="spinner" id="spinner-end" style="display: none;"></div>
         </div>
-
-                <!-- 火車查詢結果 -->
         <div id="train-results" class="train-results" style="display: none;">
             <h3>火車查詢結果</h3>
             <div id="results-content"></div>
         </div>
 
-        <!-- 新增儲存按鈕 -->
         <div class="text-center mt-4">
             <button id="save-btn" class="thm-btn">儲存行程</button>
         </div>
     </div>
 
-    <!-- Footer Start -->
-  <footer class="footer section-padding section-bg" style="background-image: url(/assets/images/bg/footer.jpg);">
-      <div class="container">
-          <div class="row">
-              <!-- item -->
-              <div class="col-lg-4 col-sm-6">
-                  <div class="ft_widgets">
-                      <div class="ft_about">
-                          <div class="ft_logo">
-                              <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
-                          </div>
-                          <p>分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 #活動瘋台灣</p>
-                          <ul class="ft_social">
-                              <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                              <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                              <li><a href="#"><i class="fab fa-instagram"></i></a></li>
-                          </ul>
-                      </div>
-                  </div>
-              </div>
-              <!-- item -->
-              <div class="col-lg-4 col-sm-6">
-                  <div class="ft_widgets">
-                      <h5 class="ft_title">網站導覽</h5>
-                      <ul class="ft_menu">
-                          <li><a href="index">首頁</a></li>
-                          <li><a href="active/all">探索活動</a></li>
-                          <li><a href="#">常見問題</a></li>
-                          <li><a href="contact">聯絡我們</a></li>
-                      </ul>
-                  </div>
-              </div>
-              <!-- item -->
-              <div class="col-lg-4 col-sm-6">
-                  <div class="ft_widgets">
-                      <h5 class="ft_title">聯絡資訊</h5>
-                      <p>有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
-                      <ul class="ft_contact ft_menu">
-                          <li><a href="tel:0800123456"><i class="fas fa-phone-volume"></i> 0800-123-456</a></li>
-                          <li><a href="mailto:service@example.com"><i class="fas fa-envelope"></i> service@example.com</a></li>
-                          <li><a href="#"><i class="fas fa-map-marker-alt"></i> 台灣，台北市信義區</a></li>
-                      </ul>
-                  </div>
-              </div>
-              <!-- item -->
-          </div>
-      </div>
-  </footer>
-  <!-- Footer End -->
-  <!-- Copyright Start -->
-  <div class="thm-bg-color-one">
-      <div class="container">
-          <div class="row">
-              <div class="col-12 text-center">
-                  <div class="copyright">
-                      <p class="mb-0 text-white">Copyright © <span id="year">2025</span>. 台灣活動資訊網. All Right Reserved.</p>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
-  <!-- Copyright End -->
-
+    <footer class="footer section-padding section-bg" style="background-image: url(/assets/images/bg/footer.jpg);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <div class="ft_about">
+                            <div class="ft_logo">
+                                <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                            </div>
+                            <p>分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 #活動瘋台灣</p>
+                            <ul class="ft_social">
+                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">網站導覽</h5>
+                        <ul class="ft_menu">
+                            <li><a href="index">首頁</a></li>
+                            <li><a href="active/all">探索活動</a></li>
+                            <li><a href="#">常見問題</a></li>
+                            <li><a href="contact">聯絡我們</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">聯絡資訊</h5>
+                        <p>有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
+                        <ul class="ft_contact ft_menu">
+                            <li><a href="tel:0800123456"><i class="fas fa-phone-volume"></i> 0800-123-456</a></li>
+                            <li><a href="mailto:service@example.com"><i class="fas fa-envelope"></i> service@example.com</a></li>
+                            <li><a href="#"><i class="fas fa-map-marker-alt"></i> 台灣，台北市信義區</a></li>
+                        </ul>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </footer>
+    <div class="thm-bg-color-one">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="copyright">
+                        <p class="mb-0 text-white">Copyright © <span id="year">2025</span>. 台灣活動資訊網. All Right Reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        // 拖動功能
-                // 查火車功能
+        const startLocation = "{{ start_location }}";
+        const endLocation   = "{{ end_location }}";
+
+        function displayTrainResults(data) {
+            const resultsContainer = document.getElementById('results-content');
+            let title = `${data.from.name} → ${data.to.name} (${data.type})`;
+            let html = `<h4>${title}</h4><hr>`;
+            data.details.forEach((leg, index) => {
+                const legInfo = data.legs_info[index] || `第 ${index + 1} 段`;
+                html += `
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>${legInfo}</strong>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>車種車次：</strong> ${leg.train_type} (${leg.train_code})
+                        </li>
+                        <li class="list-group-item">
+                            <strong>時間：</strong> ${leg.departure_time} 出發 → ${leg.arrival_time} 抵達
+                        </li>
+                        <li class="list-group-item">
+                            <strong>行車時間：</strong> ${leg.travel_time}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>票價：</strong> 全票 $${leg.adult_price} / 優待 $${leg.discount_price}
+                        </li>
+                        <li class="list-group-item text-muted small">
+                            本車開往：${leg.terminal_station}
+                        </li>
+                    </ul>
+                </div>
+                `;
+            });
+            resultsContainer.innerHTML = html;
+        }
+
         async function searchTrain(type) {
-            // 從 Session 中獲取基站和目的地資料
+            const resultsDiv = document.getElementById('train-results');
+            const resultsContent = document.getElementById('results-content');
+            const spinner = document.getElementById(`spinner-${type}`); // 獲取對應的 spinner
+
+            const destinationAddress = (type === 'start') ? startLocation : endLocation;
             const homeStationCode = "{{ session['homeStationCode'] }}";
             const homeStationName = "{{ session['homeStationName'] }}";
-            const destinationAddress = "{{ session['destinationAddress'] }}";
-
-            // 獲取用戶選擇的時間
-            const departureTimeInput = type === 'start' ? 
-                document.getElementById('departure-time-start').value : 
-                document.getElementById('departure-time-end').value;
+            const departureTimeInput = type === 'start'
+            ? document.getElementById('departure-time-start').value
+            : document.getElementById('departure-time-end').value;
 
             if (!departureTimeInput) {
                 alert('請選擇出發時間！');
@@ -363,34 +409,36 @@
             }
 
             try {
-                // 發送 API 請求
+                resultsContent.innerHTML = '<p class="text-center">查詢中，請稍候...</p>';
+                resultsDiv.style.display = 'block';
+                spinner.style.display = 'block'; // 顯示 spinner
+
+                let formattedDepartureTime = departureTimeInput;
+                if (formattedDepartureTime && formattedDepartureTime.length === 16) {
+                    formattedDepartureTime += ":00";
+                }
+            
                 const response = await axios.post('/api/search-station', {
-                    home_station_code: homeStationCode,
-                    home_station_name: homeStationName,
-                    departure_datetime: departureTimeInput,
+                    home_station_code:   homeStationCode,
+                    home_station_name:   homeStationName,
+                    departure_datetime:  formattedDepartureTime,
                     destination_address: destinationAddress
                 });
 
-                // 顯示結果
-                const trainResults = document.getElementById('train-results');
-                const resultsContent = document.getElementById('results-content');
-                trainResults.style.display = 'block';
-
-                // 格式化結果
-                const data = response.data;
-                let resultHtml = `<p>類型: ${data.type}</p>`;
-                resultHtml += `<p>耗時: ${data.duration}</p>`;
-                resultHtml += `<p>詳細資訊:</p><ul>`;
-                data.details.forEach(detail => {
-                    resultHtml += `<li>車次號碼: ${detail.train_no}, 出發時間: ${detail.departure_time}, 到達時間: ${detail.arrival_time}</li>`;
-                });
-                resultHtml += `</ul>`;
-                resultsContent.innerHTML = resultHtml;
-
+                console.log('API 回傳資料：', response.data);
+                displayTrainResults(response.data);
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+                
             } catch (error) {
-                alert(`查詢失敗: ${error.response?.data?.error || error.message}`);
+                const errorMessage = `查詢失敗: ${error.response?.data?.error || error.message}`;
+                alert(errorMessage);
+                resultsContent.innerHTML = `<p class="text-center text-danger">${errorMessage}</p>`;
+            } finally {
+                spinner.style.display = 'none'; // 無論如何都隱藏 spinner
             }
         }
+        
+        // --- 拖動和儲存功能 ... (省略未變更的 Javascript) ---
         const activities = document.querySelectorAll('.activity');
         const daySections = document.querySelectorAll('.day-section');
         let draggedItem = null;
@@ -416,7 +464,6 @@
                 const activitiesInSection = Array.from(section.querySelectorAll('.activity'));
                 const closestActivity = activitiesInSection.find(activity => {
                     const rect = activity.getBoundingClientRect();
-                    // 擴大判定範圍 (+15 像素)
                     return e.clientY < rect.bottom + 15 && e.clientY > rect.top - 15;
                 });
 
@@ -441,8 +488,7 @@
             });
         });
 
-        // 更新行程順序
-        let updatedSchedule = {}; // 定義在全局範圍
+        let updatedSchedule = {}; 
         function updateSchedule() {
             updatedSchedule = {};
             daySections.forEach(section => {
@@ -462,31 +508,31 @@
             console.log('更新後的行程順序：', updatedSchedule);
         }
 
-        // 儲存按鈕事件
-        const token = "{{ token }}".trim(); // 從 Flask 模板傳入 token（確保後端有傳入）
+        const token = "{{ token }}".trim();
         document.getElementById('save-btn').addEventListener('click', () => {
             if (!token) {
                 alert('請先登入以儲存行程。');
                 return;
             }
-            updateSchedule(); // 確保數據最新
+            updateSchedule();
             if (Object.keys(updatedSchedule).length === 0 || Object.values(updatedSchedule).every(arr => arr.length === 0)) {
                 alert('沒有行程數據可儲存，請先添加或調整活動。');
                 return;
             }
-            fetch('/save_data', {
+            
+            fetch('/save_data/new', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ token, schedule: updatedSchedule })
             })
-            .then(response => response.json().catch(() => ({})))  // 安全解析 JSON，如果失敗返回空物件
+            .then(response => response.json().catch(() => ({})))
             .then(data => {
                 if (data.message) {
-                    alert(data.message); // 成功訊息
+                    alert(data.message);
                 } else if (data.error) {
-                    alert(`儲存失敗：${data.error}`); // 顯示後端具體錯誤
+                    alert(`儲存失敗：${data.error}`);
                 } else {
                     alert('儲存失敗：未知錯誤');
                 }

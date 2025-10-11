@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>測試 /api/search-station API (新版)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    label { display: inline-block; width: 150px; margin-bottom: 0.5rem; }
+    input, textarea { width: 350px; padding: 0.3rem; margin-bottom: 1rem; }
+    button { padding: 0.5rem 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; border: 1px solid #ddd; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>測試 /api/search-station API (新版)</h1>
+  <p>請將此檔案放到 Flask 專案的 static 資料夾下，並從瀏覽器開啟：<br>
+     http://127.0.0.1:10000/static/test-search-station.html</p>
+  <form id="apiForm">
+    <div>
+      <label for="home_code">home_station_code：</label>
+      <input type="text" id="home_code" value="6180" required />
+    </div>
+    <div>
+      <label for="home_name">home_station_name：</label>
+      <input type="text" id="home_name" value="鳳林" required />
+    </div>
+    <div>
+      <label for="departure">departure_datetime：</label>
+      <input type="datetime-local" id="departure"
+             value="2025-10-16T08:44:00" required />
+    </div>
+    <div>
+      <label for="dest_addr">destination_address：</label>
+      <input type="text" id="dest_addr"
+             value="嘉義市忠孝路275號" required />
+    </div>
+    <button type="submit">送出查詢</button>
+  </form>
+
+  <h2>API 回傳結果</h2>
+  <pre id="result">等待查詢…</pre>
+
+  <script>
+    document.getElementById('apiForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const home_code  = document.getElementById('home_code').value.trim();
+      const home_name  = document.getElementById('home_name').value.trim();
+      const departure  = document.getElementById('departure').value;
+      const dest_addr  = document.getElementById('dest_addr').value.trim();
+      const resultEl   = document.getElementById('result');
+
+      if (!home_code || !home_name || !departure || !dest_addr) {
+        alert('請填寫所有欄位');
+        return;
+      }
+
+      resultEl.textContent = '查詢中…';
+
+      const apiUrl = `${window.location.protocol}//${window.location.host}/api/search-station`;
+
+      const payload = {
+        home_station_code: home_code,
+        home_station_name: home_name,
+        departure_datetime: departure + ':00',
+        destination_address: dest_addr
+      };
+
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          resultEl.textContent = `HTTP 錯誤：${res.status} ${res.statusText}`;
+          return;
+        }
+        const data = await res.json();
+        resultEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        resultEl.textContent = '網路錯誤：' + err;
+      }
+    });
+  </script>
+</body>
+</html>

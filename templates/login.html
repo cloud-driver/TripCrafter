@@ -64,6 +64,20 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+        .input-group .address-finder {
+            display: flex;
+            gap: 5px;
+        }
+        .input-group .address-finder input {
+            flex-grow: 1;
+        }
+        .input-group .address-finder button {
+            padding: 0 10px;
+            border: 1px solid #ddd;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
         button.auth-btn{
             margin: 10px;
             padding: 10px 20px;
@@ -133,19 +147,34 @@
         </div>
         
         <div class="form-container">
-            <!-- 登入 -->
             <div id="login-form" class="form active">
                 <p>請選擇一種方式登入</p>
                 <button id="line-login" class="auth-btn" onclick="location.href='/login/line'">使用 LINE 登入</button>
                 <button id="google-login" class="auth-btn" onclick="location.href='/login/google'">使用 Gmail 登入</button>
             </div>
             
-            <!-- 註冊 -->
             <div id="register-form" class="form">
                 <div class="input-group">
                     <label for="username">用戶名稱</label>
                     <input type="text" id="username" name="username" placeholder="請輸入您的用戶名稱" required>
                     <div id="username-error" class="error-message">請輸入用戶名稱</div>
+                </div>
+
+                <div class="input-group">
+                    <label>家車站設定 (可選填)</label>
+                    <small style="color: #666; display: block; margin-bottom: 10px;">請直接輸入車站代碼，或由地址查詢。</small>
+                    
+                    <label for="homeAddress">用地址查詢最近車站</label>
+                    <div class="address-finder">
+                        <input type="text" id="homeAddress" placeholder="請輸入完整住址">
+                        <button type="button" onclick="findStation()">查詢</button>
+                    </div>
+                    
+                    <label for="homeStationCode" style="margin-top:10px;">車站代碼</label>
+                    <input type="text" id="homeStationCode" name="homeStationCode" placeholder="例如：1000">
+
+                    <label for="homeStationName" style="margin-top:10px;">車站名稱</label>
+                    <input type="text" id="homeStationName" name="homeStationName" placeholder="查詢結果會顯示於此" readonly>
                 </div>
                 
                 <div class="divider"><span>使用以下方式註冊</span></div>
@@ -170,6 +199,32 @@
             document.getElementById('username-error').style.display = 'none';
         }
         
+        async function findStation() {
+            const address = document.getElementById('homeAddress').value.trim();
+            if (address === '') {
+                alert('請輸入地址！');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/closest-station?address=${encodeURIComponent(address)}`);
+                if (!response.ok) {
+                    throw new Error(`伺服器錯誤: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.closest_station) {
+                    document.getElementById('homeStationCode').value = data.closest_station.code;
+                    document.getElementById('homeStationName').value = data.closest_station.name;
+                    alert(`找到最近車站：${data.closest_station.name} (${data.closest_station.code})`);
+                } else {
+                    alert('找不到對應的車站，請確認地址是否正確。');
+                }
+            } catch (error) {
+                console.error('查詢車站時發生錯誤:', error);
+                alert('查詢車站時發生錯誤，請稍後再試。');
+            }
+        }
+
         function handleRegister(baseUrl) {
             const usernameInput = document.getElementById('username');
             const username = usernameInput.value.trim();
@@ -181,8 +236,16 @@
             }
             errorDiv.style.display = 'none';
             
-            // 將 username 作為查詢參數附加到 URL 中
-            const redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
+            const homeStationCode = document.getElementById('homeStationCode').value.trim();
+            const homeStationName = document.getElementById('homeStationName').value.trim();
+
+            let redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
+
+            if (homeStationCode && homeStationName) {
+                redirectUrl += `&homeStationCode=${encodeURIComponent(homeStationCode)}`;
+                redirectUrl += `&homeStationName=${encodeURIComponent(homeStationName)}`;
+            }
+
             window.location.href = redirectUrl;
             return false;
         }

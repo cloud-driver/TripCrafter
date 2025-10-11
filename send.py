@@ -210,8 +210,11 @@ def update_user_profile(uid,
                         user_id=None,
                         display_name=None,
                         email=None,
-                        username=None):
+                        username=None,
+                        home_station_code=None,
+                        home_station_name=None):
     """
+    更新或建立使用者資料，包含家車站資訊。
     - Google 登入：若有 email，先試試用 email 找現有帳號來合併；
       找不到就用傳入的 uid 建新帳號。
     - LINE 登入：一律透過 uid 來建／更新 line_account。
@@ -250,6 +253,10 @@ def update_user_profile(uid,
             # 更新使用者名稱
             if username:
                 target_user["username"] = username
+            # 更新家車站資訊 (只有在提供時才更新)
+            if home_station_code and home_station_name:
+                target_user["homeStationCode"] = home_station_code
+                target_user["homeStationName"] = home_station_name
             # 更新對應的登入方式
             if login_type and user_id:
                 key = f"{login_type}_account"
@@ -266,7 +273,9 @@ def update_user_profile(uid,
                 "uid": uid,
                 "username": username or display_name or "新使用者",
                 "google_account": None,
-                "line_account": None
+                "line_account": None,
+                "homeStationCode": home_station_code,
+                "homeStationName": home_station_name
             }
             if login_type and user_id:
                 key = f"{login_type}_account"
