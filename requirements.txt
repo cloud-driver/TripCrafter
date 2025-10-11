@@ -1,24 +1,14 @@
-# Web Framework & Server
 Flask
-gunicorn
-
-# HTTP Requests
 requests
-aiohttp
-
-# Security & Authentication
 PyJWT
 Flask-Limiter
+python-dotenv
 Flask-WTF
 google-auth
-google-auth-oauthlib
-pycryptodome
-
-# Environment Variables
-python-dotenv
-
-# Geolocation
-geopy
-
-# Google Generative AI API
+google-genai==1.30.0
 google-generativeai
+gunicorn
+pycryptodome
+protobuf<5
+aiohttp
+geopy
