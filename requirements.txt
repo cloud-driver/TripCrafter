@@ -1,5 +1,6 @@
-# Web Framework
+# Web Framework & Server
 Flask
+gunicorn
 
 # HTTP Requests
 requests
