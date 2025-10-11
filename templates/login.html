@@ -186,69 +186,84 @@
         </div>
     </div>
     
-    <script>
-        function showTab(tabName, event) {
-            document.querySelectorAll('.form').forEach(form => {
-                form.classList.remove('active');
-            });
-            document.getElementById(tabName + '-form').classList.add('active');
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
-            document.getElementById('username-error').style.display = 'none';
+<script>
+    function showTab(tabName, event) {
+        document.querySelectorAll('.form').forEach(form => {
+            form.classList.remove('active');
+        });
+        document.getElementById(tabName + '-form').classList.add('active');
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+        document.getElementById('username-error').style.display = 'none';
+    }
+    
+    // --- 這邊是更新後的函式 ---
+    async function findStation() {
+        const address = document.getElementById('homeAddress').value.trim();
+        if (address === '') {
+            alert('請輸入地址！');
+            return;
         }
+
+        try {
+            // 將 fetch 方法改為 'POST'
+            const response = await fetch('/api/closest-station', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // 將地址打包成 JSON 格式放在 body 中
+                body: JSON.stringify({ address: address })
+            });
+
+            if (!response.ok) {
+                // 嘗試解析錯誤訊息
+                const errorData = await response.json().catch(() => null);
+                const errorMessage = errorData ? errorData.error : `伺服器錯誤: ${response.status}`;
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            if (data.closest_station) {
+                document.getElementById('homeStationCode').value = data.closest_station.code;
+                document.getElementById('homeStationName').value = data.closest_station.name;
+                alert(`找到最近車站：${data.closest_station.name} (${data.closest_station.code})`);
+            } else {
+                // 如果 API 回傳成功但沒有車站資料
+                alert(data.error || '找不到對應的車站，請確認地址是否正確。');
+            }
+        } catch (error) {
+            console.error('查詢車站時發生錯誤:', error);
+            alert(`查詢車站時發生錯誤：${error.message}`);
+        }
+    }
+
+    function handleRegister(baseUrl) {
+        const usernameInput = document.getElementById('username');
+        const username = usernameInput.value.trim();
+        const errorDiv = document.getElementById('username-error');
         
-        async function findStation() {
-            const address = document.getElementById('homeAddress').value.trim();
-            if (address === '') {
-                alert('請輸入地址！');
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/closest-station?address=${encodeURIComponent(address)}`);
-                if (!response.ok) {
-                    throw new Error(`伺服器錯誤: ${response.status}`);
-                }
-                const data = await response.json();
-                if (data.closest_station) {
-                    document.getElementById('homeStationCode').value = data.closest_station.code;
-                    document.getElementById('homeStationName').value = data.closest_station.name;
-                    alert(`找到最近車站：${data.closest_station.name} (${data.closest_station.code})`);
-                } else {
-                    alert('找不到對應的車站，請確認地址是否正確。');
-                }
-            } catch (error) {
-                console.error('查詢車站時發生錯誤:', error);
-                alert('查詢車站時發生錯誤，請稍後再試。');
-            }
-        }
-
-        function handleRegister(baseUrl) {
-            const usernameInput = document.getElementById('username');
-            const username = usernameInput.value.trim();
-            const errorDiv = document.getElementById('username-error');
-            
-            if (username === '') {
-                errorDiv.style.display = 'block';
-                return false;
-            }
-            errorDiv.style.display = 'none';
-            
-            const homeStationCode = document.getElementById('homeStationCode').value.trim();
-            const homeStationName = document.getElementById('homeStationName').value.trim();
-
-            let redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
-
-            if (homeStationCode && homeStationName) {
-                redirectUrl += `&homeStationCode=${encodeURIComponent(homeStationCode)}`;
-                redirectUrl += `&homeStationName=${encodeURIComponent(homeStationName)}`;
-            }
-
-            window.location.href = redirectUrl;
+        if (username === '') {
+            errorDiv.style.display = 'block';
             return false;
         }
-    </script>
+        errorDiv.style.display = 'none';
+        
+        const homeStationCode = document.getElementById('homeStationCode').value.trim();
+        const homeStationName = document.getElementById('homeStationName').value.trim();
+
+        let redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
+
+        if (homeStationCode && homeStationName) {
+            redirectUrl += `&homeStationCode=${encodeURIComponent(homeStationCode)}`;
+            redirectUrl += `&homeStationName=${encodeURIComponent(homeStationName)}`;
+        }
+
+        window.location.href = redirectUrl;
+        return false;
+    }
+</script>
 </body>
 </html>

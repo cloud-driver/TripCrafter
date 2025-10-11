@@ -215,10 +215,6 @@ def test():
 @csrf.exempt
 @app.route("/")
 def home():
-    # 移除測試用的 session 設定
-    # session['token'] = encrypt_token("123123123321123123123") 
-    # session['homeStationCode'] = "6180"
-    # session['homeStationName'] = "鳳林"
     return render_template('index.html')
 
 @csrf.exempt

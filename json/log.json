@@ -1002,5 +1002,37 @@
     {
         "timestamp": "2025-10-11 20:45:54",
         "message": "API_PARAMS_RECEIVED: {\"address\": \"嘉義市忠孝路275號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 21:15:52",
+        "message": "Google AI response: ```json\n{\n  \"1\": [\n    {\n      \"title\": \"嘉義：愛木村休閒觀光工廠\",\n      \"time\": \"上午\",\n      \"location\": \"嘉義市東區文化路909-3號\",\n      \"tags\": \"觀光工廠, 檜木, 歷史\"\n    },\n    {\n      \"title\": \"午餐\",\n      \"time\": \"中午\",\n      \"location\": \"嘉義市東區成仁街201號 (餐廳 001)\",\n      \"tags\": \"餐飲\"\n    },\n    {\n      \"title\": \"2025城隍夜巡夯枷解厄\",\n      \"time\": \"晚上\",\n      \"location\": \"嘉義市東區吳鳳北路168號 (嘉義城隍廟)\",\n      \"tags\": \"民俗活動, 祭典, 宗教\"\n    },\n    {\n      \"title\": \"住宿\",\n      \"time\": \"全天\",\n      \"location\": \"嘉義市東區文化路909-3號 (愛木村休閒觀光工廠內，假設有住宿設施)\",\n      \"tags\": \"住宿\"\n    }\n  ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-11 21:16:04",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-11 21:16:04",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-15T08:15:00\", \"destination_address\": \"嘉義市東區文化路909-3號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 21:16:04",
+        "message": "--- 正在平行查詢 直達 & 轉乘第一段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 21:16:06",
+        "message": "--- 正在平行查詢 轉乘第二段 路線 ---"
+    },
+    {
+        "timestamp": "2025-10-11 23:07:28",
+        "message": "API_PARAMS_RECEIVED: {\"address\": \"嘉義市忠孝路275號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 23:07:52",
+        "message": "API_PARAMS_RECEIVED: {\"address\": \"嘉義市忠孝路275號\"}"
+    },
+    {
+        "timestamp": "2025-10-11 23:07:58",
+        "message": "API_PARAMS_RECEIVED: {\"address\": \"嘉義市忠孝路275號\"}"
     }
 ]
