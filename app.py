@@ -334,7 +334,7 @@ def callback_line():
         return redirect(url_for('login'))
 
     try:
-        decoded = pyjwt.decode(id_token_jwt, CLIENT_SECRET, audience=str(CLIENT_ID), algorithms=["HS265"])
+        decoded = pyjwt.decode(id_token_jwt, CLIENT_SECRET, audience=str(CLIENT_ID), algorithms=["HS256"])
         user_id = decoded.get("sub")
         display_name = decoded.get("name", "未知")
         email = decoded.get("email")
