@@ -392,10 +392,6 @@
         }
 
         async function searchTrain(type) {
-            const resultsDiv = document.getElementById('train-results');
-            const resultsContent = document.getElementById('results-content');
-            const spinner = document.getElementById(`spinner-${type}`); // 獲取對應的 spinner
-
             const destinationAddress = (type === 'start') ? startLocation : endLocation;
             const homeStationCode = "{{ session['homeStationCode'] }}";
             const homeStationName = "{{ session['homeStationName'] }}";
@@ -418,11 +414,14 @@
                     formattedDepartureTime += ":00";
                 }
             
+                const isReturnTrip = type === 'end'; // 新增判斷是否為回程
+                
                 const response = await axios.post('/api/search-station', {
                     home_station_code:   homeStationCode,
                     home_station_name:   homeStationName,
                     departure_datetime:  formattedDepartureTime,
-                    destination_address: destinationAddress
+                    destination_address: destinationAddress,
+                    is_return_trip:      isReturnTrip // 傳遞給後端
                 });
 
                 console.log('API 回傳資料：', response.data);

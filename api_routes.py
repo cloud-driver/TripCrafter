@@ -19,11 +19,15 @@ def api_search_station():
         if not data:
             return jsonify({"error": "請提供有效的 JSON 資料"}), 400
         
+        # 新增 is_return_trip 參數的讀取
+        is_return_trip = data.get("is_return_trip", False)
+        
         log_params = {
             "home_station_code": data.get("home_station_code"),
             "home_station_name": data.get("home_station_name"),
             "departure_datetime": data.get("departure_datetime"),
-            "destination_address": data.get("destination_address")
+            "destination_address": data.get("destination_address"),
+            "is_return_trip": is_return_trip
         }
         save_log(f"API_PARAMS_RECEIVED: {json.dumps(log_params, ensure_ascii=False)}")
         
@@ -38,13 +42,48 @@ def api_search_station():
             save_log(f"Formatted departure_datetime to: {departure_datetime}")
 
         if not all([home_station_code, home_station_name, departure_datetime, destination_address]):
-            return jsonify({"error": "缺少必要的參數"}), 400
+            # 如果是回程查詢，且 home_station_code/name 不重要，則不檢查
+            if not is_return_trip:
+                return jsonify({"error": "缺少必要的參數"}), 400
+        
+        # 處理回程邏輯 (將起點和終點反轉)
+        if is_return_trip:
+            # 回程: 起點是活動地點 (destination_address), 終點是家車站 (home_station_name)
+            
+            # 1. 找到活動地點 (destination_address) 最近的車站作為新的起點
+            save_log(f"REVERSE_TRIP: Finding closest station for origin address: {destination_address}")
+            coordinates = get_coordinates(destination_address)
+            if not coordinates:
+                return jsonify({"error": f"無法取得地址 '{destination_address}' 的經緯度，無法進行回程查詢"}), 400
+            
+            all_stations_data = initialize_all_stations_data()
+            closest_station_info = find_closest_station(coordinates, all_stations_data)
+            
+            if not closest_station_info:
+                return jsonify({"error": f"找不到地址 '{destination_address}' 最近的車站"}), 404
+            
+            # 取得新起點 (活動地點的最近車站) 的代碼和名稱
+            new_origin_code, new_origin_name, _ = closest_station_info
+
+            # 設定最終參數
+            final_origin_code = new_origin_code
+            final_origin_name = new_origin_name
+            final_destination_address = home_station_name # 家車站名稱作為終點
+            save_log(f"REVERSE_TRIP: Searching {final_origin_name} -> {final_destination_address}")
+            
+        else:
+            # 去程: 起點是家車站, 終點是活動地點
+            final_origin_code = home_station_code
+            final_origin_name = home_station_name
+            final_destination_address = destination_address
+            save_log(f"DEPARTURE_TRIP: Searching {final_origin_name} -> {final_destination_address}")
+
 
         result = search_station(
-            home_station_code=home_station_code,
-            home_station_name=home_station_name,
+            home_station_code=final_origin_code,
+            home_station_name=final_origin_name,
             departure_datetime_str=departure_datetime,
-            destination_address=destination_address,
+            destination_address=final_destination_address,
         )
 
         if not result:

@@ -183,6 +183,30 @@
                 <a href="{{ url_for('login_google', token=token) }}" class="btn">連結 Google 帳戶</a>
             {% endif %}
         </div>
+
+        <div class="account-section">
+            <h2>常用出發車站</h2>
+            <div class="account-info">
+                <p><strong>車站名稱:</strong> {{ user_data.homeStationName|default('未設定') }} (代碼: {{ user_data.homeStationCode|default('N/A') }})</p>
+            </div>
+            
+            <form action="{{ url_for('update_home_station_route', token=token) }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="token" value="{{ token }}">
+
+                <div class="form-group">
+                    <label for="homeStationName">車站名稱：</label>
+                    <input id="homeStationName" name="homeStationName" type="text" value="{{ user_data.homeStationName|default('') }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="homeStationCode">車站代碼 (選填)：</label>
+                    <input id="homeStationCode" name="homeStationCode" type="text" value="{{ user_data.homeStationCode|default('') }}">
+                </div>
+
+                <button type="submit" class="btn">更新車站</button>
+            </form>
+        </div>
         
         <a href="/" class="btn">返回首頁</a>
         <a href="/logout" class="btn">登出</a>

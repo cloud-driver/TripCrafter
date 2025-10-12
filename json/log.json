@@ -1034,5 +1034,9 @@
     {
         "timestamp": "2025-10-11 23:07:58",
         "message": "API_PARAMS_RECEIVED: {\"address\": \"嘉義市忠孝路275號\"}"
+    },
+    {
+        "timestamp": "2025-10-13 03:55:49",
+        "message": "Starting gevent WSGIServer on 0.0.0.0:10000..."
     }
 ]

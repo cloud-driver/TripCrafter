@@ -161,8 +161,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label>家車站設定 (可選填)</label>
-                    <small style="color: #666; display: block; margin-bottom: 10px;">請直接輸入車站代碼，或由地址查詢。</small>
+                    <label>常用家車站設定</label>
+                    <small style="color: #666; display: block; margin-bottom: 10px;">請輸入車站名稱或代碼 (必填)。</small>
                     
                     <label for="homeAddress">用地址查詢最近車站</label>
                     <div class="address-finder">
@@ -171,10 +171,11 @@
                     </div>
                     
                     <label for="homeStationCode" style="margin-top:10px;">車站代碼</label>
-                    <input type="text" id="homeStationCode" name="homeStationCode" placeholder="例如：1000">
+                    <input type="text" id="homeStationCode" name="homeStationCode" placeholder="例如：1000" oninput="autoFillStation('code')" required>
+                    <div id="station-error" class="error-message">請填寫車站代碼或名稱</div>
 
                     <label for="homeStationName" style="margin-top:10px;">車站名稱</label>
-                    <input type="text" id="homeStationName" name="homeStationName" placeholder="查詢結果會顯示於此" readonly>
+                    <input type="text" id="homeStationName" name="homeStationName" placeholder="輸入車站代號後將自動出現" oninput="autoFillStation('name')" required>
                 </div>
                 
                 <div class="divider"><span>使用以下方式註冊</span></div>
@@ -187,6 +188,10 @@
     </div>
     
 <script>
+    // 1. 取得後端傳遞的車站資料映射
+    const CODE_TO_NAME = JSON.parse('{{ code_to_name | tojson }}');
+    const NAME_TO_CODE = JSON.parse('{{ name_to_code | tojson }}');
+
     function showTab(tabName, event) {
         document.querySelectorAll('.form').forEach(form => {
             form.classList.remove('active');
@@ -197,6 +202,76 @@
         });
         event.currentTarget.classList.add('active');
         document.getElementById('username-error').style.display = 'none';
+        document.getElementById('station-error').style.display = 'none'; // 新增：切換時隱藏車站錯誤
+    }
+    
+    // Helper function for debounce
+    let autofillTimeout;
+    
+    function autoFillStation(changedField) {
+        clearTimeout(autofillTimeout);
+        autofillTimeout = setTimeout(() => {
+            const codeInput = document.getElementById('homeStationCode');
+            const nameInput = document.getElementById('homeStationName');
+            const code = codeInput.value.trim();
+            const name = nameInput.value.trim();
+
+            if (changedField === 'code') {
+                // 如果代碼輸入了，查找名稱
+                const foundName = CODE_TO_NAME[code];
+                if (foundName) {
+                    // 如果找到名稱且名稱不同，則補齊
+                    if (foundName !== name) {
+                        nameInput.value = foundName;
+                    }
+                } else if (name) {
+                    // 如果代碼無效且名稱欄位有值，則清空名稱
+                    nameInput.value = "";
+                }
+            } else if (changedField === 'name') {
+                // 如果名稱輸入了，查找代碼
+                const foundCode = NAME_TO_CODE[name];
+                if (foundCode) {
+                    // 如果找到代碼且代碼不同，則補齊
+                    if (foundCode !== code) {
+                        codeInput.value = foundCode;
+                    }
+                } else if (code) {
+                    // 如果名稱無效且代碼欄位有值，則清空代碼
+                    codeInput.value = "";
+                }
+            }
+            
+            // 每次輸入後都進行驗證
+            validateStationFields();
+        }, 300); // 300ms debounce
+    }
+
+    // 新增：車站欄位驗證函數
+    function validateStationFields() {
+        const code = document.getElementById('homeStationCode').value.trim();
+        const name = document.getElementById('homeStationName').value.trim();
+        const errorDiv = document.getElementById('station-error');
+        
+        // 1. 檢查是否都已填寫
+        if (code === '' || name === '') {
+            errorDiv.textContent = '請填寫車站名稱和代碼';
+            errorDiv.style.display = 'block';
+            return false;
+        }
+
+        // 2. 檢查名稱和代碼是否匹配 (使用快取資料)
+        const matchedName = CODE_TO_NAME[code];
+        
+        // 檢查 代碼是否有效 且 匹配的名稱是否與輸入的名稱一致
+        if (!matchedName || matchedName !== name) {
+             errorDiv.textContent = '車站代碼和名稱不匹配，請確認代碼是否正確或使用「查詢」按鈕。';
+             errorDiv.style.display = 'block';
+             return false;
+        }
+
+        errorDiv.style.display = 'none';
+        return true;
     }
     
     // --- 這邊是更新後的函式 ---
@@ -230,6 +305,9 @@
                 document.getElementById('homeStationCode').value = data.closest_station.code;
                 document.getElementById('homeStationName').value = data.closest_station.name;
                 alert(`找到最近車站：${data.closest_station.name} (${data.closest_station.code})`);
+                
+                // 查詢成功後，呼叫驗證函數
+                validateStationFields();
             } else {
                 // 如果 API 回傳成功但沒有車站資料
                 alert(data.error || '找不到對應的車站，請確認地址是否正確。');
@@ -243,14 +321,21 @@
     function handleRegister(baseUrl) {
         const usernameInput = document.getElementById('username');
         const username = usernameInput.value.trim();
-        const errorDiv = document.getElementById('username-error');
+        const usernameErrorDiv = document.getElementById('username-error');
         
+        // 1. 驗證用戶名稱
         if (username === '') {
-            errorDiv.style.display = 'block';
+            usernameErrorDiv.style.display = 'block';
             return false;
         }
-        errorDiv.style.display = 'none';
+        usernameErrorDiv.style.display = 'none';
         
+        // 2. 驗證車站欄位 (必填檢查)
+        if (!validateStationFields()) {
+             // 如果驗證失敗，錯誤訊息已由 validateStationFields() 顯示
+             return false;
+        }
+
         const homeStationCode = document.getElementById('homeStationCode').value.trim();
         const homeStationName = document.getElementById('homeStationName').value.trim();
 

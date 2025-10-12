@@ -12,3 +12,4 @@ pycryptodome
 protobuf<5
 aiohttp
 geopy
+gevent

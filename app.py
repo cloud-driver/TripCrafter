@@ -26,6 +26,8 @@ import sqlite3
 from datetime import datetime
 import random
 from api_routes import api_bp
+from gevent import monkey
+from gevent.pywsgi import WSGIServer
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -120,6 +122,13 @@ with open('datas/餐飲.csv', encoding='utf-8-sig') as f:
         eid = row['縣市名稱']
         RESTAURANT[eid] = row
 
+# 載入所有車站資料 (新增：用於前端查找)
+ALL_STATIONS_DATA = {}
+try:
+    with open('json/all_stations_data.json', encoding='utf-8') as f:
+        ALL_STATIONS_DATA = json.load(f)
+except Exception as e:
+    save_log(f"Failed to load all_stations_data.json: {e}")
 
 # 根據城市名稱查找對應的資料
 def find(DATA, city_name):
@@ -180,7 +189,7 @@ def decrypt_token(token: str) -> tuple:
             
             return uid
         except Exception as e:
-            print(f"解密錯誤：{e}")
+            save_log(f"解密錯誤：{e}")
             return None
     else:
         return None
@@ -221,10 +230,25 @@ def home():
 @app.route("/login")
 def login():
     token = session.get('token')
+    
+    # 建立車站代碼/名稱的映射，傳遞給前端
+    code_to_name = {code: data['name'] for code, data in ALL_STATIONS_DATA.items()}
+    name_to_code = {data['name']: code for code, data in ALL_STATIONS_DATA.items()}
+    
     if not token:
-        return render_template('login.html')
+        # 傳遞車站資料給模板
+        return render_template(
+            'login.html', 
+            code_to_name=code_to_name,
+            name_to_code=name_to_code
+        )
     else:
-        return redirect(url_for('account_management', token=token))
+        # 登入成功時，檢查是否有 next_url 儲存，有的話導回，否則導向帳號管理頁
+        next_url = session.pop('next_url', None)
+        if next_url:
+            return redirect(next_url)
+        else:
+            return redirect(url_for('account_management', token=token))
     
 @csrf.exempt
 @app.route("/logout")
@@ -233,6 +257,8 @@ def logout():
     # 登出時一併清除車站資訊
     session.pop('homeStationCode', None)
     session.pop('homeStationName', None)
+    # 清除 next_url
+    session.pop('next_url', None)
     if token:
         try:
             uid = decrypt_token(token)
@@ -345,6 +371,9 @@ def callback_line():
         # 從 session 取出車站資訊
         home_station_code = session.pop("home_station_code", None)
         home_station_name = session.pop("home_station_name", None)
+        
+        # 登入/註冊成功後要導向的網址
+        next_url = session.pop('next_url', None)
 
         if flow in ['register', 'link']:
             # 註冊 或 連結流程
@@ -353,17 +382,29 @@ def callback_line():
                 display_name=display_name, email=email, username=username,
                 home_station_code=home_station_code, home_station_name=home_station_name
             )
+            
+            # --- START: 註冊流程修改 ---
             if flow == 'register':
                 save_log(f"{user_id} (Line) registered with uid {final_uid}")
                 flash("註冊成功！", "success")
+                session['token'] = encrypt_token(final_uid) # 註冊成功後直接設定 token
+                
                 # 註冊成功後，順便將車站資訊存入 session
                 if home_station_code and home_station_name:
                     session['homeStationCode'] = home_station_code
                     session['homeStationName'] = home_station_name
+                
+                # 導向邏輯
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(url_for('account_management', token=session['token']))
+            # --- END: 註冊流程修改 ---
+            
             else: # link
                 save_log(f"Linked Line account {user_id} to uid {final_uid}")
                 flash("LINE 帳號連結成功！", "success")
-            return redirect(url_for('account_management', token=encrypt_token(final_uid)))
+                return redirect(url_for('account_management', token=encrypt_token(final_uid)))
         
         elif flow == 'login':
             # 登入流程
@@ -376,7 +417,12 @@ def callback_line():
                 if found_user.get("homeStationCode") and found_user.get("homeStationName"):
                     session['homeStationCode'] = found_user["homeStationCode"]
                     session['homeStationName'] = found_user["homeStationName"]
-                return redirect(url_for('account_management', token=encrypt_token(found_user['uid'])))
+                
+                # 導向邏輯
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(url_for('account_management', token=session['token']))
             else:
                 save_log(f"Login failed: Line user {user_id} not found. Asking to register.")
                 flash("此 LINE 帳號尚未註冊，請先註冊。", "error")
@@ -475,6 +521,9 @@ def callback_google():
         # 從 session 取出車站資訊
         home_station_code = session.pop("home_station_code", None)
         home_station_name = session.pop("home_station_name", None)
+        
+        # 登入/註冊成功後要導向的網址
+        next_url = session.pop('next_url', None)
 
         if flow in ['register', 'link']:
             # 註冊 或 連結流程
@@ -483,17 +532,29 @@ def callback_google():
                 display_name=display_name, email=email, username=username,
                 home_station_code=home_station_code, home_station_name=home_station_name
             )
+            
+            # --- START: 註冊流程修改 ---
             if flow == 'register':
                 save_log(f"{user_id} (Google) registered with uid {final_uid}")
                 flash("註冊成功！", "success")
+                session['token'] = encrypt_token(final_uid) # 註冊成功後直接設定 token
+
                 # 註冊成功後，順便將車站資訊存入 session
                 if home_station_code and home_station_name:
                     session['homeStationCode'] = home_station_code
                     session['homeStationName'] = home_station_name
+                
+                # 導向邏輯
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(url_for('account_management', token=session['token']))
+            # --- END: 註冊流程修改 ---
+
             else: # link
                 save_log(f"Linked Google account {email} to uid {final_uid}")
                 flash("Google 帳號連結成功！", "success")
-            return redirect(url_for('account_management', token=encrypt_token(final_uid)))
+                return redirect(url_for('account_management', token=encrypt_token(final_uid)))
 
         elif flow == 'login':
             # 登入流程
@@ -506,7 +567,12 @@ def callback_google():
                 if found_user.get("homeStationCode") and found_user.get("homeStationName"):
                     session['homeStationCode'] = found_user["homeStationCode"]
                     session['homeStationName'] = found_user["homeStationName"]
-                return redirect(url_for('account_management', token=encrypt_token(found_user['uid'])))
+                
+                # 導向邏輯
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    return redirect(url_for('account_management', token=session['token']))
             else:
                 save_log(f"Login failed: Google user {email} not found. Asking to register.")
                 flash("此 Google 帳號尚未註冊，請先註冊。", "error")
@@ -633,6 +699,42 @@ def update_username_route():
     else:
         update_user_profile(uid=uid, username=new_name)
         flash('使用者名稱更新成功', 'success')
+    return redirect(url_for('account_management', token=token))
+
+@csrf.exempt
+@app.route('/update_home_station', methods=['POST'])
+def update_home_station_route():
+    token = request.form.get('token') or request.args.get('token')
+    if not token:
+        flash("缺少 token，更新失敗。", "error")
+        return redirect(url_for('login'))
+    try:
+        uid = decrypt_token(token)
+    except Exception:
+        flash("無效的 token，更新失敗。", "error")
+        return redirect(url_for('login'))
+
+    new_station_name = request.form.get('homeStationName', '').strip()
+    new_station_code = request.form.get('homeStationCode', '').strip()
+    
+    if not new_station_name:
+        flash('更新失敗：車站名稱不能為空', 'error')
+    else:
+        # 更新使用者資料中的常用車站
+        update_user_profile(
+            uid=uid, 
+            home_station_name=new_station_name, 
+            home_station_code=new_station_code
+        )
+        
+        # 如果使用者已登入，同時更新 session 中的車站資訊
+        if session.get('token') == token:
+            session['homeStationCode'] = new_station_code
+            session['homeStationName'] = new_station_name
+            save_log(f"Session home station updated for uid {uid}: {new_station_name} ({new_station_code})")
+
+        flash('常用車站更新成功', 'success')
+        
     return redirect(url_for('account_management', token=token))
 
 @csrf.exempt
@@ -802,6 +904,15 @@ def info():
 @app.route("/trip/<days>/<active>")
 def trip(days, active):
     token = session.get('token') or ''
+    
+    # === 新增：檢查登入狀態並導向登入頁，儲存 next 參數 ===
+    if not token:
+        # 將目前的 URL 儲存到 session 中，以便登入後導回
+        session['next_url'] = url_for('trip', days=days, active=active)
+        flash("請先登入以使用行程規劃功能。", "error")
+        return redirect(url_for('login'))
+    # =======================================================
+
     if 'homeStationCode' not in session:
         session['homeStationCode'] = '1000' # 預設 臺北
         save_log("Session 'homeStationCode' not found, setting default '1000'.")
@@ -853,18 +964,13 @@ def trip(days, active):
             parsed_json = json.loads(cleaned_string)
             return parsed_json
         except json.JSONDecodeError as e:
-            print(f"JSON 解析錯誤：{e}")
+            save_log(f"JSON 解析錯誤：{e}")
             return None
         
     ai_response=fix_json_format_with_markers(ai_response)
 
-    print(ai_response)
-
     raw_start = ai_response.get('1', [{}])[0].get('location', '臺北')
     raw_end   = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')
-
-    print("▼ 原始 start_location:", raw_start)
-    print("▼ 原始 end_location:  ", raw_end)
 
     def clean_addr(addr: str) -> str:
         # 去掉「(…)」裡的備註，並把全形空白 / 換行都 trim 掉
@@ -873,8 +979,6 @@ def trip(days, active):
 
     start_location = clean_addr(raw_start)
     end_location   = clean_addr(raw_end)
-    print("▶ 清理後 start_location:", start_location)
-    print("▶ 清理後 end_location:  ", end_location)
 
     # 將結果渲染到模板
     return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token, start_location=start_location, end_location=end_location)
@@ -943,9 +1047,16 @@ with app.app_context():
         # 過濾掉靜態文件路由和一些內建路由
         if "static" not in rule.endpoint:
             links.append(f"Endpoint: {rule.endpoint}, Methods: {','.join(rule.methods)}, URL: {rule}")
-    # 為了方便查看，我們排序後印出
     for link in sorted(links):
         print(link)
     
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=False)
+    monkey.patch_all()
+    port = int(os.environ.get("PORT", 10000))
+    print(f"Starting gevent WSGIServer on 0.0.0.0:{port}...")
+    
+    # 建立 WSGI 伺服器並監聽指定的 host 和 port
+    http_server = WSGIServer(('0.0.0.0', port), app)
+    
+    # 啟動伺服器
+    http_server.serve_forever()
