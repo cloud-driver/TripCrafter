@@ -656,10 +656,28 @@ def account_management():
         return redirect(url_for('login'))
     try:
         uid = decrypt_token(token)
+        # === 新增：檢查 uid 是否有效 ===
+        if not uid:
+             flash("無效的 token，請重新登入。", "error")
+             return redirect(url_for('login'))
+        # ===============================
     except Exception:
         flash("無效的 token，請重新登入。", "error")
         return redirect(url_for('login'))
 
+    # GET：顯示帳號資訊 (這裡開始檢查使用者是否存在)
+    user_data = get_user_data(uid)
+    
+    # === 實作要求：如果使用者資料不存在，則視為帳號遺失/被刪除 ===
+    if not user_data:
+        flash("查無此帳號，請重新登入。", "error")
+        # 清除 session token 以確保強制登出
+        session.pop('token', None) 
+        session.pop('homeStationCode', None)
+        session.pop('homeStationName', None)
+        return redirect(url_for('login'))
+    # ===============================================================
+    
     # POST：更新 username（和原本 uid 相同）
     if request.method == "POST":
         new_name = request.form.get("username", "").strip()
@@ -672,10 +690,6 @@ def account_management():
         return redirect(url_for('account_management', token=token))
 
     # GET：顯示帳號資訊
-    user_data = get_user_data(uid)
-    if not user_data:
-        flash("找不到使用者資料，請重新登入。", "error")
-        return redirect(url_for('login'))
     return render_template('account_management.html',
                            user_data=user_data,
                            token=token)
