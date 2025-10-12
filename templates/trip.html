@@ -392,6 +392,11 @@
         }
 
         async function searchTrain(type) {
+            const resultsDiv = document.getElementById('train-results');
+            const resultsContent = document.getElementById('results-content');
+            // 獲取對應的 spinner
+            const spinner = document.getElementById(`spinner-${type}`); 
+
             const destinationAddress = (type === 'start') ? startLocation : endLocation;
             const homeStationCode = "{{ session['homeStationCode'] }}";
             const homeStationName = "{{ session['homeStationName'] }}";
@@ -407,14 +412,19 @@
             try {
                 resultsContent.innerHTML = '<p class="text-center">查詢中，請稍候...</p>';
                 resultsDiv.style.display = 'block';
-                spinner.style.display = 'block'; // 顯示 spinner
+                
+                // 修正 1: 確保 spinner 元素存在才操作，避免 ReferenceError
+                if (spinner) {
+                    spinner.style.display = 'block'; 
+                }
 
                 let formattedDepartureTime = departureTimeInput;
                 if (formattedDepartureTime && formattedDepartureTime.length === 16) {
                     formattedDepartureTime += ":00";
                 }
             
-                const isReturnTrip = type === 'end'; // 新增判斷是否為回程
+                // 修正 2: 傳遞 is_return_trip 參數給後端，修正回程方向錯誤
+                const isReturnTrip = type === 'end'; 
                 
                 const response = await axios.post('/api/search-station', {
                     home_station_code:   homeStationCode,
@@ -433,7 +443,10 @@
                 alert(errorMessage);
                 resultsContent.innerHTML = `<p class="text-center text-danger">${errorMessage}</p>`;
             } finally {
-                spinner.style.display = 'none'; // 無論如何都隱藏 spinner
+                // 修正 1: 確保 spinner 元素存在才操作，避免 ReferenceError
+                if (spinner) {
+                    spinner.style.display = 'none'; // 無論如何都隱藏 spinner
+                }
             }
         }
         
