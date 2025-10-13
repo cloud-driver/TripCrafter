@@ -1038,5 +1038,25 @@
     {
         "timestamp": "2025-10-13 03:55:49",
         "message": "Starting gevent WSGIServer on 0.0.0.0:10000..."
+    },
+    {
+        "timestamp": "2025-10-13 13:05:25",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-13 13:05:25",
+        "message": "Session 'homeStationCode' not found, setting default '1000'."
+    },
+    {
+        "timestamp": "2025-10-13 13:05:25",
+        "message": "Session 'homeStationName' not found, setting default '臺北'."
+    },
+    {
+        "timestamp": "2025-10-13 13:05:26",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-13 13:05:26",
+        "message": "JSON 解析錯誤：Expecting value: line 1 column 1 (char 0)"
     }
 ]

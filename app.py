@@ -219,6 +219,7 @@ def inject_csrf_token():
 @csrf.exempt
 @app.route("/test")
 def test():
+    session['token'] = "12121212121212121221221"
     return render_template('test-search-station.html')
 
 @csrf.exempt
@@ -675,6 +676,7 @@ def account_management():
         session.pop('token', None) 
         session.pop('homeStationCode', None)
         session.pop('homeStationName', None)
+        session.clear()
         return redirect(url_for('login'))
     # ===============================================================
     
@@ -978,10 +980,18 @@ def trip(days, active):
             parsed_json = json.loads(cleaned_string)
             return parsed_json
         except json.JSONDecodeError as e:
-            save_log(f"JSON 解析錯誤：{e}")
-            return None
+            print(f"JSON 解析錯誤：{e}")
+            return None # 如果解析失敗，回傳 None
         
     ai_response=fix_json_format_with_markers(ai_response)
+
+    print(ai_response)
+    
+    # === 修正：檢查 ai_response 是否為 None，避免 AttributeError ===
+    if ai_response is None:
+        flash("AI 行程規劃失敗或回傳格式錯誤，請重試。", "error")
+        ai_response = {} 
+    # ==============================================================
 
     raw_start = ai_response.get('1', [{}])[0].get('location', '臺北')
     raw_end   = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')
