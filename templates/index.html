@@ -125,6 +125,16 @@
             opacity   0.2s ease-out,
             visibility 0s;
         }
+        #search-input-mobile {
+            background-color: #555; /* 將輸入框背景設為深灰色 */
+            color: #ffffff;         /* 將輸入的文字顏色設為白色 */
+            border: 1px solid #777;  /* 設定一個較亮的邊框顏色 */
+        }
+
+        #search-input-mobile::placeholder {
+            color: #cccccc;         /* 將提示文字(placeholder)的顏色設為淺灰色 */
+            opacity: 1;             /* 覆寫 Bootstrap 的預設透明度 */
+        }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -172,78 +182,84 @@
     <header class="header can-sticky">
         <div class="container">
             <div class="header_inner">
-                <!-- logo -->
                 <div class="logo">
-                    <a href="index" class="d-flex h-100">
-                        <img src="assets/images/logo_copy.png" alt="logo" class="image-fit-contain">                    
+                    <a href="{{ url_for('home')}}" class="d-flex h-100">
+                        <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
                     </a>
                 </div>
-                <!-- logo -->
-                <!-- Nav & Actions -->
                 <div class="nav_actions">
-                    <!-- Navigation -->
                     <nav class="navigation">
                         <ul class="main-menu">
                             <li class="menu-item">
-                                <a href="index" class="active">首頁</a>
+                                <a href="{{ url_for('home')}}">首頁</a>
                             </li>
                             <li class="menu-item">
-                                <a href="active/all">探索活動</a>
+                                <a href="/active/all">探索活動</a>
                             </li>
                             <li class="menu-item">
-                                <a href="contact">聯絡我們</a>
+                                <a href="/contact">聯絡我們</a>
                             </li>
-                        </ul>
-                    </nav>
-                    <!-- Navigation -->
-                    <!-- Header Actions -->
-                    <div class="header_actions">
-                        <ul>
                             {% if session['token'] %}
-                            <li>
-                                <!-- 將 session['uid'] 的值動態加入到 href 的 query string 中 -->
-                                <a href="/account_management?token={{ session['token'] }}" class="login_btn">
-                                    <i class="fal fa-user-circle me-2"></i>
-                                    已登入
+                            <li class="menu-item d-lg-none"> <a href="/account_management?token={{ session['token'] }}">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li class="menu-item d-lg-none"> <a href="{{ url_for('my_trips') }}">
+                                    <i class="fal fa-route me-2"></i> 我的行程
                                 </a>
                             </li>
                             {% else %}
-                                <!-- 如果 session 中沒有 uid (未登入) -->
-                                <li>
-                                    <a href="login" class="login_btn">
-                                        <i class="fal fa-user-circle me-2"></i>
-                                        登入/註冊
-                                    </a>
-                                </li>
+                            <li class="menu-item d-lg-none"> <a href="/login">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
                             {% endif %}
+                            <li class="menu-item d-lg-none"> <div class="search-mobile d-flex p-2">
+                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" />
+                                    <button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="header_actions">
+                        <ul class="d-none d-lg-flex"> <li>
+                                {% if session['token'] %}
+                            <li>
+                                <a href="/account_management?token={{ session['token'] }}" class="login_btn me-2">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('my_trips') }}" class="login_btn">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <a href="/login" class="login_btn">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            </li>
                             <li>
                                 <div class="search-wrapper">
-                                <button class="thm-btn btn-rounded">
-                                    <i class="bi-search"></i> 搜尋活動
-                                </button>
-                                <div class="search-dropdown">
-                                    <input
-                                    type="text"
-                                    id="search-input"
-                                    placeholder="輸入關鍵字 可用空格分割"
-                                    onkeydown="if(event.key==='Enter') goSearch()"
-                                    />
-                                    <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
-                                </div>
+                                    <button class="thm-btn btn-rounded">
+                                        <i class="bi-search"></i> 搜尋活動
+                                    </button>
+                                    <div class="search-dropdown">
+                                        <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" />
+                                        <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                    </div>
                                 </div>
                             </li>
                         </ul>
                         <div class="hamburger">
-                            <div class="hamburger_btn">
-                                <span></span>
-                                <span></span>
-                                <span></span>
+                            <div class="hamburger_btn"><span></span><span></span><span></span>
                             </div>
                         </div>
                     </div>
-                    <!-- Header Actions -->
                 </div>
-                <!-- Nav & Actions -->
             </div>
         </div>
     </header>
@@ -512,6 +528,11 @@
     <script>
     function goSearch(){
         const kw = document.getElementById('search-input').value.trim();
+        if(!kw) return;
+        window.location.href = `/search/${encodeURIComponent(kw)}`;
+    }
+    function goSearchMobile(){
+        const kw = document.getElementById('search-input-mobile').value.trim();
         if(!kw) return;
         window.location.href = `/search/${encodeURIComponent(kw)}`;
     }

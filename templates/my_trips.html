@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>我的行程</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="/assets/css/plugins/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/fonts/font-awesome.min.css" rel="stylesheet">
+    <link href="/assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/assets/css/plugins/slick.css" rel="stylesheet">
+    <link href="/assets/css/plugins/nice-select.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <link href="/assets/css/responsive.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        :root { --thm-color-one: #FF6600; } 
+        .thm-color-one { color: #FF6600; } 
+        .thm-btn { background-color: #FF6600; } 
+        .thm-btn:hover, .thm-btn:focus { background-color: #e65c00; } 
+        .section-header .title span { color: #FF6600; } 
+        .ft_widgets .ft_title { color: #FF6600; } 
+        .copyright a { color: #FF6600 !important; } 
+        .back-to-top { background-color: #FF6600; } 
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .day-title {
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #FF6600;
+        }
+        .activity {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #e9ecef;
+            cursor: grab;
+        }
+        .activity.dragging {
+            opacity: 0.6;
+            background-color: #d1d1d1;
+        }
+        .activity-content {
+            flex-grow: 1;
+            color: #212222;
+        }
+        .activity-tags {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .indicator {
+            height: 4px;
+            background-color: #FF6600;
+            margin: 0 auto;
+            border-radius: 2px;
+            position: relative;
+            width: calc(100% - 30px);
+            display: none;
+        }
+        .single_banner .right_skew, .single_banner .left_skew { 
+            background-color: #f8f9fa; 
+            } 
+        .search-wrapper { 
+            position: relative; 
+            display: inline-block; 
+        } 
+        .search-wrapper button {
+            background-color: var(--thm-color-one); 
+            color: #fff; 
+        } 
+        .search-dropdown { 
+            position: absolute; 
+            top: 100%; 
+            right: 0; 
+            min-width: 100%; 
+            background-color: var(--thm-color-one); 
+            color: #fff; 
+            border: none; 
+            border-radius: 0.25rem; 
+            padding: 0.5rem; 
+            transform-origin: top right; 
+            transform: scaleY(0); 
+            opacity: 0; visibility: hidden; 
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+            z-index: 10; 
+            display: flex !important; 
+            flex-direction: row; 
+            align-items: center; 
+            gap: 0.5rem; 
+            min-width: 250px; 
+        } 
+        .search-dropdown input { 
+            flex: 1 1 auto; 
+            min-width: 200px; 
+            width: auto !important; 
+            margin: 0; width: calc(100% - 3rem); 
+            padding: 0.25rem; border: 1px solid #ddd; 
+            border-radius: 0.25rem; 
+            margin-right: 0.25rem; 
+        } 
+        .search-dropdown button { 
+            flex: 0 0 auto; 
+            margin: 0; 
+        } 
+        .search-wrapper:hover .search-dropdown { 
+            visibility: visible; 
+            transform: scaleY(1); 
+            opacity: 1; 
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s; 
+        } 
+        .pagination .page-link { 
+            border-radius: .375rem; 
+        } 
+        .pagination .page-item.disabled .page-link { 
+            color:#adb5bd; 
+        } 
+        input[type="button"] { 
+            background-color: var(--thm-color-one); 
+            color: white; 
+            border: none; 
+            padding: 0.5rem 1rem; 
+            border-radius: 0.25rem; 
+            cursor: pointer; 
+            margin: 0.25rem; 
+        }
+        .train-search-btn {
+            background-color: #FF6600;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .train-search-btn:hover {
+            background-color: #e65c00;
+        }
+        .train-results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* ▼▼▼ 新增的轉圈動畫 CSS ▼▼▼ */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1rem;
+        }
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #FF6600;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        #search-input-mobile {
+            background-color: #555; /* 將輸入框背景設為深灰色 */
+            color: #ffffff;         /* 將輸入的文字顏色設為白色 */
+            border: 1px solid #777;  /* 設定一個較亮的邊框顏色 */
+        }
+
+        #search-input-mobile::placeholder {
+            color: #cccccc;         /* 將提示文字(placeholder)的顏色設為淺灰色 */
+            opacity: 1;             /* 覆寫 Bootstrap 的預設透明度 */
+        }
+
+        .trip-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .trip-info {
+            flex-grow: 1;
+        }
+        .trip-actions {
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+        .trip-actions .btn {
+            margin-left: 0.5rem;
+        }
+        /* Style for the input field during editing */
+        .edit-input {
+            width: 70%;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+    </style>
+</head>
+<body>
+    <header class="header can-sticky">
+        <div class="container">
+            <div class="header_inner">
+                <div class="logo">
+                    <a href="{{ url_for('home')}}" class="d-flex h-100">
+                        <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                    </a>
+                </div>
+                <div class="nav_actions">
+                    <nav class="navigation">
+                        <ul class="main-menu">
+                            <li class="menu-item">
+                                <a href="{{ url_for('home')}}">首頁</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/active/all">探索活動</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/contact">聯絡我們</a>
+                            </li>
+                            {% if session['token'] %}
+                            <li class="menu-item d-lg-none"> <a href="/account_management?token={{ session['token'] }}">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li class="menu-item d-lg-none"> <a href="{{ url_for('my_trips') }}">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="menu-item d-lg-none"> <a href="/login">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="menu-item d-lg-none"> <div class="search-mobile d-flex p-2">
+                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" />
+                                    <button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="header_actions">
+                        <ul class="d-none d-lg-flex"> <li>
+                                {% if session['token'] %}
+                            <li>
+                                <a href="/account_management?token={{ session['token'] }}" class="login_btn me-2">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('my_trips') }}" class="login_btn">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <a href="/login" class="login_btn">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            </li>
+                            <li>
+                                <div class="search-wrapper">
+                                    <button class="thm-btn btn-rounded">
+                                        <i class="bi-search"></i> 搜尋活動
+                                    </button>
+                                    <div class="search-dropdown">
+                                        <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" />
+                                        <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="hamburger">
+                            <div class="hamburger_btn"><span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;">
+        <div class="relative text-center">
+            <div class="container">
+                <div class="banner_text">
+                    <h1 class="title" style="color: white;">
+                        我的行程
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <span class="left_skew"></span>
+        <span class="right_skew"></span>
+    </div>
+
+    <div class="container mt-5">
+        {% if trips %}
+            <div class="list-group mb-4" id="trip-list">
+                {% for trip in trips %}
+                <div class="list-group-item" data-trip-id="{{ trip.trip_id }}">
+                    <div class="trip-item">
+                        <div class="trip-info">
+                            <h5 class="mb-1 trip-name-display">{{ trip.name }}</h5>
+                            <small>建立於：{{ trip.created_at.split('T')[0] }}</small>
+                            <div class="mt-2">
+                                <a href="{{ url_for('trip', days=trip.days, active=trip.active, trip_id=trip.trip_id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-search me-1"></i> 查看與編輯
+                                </a>
+                            </div>
+                        </div>
+                        <div class="trip-actions">
+                            <button class="btn btn-sm btn-secondary edit-btn">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-btn">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                您目前沒有任何已儲存的行程。
+            </div>
+        {% endif %}
+    </div>
+
+    <footer class="footer section-padding section-bg" style="background-image: url(assets/images/bg/footer.jpg);">
+        <div class="container">
+            <div class="row">
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <div class="ft_about">
+                            <div class="ft_logo">
+                                <img src="assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                            </div>
+                            <p>分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 #活動瘋台灣</p>
+                            <ul class="ft_social">
+                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">網站導覽</h5>
+                        <ul class="ft_menu">
+                            <li><a href="index">首頁</a></li>
+                            <li><a href="active/all">探索活動</a></li>
+                            <li><a href="#">常見問題</a></li>
+                            <li><a href="contact">聯絡我們</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">聯絡資訊</h5>
+                        <p>有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
+                        <ul class="ft_contact ft_menu">
+                            <li><a href="tel:0800123456"><i class="fas fa-phone-volume"></i> 0800-123-456</a></li>
+                            <li><a href="mailto:service@example.com"><i class="fas fa-envelope"></i> service@example.com</a></li>
+                            <li><a href="#"><i class="fas fa-map-marker-alt"></i> 台灣，台北市信義區</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const token = "{{ token }}";
+
+        document.getElementById('trip-list').addEventListener('click', function(event) {
+            const editBtn = event.target.closest('.edit-btn');
+            const deleteBtn = event.target.closest('.delete-btn');
+
+            if (editBtn) {
+                handleEdit(editBtn);
+            }
+            if (deleteBtn) {
+                handleDelete(deleteBtn);
+            }
+        });
+
+        function handleEdit(button) {
+            const tripItem = button.closest('.list-group-item');
+            const tripNameDisplay = tripItem.querySelector('.trip-name-display');
+            const currentName = tripNameDisplay.textContent;
+            
+            // 替換為輸入框
+            tripNameDisplay.innerHTML = `
+                <input type="text" class="form-control form-control-sm edit-input" value="${currentName}">
+                <button class="btn btn-sm btn-success save-btn ms-2">儲存</button>
+                <button class="btn btn-sm btn-light cancel-btn">取消</button>
+            `;
+            
+            button.style.display = 'none'; // 隱藏編輯按鈕
+
+            const saveBtn = tripItem.querySelector('.save-btn');
+            const cancelBtn = tripItem.querySelector('.cancel-btn');
+            const inputField = tripItem.querySelector('.edit-input');
+
+            saveBtn.onclick = function() {
+                const newName = inputField.value.trim();
+                if (newName && newName !== currentName) {
+                    const tripId = tripItem.dataset.tripId;
+                    renameTrip(tripId, newName, tripNameDisplay, button);
+                } else {
+                    // 如果沒變，就直接復原
+                    tripNameDisplay.innerHTML = currentName;
+                    button.style.display = 'inline-block';
+                }
+            };
+
+            cancelBtn.onclick = function() {
+                tripNameDisplay.innerHTML = currentName;
+                button.style.display = 'inline-block';
+            };
+        }
+
+        async function renameTrip(tripId, newName, displayElement, editButton) {
+            try {
+                const response = await fetch('/rename_trip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, trip_id: tripId, new_name: newName })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message);
+                    displayElement.textContent = newName; // 更新顯示的名稱
+                } else {
+                    alert(`錯誤: ${data.error}`);
+                    displayElement.textContent = displayElement.querySelector('input').defaultValue; // 復原
+                }
+            } catch (error) {
+                alert(`請求失敗: ${error}`);
+                displayElement.textContent = displayElement.querySelector('input').defaultValue; // 復原
+            } finally {
+                editButton.style.display = 'inline-block'; // 顯示編輯按鈕
+            }
+        }
+
+        function handleDelete(button) {
+            const tripItem = button.closest('.list-group-item');
+            const tripId = tripItem.dataset.tripId;
+            const tripName = tripItem.querySelector('.trip-name-display').textContent;
+
+            if (confirm(`確定要刪除行程「${tripName}」嗎？此操作無法復原。`)) {
+                deleteTrip(tripId, tripItem);
+            }
+        }
+
+        async function deleteTrip(tripId, itemElement) {
+            try {
+                const response = await fetch('/delete_trip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, trip_id: tripId })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message);
+                    itemElement.remove(); // 從頁面上移除該項目
+                } else {
+                    alert(`刪除失敗: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`請求失敗: ${error}`);
+            }
+        }
+    </script>
+</body>
+</html>

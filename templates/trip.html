@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>行程規劃 - {{ days }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>行程規劃 - {{ trip_name }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link href="/assets/css/plugins/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/fonts/font-awesome.min.css" rel="stylesheet">
@@ -158,7 +159,6 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
-        /* ▼▼▼ 新增的轉圈動畫 CSS ▼▼▼ */
         .search-container {
             display: flex;
             align-items: center;
@@ -177,65 +177,107 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+        #search-input-mobile {
+            background-color: #555;
+            color: #ffffff;
+            border: 1px solid #777;
+        }
+        #search-input-mobile::placeholder {
+            color: #cccccc;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
-    <header class="header can-sticky"> 
-      <div class="container"> 
-        <div class="header_inner"> 
-          <div class="logo"> 
-            <a href="{{ url_for('home')}}" class="d-flex h-100"> 
-              <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain"> 
-            </a> 
-          </div> 
-          <div class="nav_actions"> 
-            <nav class="navigation"> 
-              <ul class="main-menu"> 
-                <li class="menu-item">
-                  <a href="{{ url_for('home')}}">首頁</a>
-                </li> 
-                <li class="menu-item">
-                  <a href="/active/all" class="active">探索活動</a>
-                </li> 
-                <li class="menu-item">
-                  <a href="/contact">聯絡我們</a>
-                </li> 
-              </ul> 
-            </nav> 
-            <div class="header_actions"> 
-              <ul> 
-                <li> {% if session['token'] %} 
-                  <li> 
-                    <a href="/account_management?token={{ session['token'] }}" class="login_btn"> 
-                      <i class="fal fa-user-circle me-2"></i> 已登入 </a> {% else %} 
-                      <li> 
-                        <a href="/login" class="login_btn"> 
-                          <i class="fal fa-user-circle me-2"></i> 登入/註冊 
-                        </a> 
-                      </li> {% endif %} 
-                      <li> 
-                        <div class="search-wrapper"> 
-                          <button class="thm-btn btn-rounded"> 
-                            <i class="bi-search"></i> 搜尋活動 
-                          </button> 
-                          <div class="search-dropdown"> 
-                            <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" /> 
-                            <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button> 
-                          </div> 
-                        </div> 
-                      </li> 
-                    </ul> 
-                    <div class="hamburger"> 
-                      <div class="hamburger_btn"><span></span><span></span><span></span>
-                      </div> 
-                    </div> 
-                  </div> 
-                </div> 
-              </div> 
-            </div> 
-          </div> 
-        </header> 
+    <header class="header can-sticky">
+        <div class="container">
+            <div class="header_inner">
+                <div class="logo">
+                    <a href="{{ url_for('home')}}" class="d-flex h-100">
+                        <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                    </a>
+                </div>
+                <div class="nav_actions">
+                    <nav class="navigation">
+                        <ul class="main-menu">
+                            <li class="menu-item">
+                                <a href="{{ url_for('home')}}">首頁</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/active/all">探索活動</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/contact">聯絡我們</a>
+                            </li>
+                            {% if session['token'] %}
+                            <li class="menu-item d-lg-none">
+                                <a href="/account_management?token={{ session['token'] }}">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li class="menu-item d-lg-none">
+                                <a href="{{ url_for('my_trips') }}">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="menu-item d-lg-none">
+                                <a href="/login">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="menu-item d-lg-none">
+                                <div class="search-mobile d-flex p-2">
+                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" />
+                                    <button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="header_actions">
+                        <ul class="d-none d-lg-flex">
+                            <li>
+                                {% if session['token'] %}
+                            <li>
+                                <a href="/account_management?token={{ session['token'] }}" class="login_btn me-2">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('my_trips') }}" class="login_btn">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <a href="/login" class="login_btn">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            </li>
+                            <li>
+                                <div class="search-wrapper">
+                                    <button class="thm-btn btn-rounded">
+                                        <i class="bi-search"></i> 搜尋活動
+                                    </button>
+                                    <div class="search-dropdown">
+                                        <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" />
+                                        <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="hamburger">
+                            <div class="hamburger_btn"><span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header> 
 
     <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;"> 
       <div class="relative text-center"> 
@@ -250,7 +292,18 @@
     </div>
 
     <div class="container mt-4">
-        <p class="text-center text-muted">唯一識別碼：{{ active }}</p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 id="trip-name-display" class="mb-0">{{ trip_name }}</h2>
+            <div>
+                <a href="{{ url_for('my_trips') }}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> 返回我的行程
+                </a>
+                <button id="edit-name-btn" class="btn btn-secondary">
+                    <i class="fas fa-pencil-alt"></i> 編輯名稱
+                </button>
+            </div>
+        </div>
+        <p class="text-center text-muted">活動唯一識別碼：{{ active }}</p>
 
         <div class="search-container">
             <div>
@@ -294,7 +347,9 @@
         </div>
 
         <div class="text-center mt-4">
-            <button id="save-btn" class="thm-btn">儲存行程</button>
+            <button id="regenerate-btn" class="thm-btn mx-2">重排行程</button>
+            <button id="save-as-btn" class="thm-btn mx-2">另存行程</button>
+            <button id="save-btn" class="thm-btn mx-2">儲存目前行程</button>
         </div>
     </div>
 
@@ -354,8 +409,308 @@
     </div>
     
     <script>
-        const startLocation = "{{ start_location }}";
-        const endLocation   = "{{ end_location }}";
+        function goSearch() {
+            const keyword = document.getElementById('search-input').value.trim();
+            if (keyword) {
+                window.location.href = '/search/' + encodeURIComponent(keyword);
+            }
+        }
+        function goSearchMobile() {
+            const keyword = document.getElementById('search-input-mobile').value.trim();
+            if (keyword) {
+                window.location.href = '/search/' + encodeURIComponent(keyword);
+            }
+        }
+    </script>
+    <script>
+        // --- 修正：將所有操作 DOM 的 JS 都放入 DOMContentLoaded ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const startLocation = "{{ start_location }}";
+            const endLocation   = "{{ end_location }}";
+            let isSaved = true;
+
+            const activities = document.querySelectorAll('.activity');
+            const daySections = document.querySelectorAll('.day-section');
+            let draggedItem = null;
+            let indicator = document.createElement('div');
+            indicator.classList.add('indicator');
+
+            const token = "{{ token }}".trim();
+            const days = "{{ days }}";
+            const active = "{{ active }}";
+            let currentTripId = "{{ trip_id if trip_id is not none else '' }}";
+
+            // --- 拖曳功能 ---
+            activities.forEach(activity => {
+                activity.addEventListener('dragstart', () => {
+                    draggedItem = activity;
+                    activity.classList.add('dragging');
+                });
+
+                activity.addEventListener('dragend', () => {
+                    draggedItem = null;
+                    activity.classList.remove('dragging');
+                    indicator.style.display = 'none';
+                    isSaved = false;
+                });
+            });
+
+            daySections.forEach(section => {
+                section.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const activitiesInSection = Array.from(section.querySelectorAll('.activity'));
+                    const closestActivity = activitiesInSection.find(activity => {
+                        const rect = activity.getBoundingClientRect();
+                        return e.clientY < rect.bottom + 15 && e.clientY > rect.top - 15;
+                    });
+
+                    if (closestActivity) {
+                        section.insertBefore(indicator, closestActivity);
+                    } else {
+                        section.appendChild(indicator);
+                    }
+                    indicator.style.display = 'block';
+                });
+
+                section.addEventListener('dragleave', () => {
+                    indicator.style.display = 'none';
+                });
+
+                section.addEventListener('drop', () => {
+                    indicator.style.display = 'none';
+                    if (draggedItem) {
+                        section.insertBefore(draggedItem, indicator);
+                        updateSchedule();
+                    }
+                });
+            });
+
+            // --- 按鈕事件監聽 ---
+            document.getElementById('regenerate-btn').addEventListener('click', () => {
+                window.location.href = `/trip/${days}/${active}?regenerate=true`;
+            });
+
+            document.getElementById('save-as-btn').addEventListener('click', () => {
+                saveTrip('/save_data/new');
+            });
+
+            document.getElementById('save-btn').addEventListener('click', () => {
+                if (!currentTripId) {
+                    alert('這是一個新的行程，請先「另存行程」。');
+                    return;
+                }
+                saveTrip('/save_data/update', currentTripId);
+            });
+
+            window.addEventListener('beforeunload', (event) => {
+                if (!isSaved) {
+                    event.preventDefault();
+                    event.returnValue = '';
+                    alert("還沒儲存喔！");
+                }
+            });
+
+            // --- 名稱編輯功能 ---
+            const editBtn = document.getElementById('edit-name-btn');
+            if (!currentTripId) {
+                editBtn.disabled = true;
+                editBtn.title = '請先儲存行程才能編輯名稱';
+            }
+
+            editBtn.addEventListener('click', function() {
+                const displayElement = document.getElementById('trip-name-display');
+                if (!displayElement) return;
+                const currentName = displayElement.textContent.trim();
+
+                displayElement.innerHTML = `
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="${currentName}">
+                        <button class="btn btn-success save-name-btn">儲存</button>
+                        <button class="btn btn-light cancel-name-btn">取消</button>
+                    </div>
+                `;
+                editBtn.style.display = 'none';
+
+                const saveBtn = displayElement.querySelector('.save-name-btn');
+                const cancelBtn = displayElement.querySelector('.cancel-name-btn');
+                const inputField = displayElement.querySelector('input');
+
+                saveBtn.onclick = async function() {
+                    const newName = inputField.value.trim();
+                    if (newName && newName !== currentName) {
+                        try {
+                            const response = await fetch('/rename_trip', {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrfToken
+                                },
+                                body: JSON.stringify({ token, trip_id: currentTripId, new_name: newName })
+                            });
+                            const data = await response.json();
+                            if (response.ok) {
+                                alert(data.message);
+                                displayElement.textContent = newName;
+                            } else {
+                                throw new Error(data.error || '更新失敗');
+                            }
+                        } catch (error) {
+                            alert(`錯誤: ${error.message}`);
+                            displayElement.textContent = currentName;
+                        } finally {
+                            editBtn.style.display = 'inline-block';
+                        }
+                    } else {
+                        displayElement.textContent = currentName;
+                        editBtn.style.display = 'inline-block';
+                    }
+                };
+
+                cancelBtn.onclick = function() {
+                    displayElement.textContent = currentName;
+                    editBtn.style.display = 'inline-block';
+                };
+            });
+        });
+
+        // --- 全域函式 (不需要在 DOMContentLoaded 內) ---
+        let updatedSchedule = {}; 
+        function updateSchedule() {
+            updatedSchedule = {};
+            const daySections = document.querySelectorAll('.day-section');
+            daySections.forEach(section => {
+                const day = section.id.split('-')[1];
+                const activities = section.querySelectorAll('.activity');
+                updatedSchedule[day] = Array.from(activities).map(activity => {
+                    const contentText = activity.querySelector('.activity-content').textContent.trim();
+                    const parts = contentText.split(' - ');
+                    return {
+                        title: activity.querySelector('strong')?.textContent || '',
+                        time: parts[1] || '',
+                        location: parts[2] || '',
+                        tags: activity.querySelector('.activity-tags')?.textContent || ''
+                    };
+                });
+            });
+            console.log('更新後的行程順序：', updatedSchedule);
+        }
+
+        function saveTrip(endpoint, tripId = null) {
+            const token = "{{ token }}".trim();
+            const days = "{{ days }}";
+            const active = "{{ active }}";
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            let currentTripId = "{{ trip_id if trip_id is not none else '' }}";
+
+            if (!token) {
+                alert('請先登入以儲存行程。');
+                return;
+            }
+            updateSchedule();
+            if (Object.keys(updatedSchedule).length === 0 || Object.values(updatedSchedule).every(arr => arr.length === 0)) {
+                alert('沒有行程數據可儲存，請先添加或調整活動。');
+                return;
+            }
+            
+            const payload = { 
+                token, 
+                schedule: updatedSchedule,
+                days,
+                active,
+                trip_name: document.getElementById('trip-name-display').textContent.trim()
+            };
+
+            if (tripId) {
+                payload.trip_id = tripId;
+            }
+
+            fetch(endpoint, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || '發生未知錯誤') });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                isSaved = true;
+                if (data.trip_id) {
+                    currentTripId = data.trip_id;
+                    const newUrl = `/trip/${days}/${active}/${data.trip_id}`;
+                    window.history.replaceState({path: newUrl}, '', newUrl);
+                    document.getElementById('edit-name-btn').disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`發生錯誤：${error.message || '無法連線到伺服器'}`);
+            });
+        }
+
+        async function searchTrain(type) {
+            const resultsDiv = document.getElementById('train-results');
+            const resultsContent = document.getElementById('results-content');
+            const spinner = document.getElementById(`spinner-${type}`); 
+            const startLocation = "{{ start_location }}";
+            const endLocation   = "{{ end_location }}";
+
+            const destinationAddress = (type === 'start') ? startLocation : endLocation;
+            const homeStationCode = "{{ session['homeStationCode'] }}";
+            const homeStationName = "{{ session['homeStationName'] }}";
+            const departureTimeInput = type === 'start'
+            ? document.getElementById('departure-time-start').value
+            : document.getElementById('departure-time-end').value;
+
+            if (!departureTimeInput) {
+                alert('請選擇出發時間！');
+                return;
+            }
+
+            try {
+                resultsContent.innerHTML = '<p class="text-center">查詢中，請稍候...</p>';
+                resultsDiv.style.display = 'block';
+                
+                if (spinner) {
+                    spinner.style.display = 'block'; 
+                }
+
+                let formattedDepartureTime = departureTimeInput;
+                if (formattedDepartureTime && formattedDepartureTime.length === 16) {
+                    formattedDepartureTime += ":00";
+                }
+            
+                const isReturnTrip = type === 'end'; 
+                
+                const response = await axios.post('/api/search-station', {
+                    home_station_code:   homeStationCode,
+                    home_station_name:   homeStationName,
+                    departure_datetime:  formattedDepartureTime,
+                    destination_address: destinationAddress,
+                    is_return_trip:      isReturnTrip
+                });
+
+                console.log('API 回傳資料：', response.data);
+                displayTrainResults(response.data);
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                const errorMessage = `查詢失敗: ${error.response?.data?.error || error.message}`;
+                alert(errorMessage);
+                resultsContent.innerHTML = `<p class="text-center text-danger">${errorMessage}</p>`;
+            } finally {
+                if (spinner) {
+                    spinner.style.display = 'none';
+                }
+            }
+        }
 
         function displayTrainResults(data) {
             const resultsContainer = document.getElementById('results-content');
@@ -390,170 +745,6 @@
             });
             resultsContainer.innerHTML = html;
         }
-
-        async function searchTrain(type) {
-            const resultsDiv = document.getElementById('train-results');
-            const resultsContent = document.getElementById('results-content');
-            // 獲取對應的 spinner
-            const spinner = document.getElementById(`spinner-${type}`); 
-
-            const destinationAddress = (type === 'start') ? startLocation : endLocation;
-            const homeStationCode = "{{ session['homeStationCode'] }}";
-            const homeStationName = "{{ session['homeStationName'] }}";
-            const departureTimeInput = type === 'start'
-            ? document.getElementById('departure-time-start').value
-            : document.getElementById('departure-time-end').value;
-
-            if (!departureTimeInput) {
-                alert('請選擇出發時間！');
-                return;
-            }
-
-            try {
-                resultsContent.innerHTML = '<p class="text-center">查詢中，請稍候...</p>';
-                resultsDiv.style.display = 'block';
-                
-                // 修正 1: 確保 spinner 元素存在才操作，避免 ReferenceError
-                if (spinner) {
-                    spinner.style.display = 'block'; 
-                }
-
-                let formattedDepartureTime = departureTimeInput;
-                if (formattedDepartureTime && formattedDepartureTime.length === 16) {
-                    formattedDepartureTime += ":00";
-                }
-            
-                // 修正 2: 傳遞 is_return_trip 參數給後端，修正回程方向錯誤
-                const isReturnTrip = type === 'end'; 
-                
-                const response = await axios.post('/api/search-station', {
-                    home_station_code:   homeStationCode,
-                    home_station_name:   homeStationName,
-                    departure_datetime:  formattedDepartureTime,
-                    destination_address: destinationAddress,
-                    is_return_trip:      isReturnTrip // 傳遞給後端
-                });
-
-                console.log('API 回傳資料：', response.data);
-                displayTrainResults(response.data);
-                resultsDiv.scrollIntoView({ behavior: 'smooth' });
-                
-            } catch (error) {
-                const errorMessage = `查詢失敗: ${error.response?.data?.error || error.message}`;
-                alert(errorMessage);
-                resultsContent.innerHTML = `<p class="text-center text-danger">${errorMessage}</p>`;
-            } finally {
-                // 修正 1: 確保 spinner 元素存在才操作，避免 ReferenceError
-                if (spinner) {
-                    spinner.style.display = 'none'; // 無論如何都隱藏 spinner
-                }
-            }
-        }
-        
-        // --- 拖動和儲存功能 ... (省略未變更的 Javascript) ---
-        const activities = document.querySelectorAll('.activity');
-        const daySections = document.querySelectorAll('.day-section');
-        let draggedItem = null;
-        let indicator = document.createElement('div');
-        indicator.classList.add('indicator');
-
-        activities.forEach(activity => {
-            activity.addEventListener('dragstart', () => {
-                draggedItem = activity;
-                activity.classList.add('dragging');
-            });
-
-            activity.addEventListener('dragend', () => {
-                draggedItem = null;
-                activity.classList.remove('dragging');
-                indicator.style.display = 'none';
-            });
-        });
-
-        daySections.forEach(section => {
-            section.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const activitiesInSection = Array.from(section.querySelectorAll('.activity'));
-                const closestActivity = activitiesInSection.find(activity => {
-                    const rect = activity.getBoundingClientRect();
-                    return e.clientY < rect.bottom + 15 && e.clientY > rect.top - 15;
-                });
-
-                if (closestActivity) {
-                    section.insertBefore(indicator, closestActivity);
-                } else {
-                    section.appendChild(indicator);
-                }
-                indicator.style.display = 'block';
-            });
-
-            section.addEventListener('dragleave', () => {
-                indicator.style.display = 'none';
-            });
-
-            section.addEventListener('drop', () => {
-                indicator.style.display = 'none';
-                if (draggedItem) {
-                    section.insertBefore(draggedItem, indicator);
-                    updateSchedule();
-                }
-            });
-        });
-
-        let updatedSchedule = {}; 
-        function updateSchedule() {
-            updatedSchedule = {};
-            daySections.forEach(section => {
-                const day = section.id.split('-')[1];
-                const activities = section.querySelectorAll('.activity');
-                updatedSchedule[day] = Array.from(activities).map(activity => {
-                    const contentText = activity.querySelector('.activity-content').textContent.trim();
-                    const parts = contentText.split(' - ');
-                    return {
-                        title: activity.querySelector('strong')?.textContent || '',
-                        time: parts[1] || '',
-                        location: parts[2] || '',
-                        tags: activity.querySelector('.activity-tags')?.textContent || ''
-                    };
-                });
-            });
-            console.log('更新後的行程順序：', updatedSchedule);
-        }
-
-        const token = "{{ token }}".trim();
-        document.getElementById('save-btn').addEventListener('click', () => {
-            if (!token) {
-                alert('請先登入以儲存行程。');
-                return;
-            }
-            updateSchedule();
-            if (Object.keys(updatedSchedule).length === 0 || Object.values(updatedSchedule).every(arr => arr.length === 0)) {
-                alert('沒有行程數據可儲存，請先添加或調整活動。');
-                return;
-            }
-            
-            fetch('/save_data/new', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ token, schedule: updatedSchedule })
-            })
-            .then(response => response.json().catch(() => ({})))
-            .then(data => {
-                if (data.message) {
-                    alert(data.message);
-                } else if (data.error) {
-                    alert(`儲存失敗：${data.error}`);
-                } else {
-                    alert('儲存失敗：未知錯誤');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert(`發生錯誤：${error.message || '無法連線到伺服器'}`);
-            });
-        });
     </script>
 </body>
 </html>

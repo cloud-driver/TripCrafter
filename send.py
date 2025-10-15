@@ -7,13 +7,14 @@ import time
 from dotenv import load_dotenv
 from google.genai import Client
 from google.genai import types
+import google.generativeai as genai
 
 if os.path.exists(".env"): load_dotenv()
 
 USER_FILE = r"json/users.json"
 LOG_FILE = r"json/log.json"
 SECRET_TOKEN = os.getenv('SECRET_TOKEN')
-CLIENT = Client(api_key=os.getenv('API_KEY'))
+genai.configure(api_key=os.getenv('API_KEY'))
 
 class Keep():
     """讀取各json中的資訊"""
@@ -94,13 +95,8 @@ def ask_ai(data, trip_or_not="trip"):
     
     try:
         # 呼叫 Gemini API
-        response = CLIENT.models.generate_content(
-            model="gemini-2.5-flash-lite",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                thinking_config=types.ThinkingConfig(thinking_budget=0)
-            )
-        )
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+        response = model.generate_content(prompt)
         save_log(f"Google AI response: {response.text}")
         return response.text
     except Exception as e:

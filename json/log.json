@@ -1058,5 +1058,825 @@
     {
         "timestamp": "2025-10-13 13:05:26",
         "message": "JSON 解析錯誤：Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:11",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:12",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:13",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:13",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:15",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:19",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:20",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 12:01:25",
+        "message": "解密錯誤：Incorrect padding"
+    },
+    {
+        "timestamp": "2025-10-14 13:01:39",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-14 13:01:55",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-14 13:02:05",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-14 13:03:54",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-14 13:04:04",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-14 13:05:04",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-14 13:05:06",
+        "message": "Error calling Google AI: super(type, obj): obj must be an instance or subtype of type"
+    },
+    {
+        "timestamp": "2025-10-14 13:10:34",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025 MERRELL健行嘉年華 第8屆高雄IVV國際市民健行大會\",\n            \"time\": \"2025-01-11 (全天)\",\n            \"location\": \"高雄市楠梓區 加昌路180號(高雄市立後勁國民中學)\",\n            \"tags\": \"健行, 活動\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:00\",\n            \"location\": \"高雄市楠梓區 (後勁國中附近餐廳)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"小長城步道\",\n            \"time\": \"14:00\",\n            \"location\": \"高雄市茂林區 龍頭山遊憩區\",\n            \"tags\": \"景點, 健行\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"高雄市茂林區\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"早餐\",\n            \"time\": \"08:00\",\n            \"location\": \"高雄市茂林區 (住宿地點附近)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"小長城步道 (深入健行)\",\n            \"time\": \"09:00\",\n            \"location\": \"高雄市茂林區 龍頭山遊憩區 (往多納高吊橋方向)\",\n            \"tags\": \"景點, 健行\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:30\",\n            \"location\": \"滿香樂 (高雄市茂林區多納巷48號)\",\n            \"tags\": \"餐飲, 原住民風味\"\n        },\n        {\n            \"title\": \"自由活動/休息\",\n            \"time\": \"下午\",\n            \"location\": \"高雄市茂林區\",\n            \"tags\": \"休息\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-14 13:10:38",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025 MERRELL健行嘉年華 第8屆高雄IVV國際市民健行大會\",\n            \"time\": \"上午 (活動時間請依主辦單位公布為準)\",\n            \"location\": \"高雄市立後勁國民中學 (高雄市楠梓區加昌路180號)\",\n            \"tags\": \"健行, 運動賽事, 都市活動\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"中午 (視健行活動結束時間)\",\n            \"location\": \"楠梓區周邊餐廳 (請自行選擇)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"休息與自由活動\",\n            \"time\": \"下午\",\n            \"location\": \"高雄市區\",\n            \"tags\": \"休息, 自由活動\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-14 13:11:13",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025 MERRELL健行嘉年華 第8屆高雄IVV國際市民健行大會\",\n            \"time\": \"全天\",\n            \"location\": \"高雄市楠梓區 加昌路180號 (高雄市立後勁國民中學)\",\n            \"tags\": \"健行, 嘉年華, 國際活動\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:00 - 13:00\",\n            \"location\": \"高雄市立後勁國民中學附近餐廳\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"自由活動/休息\",\n            \"time\": \"13:00 - 18:00\",\n            \"location\": \"高雄市\",\n            \"tags\": \"休息\"\n        },\n        {\n            \"title\": \"晚餐\",\n            \"time\": \"18:00 - 19:00\",\n            \"location\": \"高雄市區餐廳\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"高雄市區飯店\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"前往茂林區\",\n            \"time\": \"09:00 - 10:30\",\n            \"location\": \"從高雄市區前往高雄市茂林區\",\n            \"tags\": \"交通\"\n        },\n        {\n            \"title\": \"小長城步道健行\",\n            \"time\": \"10:30 - 12:00\",\n            \"location\": \"高雄市茂林區 龍頭山遊憩區\",\n            \"tags\": \"健行, 景點, 自然風光\"\n        },\n        {\n            \"title\": \"午餐 - 滿香樂\",\n            \"time\": \"12:00 - 13:30\",\n            \"location\": \"高雄市茂林區 多納巷48號\",\n            \"tags\": \"原住民風味餐, 餐飲\"\n        },\n        {\n            \"title\": \"自由活動/參觀多納部落\",\n            \"time\": \"13:30 - 17:00\",\n            \"location\": \"高雄市茂林區 多納部落\",\n            \"tags\": \"文化體驗, 觀光\"\n        },\n        {\n            \"title\": \"晚餐\",\n            \"time\": \"18:00 - 19:00\",\n            \"location\": \"茂林區餐廳\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"茂林區民宿或旅館\",\n            \"tags\": \"住宿\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-14 21:02:47",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:02:47",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-15T09:02:00\", \"destination_address\": \"茂林區民宿或旅館                                住宿\", \"is_return_trip\": true}"
+    },
+    {
+        "timestamp": "2025-10-14 21:02:47",
+        "message": "REVERSE_TRIP: Finding closest station for origin address: 茂林區民宿或旅館                                住宿"
+    },
+    {
+        "timestamp": "2025-10-14 21:02:47",
+        "message": "API search-station error: maximum recursion depth exceeded while calling a Python object"
+    },
+    {
+        "timestamp": "2025-10-14 21:02:47",
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 55, in api_search_station\n    coordinates = get_coordinates(destination_address)\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 61, in get_coordinates\n    response = requests.get(url)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 73, in get\n    return request(\"get\", url, params=params, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 59, in request\n    return session.request(method=method, url=url, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 589, in request\n    resp = self.send(prep, **send_kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 703, in send\n    r = adapter.send(request, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\adapters.py\", line 644, in send\n    resp = conn.urlopen(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 787, in urlopen\n    response = self._make_request(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 464, in _make_request\n    self._validate_conn(conn)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 1093, in _validate_conn\n    conn.connect()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 790, in connect\n    sock_and_verified = _ssl_wrap_socket_and_match_hostname(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 922, in _ssl_wrap_socket_and_match_hostname\n    context = create_urllib3_context(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\util\\ssl_.py\", line 303, in create_urllib3_context\n    context.minimum_version = TLSVersion.TLSv1_2\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  [Previous line repeated 477 more times]\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 585, in minimum_version\n    if value == TLSVersion.SSLv3:\nRecursionError: maximum recursion depth exceeded while calling a Python object\n"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:22",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:22",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:22",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:22",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:22",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:22",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:23",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:23",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:23",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:23",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:24",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:03:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-14 21:05:08",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗(上午場)\",\n            \"time\": \"05:30-07:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗, 戶外活動\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 氣墊樂園\",\n            \"time\": \"12:00-18:00\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"親子活動, 氣墊樂園\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 闖關活動\",\n            \"time\": \"12:00-18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"互動遊戲, 闖關活動\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 街藝表演\",\n            \"time\": \"14:00-18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"街頭藝術, 表演\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 特色市集\",\n            \"time\": \"12:00-20:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場及西拉雅廣場\",\n            \"tags\": \"美食, 文創, 市集\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 光雕音樂會及無人機展演\",\n            \"time\": \"19:00-20:00\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"光雕音樂會, 無人機展演\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"臺南市安平區 (預訂適合的飯店)\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗(上午場)\",\n            \"time\": \"05:30-07:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗, 戶外活動\"\n        },\n        {\n            \"title\": \"臺南山上花園水道博物館\",\n            \"time\": \"09:00-12:00\",\n            \"location\": \"臺南市山上區 山上里16號\",\n            \"tags\": \"歷史古蹟, 博物館, 景點\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"12:00-13:00\",\n            \"location\": \"臺南市山上區 附近餐廳 (自理)\",\n            \"tags\": \"餐飲\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 氣墊樂園\",\n            \"time\": \"12:00-18:00\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"親子活動, 氣墊樂園\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 闖關活動\",\n            \"time\": \"12:00-18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"互動遊戲, 闖關活動\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 街藝表演\",\n            \"time\": \"14:00-18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"街頭藝術, 表演\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 特色市集\",\n            \"time\": \"12:00-19:00\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場及西拉雅廣場\",\n            \"tags\": \"美食, 文創, 市集\"\n        },\n        {\n            \"title\": \"晚餐\",\n            \"time\": \"19:00-20:00\",\n            \"location\": \"亮哥生態風味體驗養殖場 (台南市學甲區 平和里西平寮67-40號)\",\n            \"tags\": \"餐飲, 生態風味餐\"\n        },\n        {\n            \"title\": \"住宿\",\n            \"time\": \"晚上\",\n            \"location\": \"臺南市學甲區 或鄰近區域 (預訂住宿)\",\n            \"tags\": \"住宿\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-14 21:05:17",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:05:17",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-20T09:05:00\", \"destination_address\": \"臺南市學甲區 或鄰近區域\", \"is_return_trip\": true}"
+    },
+    {
+        "timestamp": "2025-10-14 21:05:17",
+        "message": "REVERSE_TRIP: Finding closest station for origin address: 臺南市學甲區 或鄰近區域"
+    },
+    {
+        "timestamp": "2025-10-14 21:05:17",
+        "message": "API search-station error: maximum recursion depth exceeded while calling a Python object"
+    },
+    {
+        "timestamp": "2025-10-14 21:05:17",
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 55, in api_search_station\n    coordinates = get_coordinates(destination_address)\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 61, in get_coordinates\n    response = requests.get(url)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 73, in get\n    return request(\"get\", url, params=params, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 59, in request\n    return session.request(method=method, url=url, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 589, in request\n    resp = self.send(prep, **send_kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 703, in send\n    r = adapter.send(request, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\adapters.py\", line 644, in send\n    resp = conn.urlopen(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 787, in urlopen\n    response = self._make_request(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 464, in _make_request\n    self._validate_conn(conn)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 1093, in _validate_conn\n    conn.connect()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 790, in connect\n    sock_and_verified = _ssl_wrap_socket_and_match_hostname(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 922, in _ssl_wrap_socket_and_match_hostname\n    context = create_urllib3_context(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\util\\ssl_.py\", line 303, in create_urllib3_context\n    context.minimum_version = TLSVersion.TLSv1_2\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  [Previous line repeated 477 more times]\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 585, in minimum_version\n    if value == TLSVersion.SSLv3:\nRecursionError: maximum recursion depth exceeded while calling a Python object\n"
+    },
+    {
+        "timestamp": "2025-10-14 21:14:51",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:14:51",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-20T09:05:00\", \"destination_address\": \"臺南市學甲區 或鄰近區域\", \"is_return_trip\": true}"
+    },
+    {
+        "timestamp": "2025-10-14 21:14:51",
+        "message": "REVERSE_TRIP: Finding closest station for origin address: 臺南市學甲區 或鄰近區域"
+    },
+    {
+        "timestamp": "2025-10-14 21:14:51",
+        "message": "API search-station error: maximum recursion depth exceeded while calling a Python object"
+    },
+    {
+        "timestamp": "2025-10-14 21:14:51",
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 55, in api_search_station\n    coordinates = get_coordinates(destination_address)\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 61, in get_coordinates\n    response = requests.get(url)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 73, in get\n    return request(\"get\", url, params=params, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 59, in request\n    return session.request(method=method, url=url, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 589, in request\n    resp = self.send(prep, **send_kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 703, in send\n    r = adapter.send(request, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\adapters.py\", line 644, in send\n    resp = conn.urlopen(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 787, in urlopen\n    response = self._make_request(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 464, in _make_request\n    self._validate_conn(conn)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 1093, in _validate_conn\n    conn.connect()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 790, in connect\n    sock_and_verified = _ssl_wrap_socket_and_match_hostname(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 922, in _ssl_wrap_socket_and_match_hostname\n    context = create_urllib3_context(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\util\\ssl_.py\", line 303, in create_urllib3_context\n    context.minimum_version = TLSVersion.TLSv1_2\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  [Previous line repeated 477 more times]\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 585, in minimum_version\n    if value == TLSVersion.SSLv3:\nRecursionError: maximum recursion depth exceeded while calling a Python object\n"
+    },
+    {
+        "timestamp": "2025-10-14 21:15:01",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗(上午場)\",\n            \"time\": \"05:30 - 07:30\",\n            \"location\": \"安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 氣墊樂園\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"永華市政中心西拉雅廣場\",\n            \"tags\": \"親子活動\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 闖關活動\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"西拉雅廣場\",\n            \"tags\": \"互動遊戲\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 特色市集\",\n            \"time\": \"12:00 - 20:30\",\n            \"location\": \"活動現場\",\n            \"tags\": \"美食, 文創\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 街藝表演\",\n            \"time\": \"14:00 - 18:00\",\n            \"location\": \"西拉雅廣場\",\n            \"tags\": \"表演藝術\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗(下午場)\",\n            \"time\": \"16:30 - 18:30\",\n            \"location\": \"安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 光雕音樂會及無人機展演\",\n            \"time\": \"19:00 - 20:00\",\n            \"location\": \"永華市政中心西側廣場\",\n            \"tags\": \"光雕, 無人機\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗(上午場)\",\n            \"time\": \"05:30 - 07:30\",\n            \"location\": \"安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        },\n        {\n            \"title\": \"臺南山上花園水道博物館\",\n            \"time\": \"09:00 - 17:00 (預計)\",\n            \"location\": \"臺南市山上區山上里16號\",\n            \"tags\": \"古蹟, 博物館, 景點\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 氣墊樂園\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"永華市政中心西拉雅廣場\",\n            \"tags\": \"親子活動\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 闖關活動\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"西拉雅廣場\",\n            \"tags\": \"互動遊戲\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 特色市集\",\n            \"time\": \"12:00 - 19:00\",\n            \"location\": \"活動現場\",\n            \"tags\": \"美食, 文創\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 街藝表演\",\n            \"time\": \"14:00 - 18:00\",\n            \"location\": \"西拉雅廣場\",\n            \"tags\": \"表演藝術\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗(下午場)\",\n            \"time\": \"16:30 - 18:30\",\n            \"location\": \"安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        },\n        {\n            \"title\": \"亮哥生態風味體驗養殖場\",\n            \"time\": \"晚餐時間 (預計18:30後)\",\n            \"location\": \"臺南市學甲區平和里西平寮67-40號\",\n            \"tags\": \"餐廳, 生態體驗, 地方特色\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-14 21:15:10",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:15:10",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-23T09:15:00\", \"destination_address\": \"安平區 永華市政中心西側廣場\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-10-14 21:15:10",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 安平區 永華市政中心西側廣場"
+    },
+    {
+        "timestamp": "2025-10-14 21:15:10",
+        "message": "API search-station error: maximum recursion depth exceeded"
+    },
+    {
+        "timestamp": "2025-10-14 21:15:10",
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 82, in api_search_station\n    result = search_station(\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 283, in search_station\n    result = loop.run_until_complete(search_station_async(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\asyncio\\base_events.py\", line 647, in run_until_complete\n    return future.result()\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 157, in search_station_async\n    destination_coords = get_coordinates(destination_address)\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 61, in get_coordinates\n    response = requests.get(url)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 73, in get\n    return request(\"get\", url, params=params, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 59, in request\n    return session.request(method=method, url=url, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 589, in request\n    resp = self.send(prep, **send_kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 703, in send\n    r = adapter.send(request, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\adapters.py\", line 644, in send\n    resp = conn.urlopen(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 787, in urlopen\n    response = self._make_request(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 464, in _make_request\n    self._validate_conn(conn)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 1093, in _validate_conn\n    conn.connect()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 790, in connect\n    sock_and_verified = _ssl_wrap_socket_and_match_hostname(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 922, in _ssl_wrap_socket_and_match_hostname\n    context = create_urllib3_context(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\util\\ssl_.py\", line 303, in create_urllib3_context\n    context.minimum_version = TLSVersion.TLSv1_2\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  [Previous line repeated 473 more times]\nRecursionError: maximum recursion depth exceeded\n"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:52",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:52",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-23T09:15:00\", \"destination_address\": \"安平區 永華市政中心西側廣場\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:52",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 安平區 永華市政中心西側廣場"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:52",
+        "message": "API search-station error: maximum recursion depth exceeded"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:52",
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 82, in api_search_station\n    result = search_station(\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 167, in search_station\n    destination_coords = get_coordinates(destination_address)\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 61, in get_coordinates\n    response = requests.get(url)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 73, in get\n    return request(\"get\", url, params=params, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 59, in request\n    return session.request(method=method, url=url, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 589, in request\n    resp = self.send(prep, **send_kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 703, in send\n    r = adapter.send(request, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\adapters.py\", line 644, in send\n    resp = conn.urlopen(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 787, in urlopen\n    response = self._make_request(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 464, in _make_request\n    self._validate_conn(conn)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 1093, in _validate_conn\n    conn.connect()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 790, in connect\n    sock_and_verified = _ssl_wrap_socket_and_match_hostname(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 922, in _ssl_wrap_socket_and_match_hostname\n    context = create_urllib3_context(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\util\\ssl_.py\", line 303, in create_urllib3_context\n    context.minimum_version = TLSVersion.TLSv1_2\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  [Previous line repeated 477 more times]\nRecursionError: maximum recursion depth exceeded\n"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:58",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:58",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-23T09:15:00\", \"destination_address\": \"安平區 永華市政中心西側廣場\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:58",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 安平區 永華市政中心西側廣場"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:58",
+        "message": "API search-station error: maximum recursion depth exceeded"
+    },
+    {
+        "timestamp": "2025-10-14 21:18:58",
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 82, in api_search_station\n    result = search_station(\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 167, in search_station\n    destination_coords = get_coordinates(destination_address)\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 61, in get_coordinates\n    response = requests.get(url)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 73, in get\n    return request(\"get\", url, params=params, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 59, in request\n    return session.request(method=method, url=url, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 589, in request\n    resp = self.send(prep, **send_kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 703, in send\n    r = adapter.send(request, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\adapters.py\", line 644, in send\n    resp = conn.urlopen(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 787, in urlopen\n    response = self._make_request(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 464, in _make_request\n    self._validate_conn(conn)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 1093, in _validate_conn\n    conn.connect()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 790, in connect\n    sock_and_verified = _ssl_wrap_socket_and_match_hostname(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 922, in _ssl_wrap_socket_and_match_hostname\n    context = create_urllib3_context(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\util\\ssl_.py\", line 303, in create_urllib3_context\n    context.minimum_version = TLSVersion.TLSv1_2\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  [Previous line repeated 477 more times]\nRecursionError: maximum recursion depth exceeded\n"
+    },
+    {
+        "timestamp": "2025-10-14 21:19:35",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:19:35",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-23T09:15:00\", \"destination_address\": \"安平區 永華市政中心西側廣場\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-10-14 21:19:35",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 安平區 永華市政中心西側廣場"
+    },
+    {
+        "timestamp": "2025-10-14 21:19:35",
+        "message": "API search-station error: maximum recursion depth exceeded"
+    },
+    {
+        "timestamp": "2025-10-14 21:19:35",
+        "message": "Traceback (most recent call last):\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\api_routes.py\", line 82, in api_search_station\n    result = search_station(\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 167, in search_station\n    destination_coords = get_coordinates(destination_address)\n  File \"c:\\Users\\justi\\OneDrive\\文件\\GitHub\\TripCrafter\\search_station.py\", line 61, in get_coordinates\n    response = requests.get(url)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 73, in get\n    return request(\"get\", url, params=params, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\api.py\", line 59, in request\n    return session.request(method=method, url=url, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 589, in request\n    resp = self.send(prep, **send_kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\sessions.py\", line 703, in send\n    r = adapter.send(request, **kwargs)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\requests\\adapters.py\", line 644, in send\n    resp = conn.urlopen(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 787, in urlopen\n    response = self._make_request(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 464, in _make_request\n    self._validate_conn(conn)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connectionpool.py\", line 1093, in _validate_conn\n    conn.connect()\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 790, in connect\n    sock_and_verified = _ssl_wrap_socket_and_match_hostname(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\connection.py\", line 922, in _ssl_wrap_socket_and_match_hostname\n    context = create_urllib3_context(\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\urllib3\\util\\ssl_.py\", line 303, in create_urllib3_context\n    context.minimum_version = TLSVersion.TLSv1_2\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  File \"C:\\Users\\justi\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py\", line 587, in minimum_version\n    super(SSLContext, SSLContext).minimum_version.__set__(self, value)\n  [Previous line repeated 477 more times]\nRecursionError: maximum recursion depth exceeded\n"
+    },
+    {
+        "timestamp": "2025-10-14 21:22:22",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-14 21:22:22",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-10-23T09:15:00\", \"destination_address\": \"安平區 永華市政中心西側廣場\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-10-14 21:22:22",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 安平區 永華市政中心西側廣場"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:29",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:30",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:31",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:37:36",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 01:38:02",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-10-15 01:38:02",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"6180\", \"home_station_name\": \"鳳林\", \"departure_datetime\": \"2025-10-16T08:44:00\", \"destination_address\": \"嘉義市忠孝路275號\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-10-15 01:38:02",
+        "message": "DEPARTURE_TRIP: Searching 鳳林 -> 嘉義市忠孝路275號"
+    },
+    {
+        "timestamp": "2025-10-15 02:37:55",
+        "message": "Google AI response: ```json\n{\n    \"1\": [\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗 (上午場)\",\n            \"time\": \"05:30 - 07:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 氣墊樂園\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"臺南市安平區 永華市政中心西拉雅廣場\",\n            \"tags\": \"親子活動\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 闖關活動\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"互動遊戲\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 特色市集\",\n            \"time\": \"12:00 - 20:30\",\n            \"location\": \"臺南市安平區 活動現場\",\n            \"tags\": \"美食,文創\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 街藝表演\",\n            \"time\": \"14:00 - 18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"表演藝術\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗 (下午場)\",\n            \"time\": \"16:30 - 18:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 光雕音樂會及無人機展演\",\n            \"time\": \"19:00 - 20:00\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"光雕,音樂會,無人機\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗 (上午場)\",\n            \"time\": \"05:30 - 07:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 氣墊樂園\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"臺南市安平區 永華市政中心西拉雅廣場\",\n            \"tags\": \"親子活動\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 闖關活動\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"互動遊戲\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 特色市集\",\n            \"time\": \"12:00 - 19:00\",\n            \"location\": \"臺南市安平區 活動現場\",\n            \"tags\": \"美食,文創\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 街藝表演\",\n            \"time\": \"14:00 - 18:00\",\n            \"location\": \"臺南市安平區 西拉雅廣場\",\n            \"tags\": \"表演藝術\"\n        },\n        {\n            \"title\": \"2025臺南熱氣球派對 - 熱氣球繫留體驗 (下午場)\",\n            \"time\": \"16:30 - 18:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場\",\n            \"tags\": \"熱氣球體驗\"\n        }\n    ]\n}\n```"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:18",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:19",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:20",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:25",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-10-15 02:38:26",
+        "message": "解密錯誤：Token 已過期"
     }
 ]

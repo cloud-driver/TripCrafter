@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from gevent import monkey
+monkey.patch_all()
+
 import os
 import requests
 import secrets
@@ -26,7 +29,6 @@ import sqlite3
 from datetime import datetime
 import random
 from api_routes import api_bp
-from gevent import monkey
 from gevent.pywsgi import WSGIServer
 
 COUNTY_MAP = {
@@ -198,6 +200,8 @@ def decrypt_token(token: str) -> tuple:
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
+    
+    # 建立主表
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS schedules (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -207,10 +211,28 @@ def init_db():
             created_at TEXT NOT NULL
         )
     ''')
+    
+    # 檢查並新增欄位，避免在已存在的資料庫上出錯
+    try:
+        cursor.execute("SELECT days FROM schedules LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE schedules ADD COLUMN days TEXT")
+
+    try:
+        cursor.execute("SELECT active FROM schedules LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE schedules ADD COLUMN active TEXT")
+        
+    # 新增 trip_name 欄位
+    try:
+        cursor.execute("SELECT trip_name FROM schedules LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE schedules ADD COLUMN trip_name TEXT")
+
     conn.commit()
     conn.close()
 
-init_db()  # 呼叫初始化（只在應用啟動時執行一次）
+init_db()
 
 @app.context_processor
 def inject_csrf_token():
@@ -219,7 +241,10 @@ def inject_csrf_token():
 @csrf.exempt
 @app.route("/test")
 def test():
-    session['token'] = "12121212121212121221221"
+    session.clear()
+    session['token'] = encrypt_token("7b9fca25-b071-43a9-952f-eafc5730cb10")
+    session['home_station_code'] = "1000"
+    session['home_station_name'] = "臺北"
     return render_template('test-search-station.html')
 
 @csrf.exempt
@@ -917,152 +942,263 @@ def info():
     return render_template('info.html', event=event)
 
 @csrf.exempt
-@app.route("/trip/<days>/<active>")
-def trip(days, active):
+@app.route("/trip/<days>/<active>", defaults={'trip_id': None})
+@app.route("/trip/<days>/<active>/<trip_id>")
+def trip(days, active, trip_id):
     token = session.get('token') or ''
     
-    # === 新增：檢查登入狀態並導向登入頁，儲存 next 參數 ===
     if not token:
-        # 將目前的 URL 儲存到 session 中，以便登入後導回
-        session['next_url'] = url_for('trip', days=days, active=active)
+        session['next_url'] = request.url
         flash("請先登入以使用行程規劃功能。", "error")
         return redirect(url_for('login'))
-    # =======================================================
+    
+    uid = decrypt_token(token)
+    if not uid:
+        flash("登入憑證無效，請重新登入。", "error")
+        return redirect(url_for('login'))
 
     if 'homeStationCode' not in session:
-        session['homeStationCode'] = '1000' # 預設 臺北
-        save_log("Session 'homeStationCode' not found, setting default '1000'.")
+        session['homeStationCode'] = '1000'
     if 'homeStationName' not in session:
-        session['homeStationName'] = '臺北' # 預設 臺北
-        save_log("Session 'homeStationName' not found, setting default '臺北'.")
+        session['homeStationName'] = '臺北'
 
-    # 驗證天數是否正確
     if days not in ['one-day', 'two-day', 'three-day']:
         abort(404)
 
-    # 確認唯一識別碼是否存在於 EVENTS
     if active not in EVENTS:
-        abort(404, description="No events found with the specified unique identifier.")
+        abort(404, description="找不到指定的活動。")
 
-    # 取得符合唯一識別碼的資料
     event_data = EVENTS[active]
-
-    # 整合資料為字串格式
-    def package_data(event):
-        return f"##{event['唯一識別碼']}:{event['資料名稱']}({event['縣市名稱']}{event['行政區(鄉鎮區)名稱']}) \n 景點資料：\n{find(ATTRACTIONS, event['縣市名稱'])}\n\n 餐廳資料：\n{find(RESTAURANT, event['縣市名稱'])}\n\n 住宿資料：\n{find(HOTEL, event['縣市名稱'])}\n\n 活動資料：\n名稱: {event['資料名稱']}\n地點: {event['行政區(鄉鎮區)名稱']} {event['街道名稱']}\n描述: {event['文字描述']}\n聯絡方式: {event['聯絡電話']}#{event['分機']}\n"
-
-    packaged_data = package_data(event_data)
-
-    # 根據天數生成行程格式
-    days_map = {
-        'one-day': 1,
-        'two-day': 2,
-        'three-day': 3
-    }
-    total_days = days_map[days]
-    trip_data = f"# {total_days} Days\n{packaged_data}"
-
-    # 呼叫 AI 排行程
-    ai_response = ask_ai(trip_data)
-
-    def fix_json_format_with_markers(json_string):
-        # 移除頭尾的 ```json 和 ```
-        if json_string.startswith("```json"):
-            json_string = json_string[7:]  # 移除開頭的 ```json
-        if json_string.endswith("```"):
-            json_string = json_string[:-3]  # 移除結尾的 ```
-
-        # 清理多餘的換行符號與空格
-        cleaned_string = json_string.replace("\\n", "").replace("    ", "").strip()
-
-        try:
-            # 將清理後的字串解析為 JSON
-            parsed_json = json.loads(cleaned_string)
-            return parsed_json
-        except json.JSONDecodeError as e:
-            print(f"JSON 解析錯誤：{e}")
-            return None # 如果解析失敗，回傳 None
-        
-    ai_response=fix_json_format_with_markers(ai_response)
-
-    print(ai_response)
+    ai_response = None
     
-    # === 修正：檢查 ai_response 是否為 None，避免 AttributeError ===
-    if ai_response is None:
-        flash("AI 行程規劃失敗或回傳格式錯誤，請重試。", "error")
-        ai_response = {} 
-    # ==============================================================
+    if trip_id:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT schedule FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
+        result = cursor.fetchone()
+        conn.close()
+        if result:
+            ai_response = json.loads(result[0])
+            session['current_trip_id'] = trip_id
+        else:
+            flash("找不到指定的行程，或您沒有權限存取。", "error")
+            return redirect(url_for('my_trips'))
+    
+    # 檢查是否需要重排行程
+    if request.args.get('regenerate') == 'true' or not ai_response:
+        def package_data(event):
+            return f"##{event['唯一識別碼']}:{event['資料名稱']}({event['縣市名稱']}{event['行政區(鄉鎮區)名稱']}) \n 景點資料：\n{find(ATTRACTIONS, event['縣市名稱'])}\n\n 餐廳資料：\n{find(RESTAURANT, event['縣市名稱'])}\n\n 住宿資料：\n{find(HOTEL, event['縣市名稱'])}\n\n 活動資料：\n名稱: {event['資料名稱']}\n地點: {event['行政區(鄉鎮區)名稱']} {event['街道名稱']}\n描述: {event['文字描述']}\n聯絡方式: {event['聯絡電話']}#{event['分機']}\n"
+        
+        packaged_data = package_data(event_data)
+        days_map = {'one-day': 1, 'two-day': 2, 'three-day': 3}
+        total_days = days_map[days]
+        trip_data = f"# {total_days} Days\n{packaged_data}"
+        
+        raw_ai_response = ask_ai(trip_data)
 
+        print("Raw AI Response:", raw_ai_response)  # 除錯用
+
+        def fix_json_format_with_markers(json_string):
+            if json_string.startswith("```json"):
+                json_string = json_string[7:]
+            if json_string.endswith("```"):
+                json_string = json_string[:-3]
+            cleaned_string = json_string.replace("\\n", "").replace("    ", "").strip()
+            try:
+                return json.loads(cleaned_string)
+            except json.JSONDecodeError:
+                return None
+        
+        ai_response = fix_json_format_with_markers(raw_ai_response)
+        if ai_response is None:
+            flash("AI 行程規劃失敗或回傳格式錯誤，請重試。", "error")
+            ai_response = {}
+
+    # 清除舊的 trip_id，因為這是新行程
+    if request.args.get('regenerate') == 'true':
+        session.pop('current_trip_id', None)
+
+    total_days = len(ai_response.keys())
     raw_start = ai_response.get('1', [{}])[0].get('location', '臺北')
-    raw_end   = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')
+    raw_end = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')
 
     def clean_addr(addr: str) -> str:
-        # 去掉「(…)」裡的備註，並把全形空白 / 換行都 trim 掉
         cleaned = addr.split('(')[0].strip()
         return cleaned.replace('\n', '').replace('\r', '').strip()
 
     start_location = clean_addr(raw_start)
-    end_location   = clean_addr(raw_end)
+    end_location = clean_addr(raw_end)
 
-    # 將結果渲染到模板
-    return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token, start_location=start_location, end_location=end_location)
+    print(ai_response)
 
-@app.route('/save_data/<flow>', methods=['POST'])
+    return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token, start_location=start_location, end_location=end_location, trip_id=trip_id)
+
+@app.route('/my_trips')
 @csrf.exempt
-def save_data(flow):
-    """未完成"""
+def my_trips():
+    token = session.get('token')
+    if not token:
+        flash("請先登入。", "error")
+        return redirect(url_for('login'))
+
+    uid = decrypt_token(token)
+    if not uid:
+        flash("登入無效，請重新登入。", "error")
+        return redirect(url_for('login'))
+
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT trip_id, schedule, created_at, days, active, trip_name FROM schedules WHERE uid = ? ORDER BY created_at DESC", (uid,))
+    trips_data = cursor.fetchall()
+    conn.close()
+
+    trips = []
+    for row in trips_data:
+        # 如果 trip_name 存在且不為空，則使用它
+        if row['trip_name']:
+            trip_name = row['trip_name']
+        # 否則，從 schedule 生成預設名稱
+        else:
+            schedule_data = json.loads(row['schedule'])
+            first_day_activities = schedule_data.get('1', [])
+            trip_name = first_day_activities[0]['title'] if first_day_activities else "未命名行程"
+        
+        trips.append({
+            'trip_id': row['trip_id'],
+            'name': trip_name,
+            'created_at': row['created_at'],
+            'days': row['days'],
+            'active': row['active']
+        })
+
+    return render_template('my_trips.html', trips=trips, token=token)
+
+@app.route('/save_data/new', methods=['POST'])
+def save_data_new():
     data = request.get_json()
-    if not data:
-        return jsonify({"error": "No JSON data provided"}), 400
-    
     token = data.get('token')
     schedule = data.get('schedule')
-    
-    if not token:
-        return jsonify({"error": "Missing token"}), 400
-    if not schedule or not isinstance(schedule, dict) or not schedule:
-        return jsonify({"error": "Missing or invalid schedule"}), 400
-    
-    # 驗證 token（示例：檢查是否匹配 session 或資料庫）
-    if token != session.get('token'):  # 假設使用 session 驗證
-        return jsonify({"error": "Invalid token"}), 401
-    
-    if flow not in ['new', 'update']:
-        return jsonify({"error": "Invalid flow type"}), 400
-    
-    # 繼續儲存邏輯...
-    if flow == 'new':
-        trip_id = str(uuid.uuid4())
-    else:  # flow == 'update'
-        trip_id = data.get('trip_id')
-        if not trip_id:
-            return jsonify({"error": "Missing trip_id for update flow"}), 400
-        
+    days = data.get('days')
+    active = data.get('active')
+
+    if not all([token, schedule, days, active]):
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    uid = decrypt_token(token)
+    if not uid:
+        return jsonify({"error": "無效的 token"}), 401
+
+    trip_id = str(uuid.uuid4())
+    schedule_json = json.dumps(schedule, ensure_ascii=False)
+    current_time = datetime.now().isoformat()
+
     try:
-        uid = decrypt_token(token)
-        if not uid:
-            return jsonify({"error": "無效的 token"}), 401
-
-        # 將 schedule 轉成 JSON 字串
-        schedule_json = json.dumps(schedule, ensure_ascii=False)
-
-        # 儲存到資料庫
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        current_time = datetime.now().isoformat()
         cursor.execute(
-            "INSERT INTO schedules (uid, trip_id, schedule, created_at) VALUES (?, ?, ?, ?)",
-            (uid, trip_id, schedule_json, current_time)
+            "INSERT INTO schedules (uid, trip_id, schedule, created_at, days, active) VALUES (?, ?, ?, ?, ?, ?)",
+            (uid, trip_id, schedule_json, current_time, days, active)
         )
         conn.commit()
         conn.close()
-
-        # 可選：記錄日誌
-        save_log(f"User {uid} saved schedule to database")
-
-        return jsonify({"message": "行程儲存成功"}), 200
+        session['current_trip_id'] = trip_id
+        return jsonify({"message": "行程已另存新檔！", "trip_id": trip_id}), 200
     except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
+
+@app.route('/save_data/update', methods=['POST'])
+def save_data_update():
+    data = request.get_json()
+    token = data.get('token')
+    schedule = data.get('schedule')
+    trip_id = data.get('trip_id')
+
+    if not all([token, schedule, trip_id]):
+        return jsonify({"error": "缺少必要參數"}), 400
+    
+    uid = decrypt_token(token)
+    if not uid:
+        return jsonify({"error": "無效的 token"}), 401
+        
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
+        exists = cursor.fetchone()
+
+        if not exists:
+            conn.close()
+            return jsonify({"error": "未找到該行程ID！"}), 404
+        
+        schedule_json = json.dumps(schedule, ensure_ascii=False)
+        cursor.execute("UPDATE schedules SET schedule = ? WHERE trip_id = ?", (schedule_json, trip_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "行程更新成功"}), 200
+    except Exception as e:
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
+    
+@app.route('/rename_trip', methods=['POST'])
+@csrf.exempt
+def rename_trip():
+    data = request.get_json()
+    token = data.get('token')
+    trip_id = data.get('trip_id')
+    new_name = data.get('new_name', '').strip()
+
+    if not all([token, trip_id, new_name]):
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    uid = decrypt_token(token)
+    if not uid:
+        return jsonify({"error": "無效的 token"}), 401
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        # 檢查行程是否存在且屬於該使用者
+        cursor.execute("SELECT id FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "找不到行程或權限不足"}), 404
+        
+        cursor.execute("UPDATE schedules SET trip_name = ? WHERE trip_id = ?", (new_name, trip_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "行程名稱已更新"}), 200
+    except Exception as e:
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
+
+@app.route('/delete_trip', methods=['POST'])
+@csrf.exempt
+def delete_trip():
+    data = request.get_json()
+    token = data.get('token')
+    trip_id = data.get('trip_id')
+
+    if not all([token, trip_id]):
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    uid = decrypt_token(token)
+    if not uid:
+        return jsonify({"error": "無效的 token"}), 401
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        # 檢查行程是否存在且屬於該使用者
+        cursor.execute("SELECT id FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "找不到行程或權限不足"}), 404
+            
+        cursor.execute("DELETE FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "行程已刪除"}), 200
+    except Exception as e:
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
     
 
 with app.app_context():
@@ -1075,7 +1211,6 @@ with app.app_context():
         print(link)
     
 if __name__ == "__main__":
-    monkey.patch_all()
     port = int(os.environ.get("PORT", 10000))
     print(f"Starting gevent WSGIServer on 0.0.0.0:{port}...")
     

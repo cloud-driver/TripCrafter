@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "uid": "7b9fca25-b071-43a9-952f-eafc5730cb10",
+        "username": "Justus581",
+        "google_account": null,
+        "line_account": {
+            "userId": "U19f5c7ea1eb5591d7d374a4a62374f0f",
+            "display_name": "鄭Ow<翔"
+        },
+        "homeStationCode": "1000",
+        "homeStationName": "臺北"
+    }
+]
