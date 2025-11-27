@@ -31,12 +31,11 @@ import random
 from api_routes import api_bp
 from gevent.pywsgi import WSGIServer
 from werkzeug.utils import secure_filename
-
-# 引入 moviepy 與 PIL
 import threading
 from moviepy.editor import ImageClip, concatenate_videoclips, AudioFileClip
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+from math import radians, cos, sin, asin, sqrt
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
@@ -148,6 +147,21 @@ try:
         ALL_STATIONS_DATA = json.load(f)
 except Exception as e:
     save_log(f"Failed to load all_stations_data.json: {e}")
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    計算兩點經緯度之間的距離 (公里)
+    """
+    try:
+        lon1, lat1, lon2, lat2 = map(float, [lon1, lat1, lon2, lat2])
+        dlon = lon2 - lon1 
+        dlat = lat2 - lat1 
+        a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a)) 
+        r = 6371 # 地球半徑 (km)
+        return c * r
+    except:
+        return 99999 # 若座標無效，回傳極大值
 
 def find(DATA, city_name):
     found = {}
@@ -369,6 +383,11 @@ def test():
 def home():
     return render_template('index.html')
 
+@csrf.exempt
+@app.route("/index")
+def index():
+    return redirect(url_for('home'))
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
@@ -383,11 +402,6 @@ def contact():
         return redirect(url_for('contact'))
         
     return render_template('contact.html')
-
-@csrf.exempt
-@app.route("/index")
-def index():
-    return redirect(url_for('home'))
 
 @csrf.exempt
 @app.route("/login")
@@ -946,6 +960,100 @@ def active(county_en):
     )
 
 @csrf.exempt
+@app.route('/api/recommendations')
+def get_recommendations():
+    """
+    API: 取得推薦行程 (支援行政區優先排序與無限捲動)
+    """
+    category = request.args.get('category', 'all')
+    target_county = request.args.get('county', '')  # 例如：臺北市
+    target_district = request.args.get('district', '') # 例如：信義區
+    keyword = request.args.get('keyword', '').strip().lower()
+    page = int(request.args.get('page', 1))
+    per_page = 20
+
+    # 1. 整合資料來源
+    sources = []
+    if category in ['all', 'attraction']:
+        sources.extend(list(ATTRACTIONS.values()))
+    if category in ['all', 'food']:
+        sources.extend(list(RESTAURANT.values()))
+    if category in ['all', 'hotel']:
+        sources.extend(list(HOTEL.values()))
+
+    # 2. 篩選與評分 (Score)
+    # Score 規則: 關鍵字匹配(100) > 同行政區(10) > 同縣市(5) > 其他(0)
+    results = []
+    
+    for item in sources:
+        # 欄位正規化
+        name = item.get('Name', item.get('名稱', item.get('資料名稱', '')))
+        addr = item.get('Add', item.get('地址', item.get('地址', '')))
+        desc = item.get('Description', item.get('說明', item.get('文字描述', '')))
+        region = item.get('Region', item.get('行政區', item.get('鄉鎮市區', '')))
+        town = item.get('Town', item.get('縣市', item.get('縣市名稱', '')))
+        
+        # 圖片處理 (不同資料源欄位不同)
+        image = item.get('Picture1', item.get('照片連結1', ''))
+        
+        if not name: continue
+
+        score = 0
+        
+        # 關鍵字篩選 (最高優先級)
+        if keyword:
+            content_str = f"{name} {addr} {desc}".lower()
+            if keyword in content_str:
+                score += 100
+            else:
+                continue # 有關鍵字但沒對上，直接跳過
+
+        # 地區優先級排序
+        # 判斷行政區 (例如: 信義區)
+        if target_district and (target_district in addr or target_district == region):
+            score += 10
+        
+        # 判斷縣市 (例如: 臺北市)
+        if target_county and (target_county in addr or target_county == town):
+            score += 5
+            
+        # 如果沒有關鍵字搜尋，且完全不同縣市，則過濾掉 (避免顯示屏東的資料給在台北的人)
+        # 但如果是搜尋模式，則全台皆可搜
+        if not keyword and target_county and score < 5:
+            continue
+
+        # 整理回傳格式
+        tag_cat = "景點"
+        if item in list(RESTAURANT.values()): tag_cat = "美食"
+        elif item in list(HOTEL.values()): tag_cat = "住宿"
+
+        results.append({
+            "id": item.get('Id', item.get('唯一識別碼', uuid.uuid4().hex)),
+            "title": name,
+            "address": addr,
+            "category": tag_cat,
+            "image": image,
+            "tel": item.get('Tel', item.get('電話', '')),
+            "score": score
+        })
+
+    # 3. 排序：分數高者優先，若分數相同則隨機 (讓每次稍微不同)
+    # Python 的 sort 是穩定的，先 shuffle 可以增加多樣性
+    random.shuffle(results) 
+    results.sort(key=lambda x: x['score'], reverse=True)
+
+    # 4. 分頁處理
+    total = len(results)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_data = results[start:end]
+
+    return jsonify({
+        "data": paginated_data,
+        "has_next": end < total
+    })
+
+@csrf.exempt
 @app.route("/search/<keyword>")
 def search(keyword):
     try:
@@ -959,6 +1067,9 @@ def search(keyword):
         page = 1
 
     words = [w.strip().lower() for w in keyword.split() if w.strip()]
+
+    if "test" in words:
+        return redirect(url_for('test'))
 
     matched = []
     with open("datas/活動.csv", encoding="utf-8-sig", newline="") as fp:
@@ -1510,6 +1621,7 @@ def delete_memoir(memoir_id):
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
+    # 1. 先查詢要刪除的回憶錄資料，以獲取檔案名稱
     cursor.execute("SELECT * FROM memoirs WHERE id = ? AND uid = ?", (memoir_id, uid))
     memoir = cursor.fetchone()
     
@@ -1518,11 +1630,42 @@ def delete_memoir(memoir_id):
         flash("找不到該回憶錄或無權限刪除。", "error")
         return redirect(url_for('my_memoirs'))
     
+    # === 新增：刪除實體圖片檔案 ===
+    try:
+        if memoir['image_path']:
+            images = json.loads(memoir['image_path'])
+            # 確保是列表
+            if isinstance(images, list):
+                for img_file in images:
+                    file_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], img_file)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        print(f"Deleted image: {file_path}")
+            # 相容舊格式 (如果是單一字串)
+            elif isinstance(images, str):
+                file_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], images)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+    except Exception as e:
+        save_log(f"Error deleting images for memoir {memoir_id}: {e}")
+
+    # === 新增：刪除實體影片檔案 (如果有) ===
+    try:
+        if memoir['video_path']:
+            video_file = memoir['video_path']
+            video_full_path = os.path.join(app.root_path, app.config['VIDEO_FOLDER'], video_file)
+            if os.path.exists(video_full_path):
+                os.remove(video_full_path)
+                print(f"Deleted video: {video_full_path}")
+    except Exception as e:
+        save_log(f"Error deleting video for memoir {memoir_id}: {e}")
+
+    # 2. 最後再刪除資料庫紀錄
     cursor.execute("DELETE FROM memoirs WHERE id = ?", (memoir_id,))
     conn.commit()
     conn.close()
     
-    flash("回憶錄已刪除。", "success")
+    flash("回憶錄與相關檔案已刪除。", "success")
     return redirect(url_for('my_memoirs'))
 
 # === 修改：原本的路由改為觸發背景任務 ===

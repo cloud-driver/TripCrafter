@@ -66,11 +66,150 @@
             border-color: #FF6600;
             box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
         }
+        @media (max-width: 991px) {
+            .header .logo {
+                margin-left: -45px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <header class="header can-sticky">
+        <style>
+            /* 桌面版與通用設定 */
+            :root {
+                --thm-color-one: #FF6600;
+                --thm-text-dark: #333333;
+                --thm-border-light: #eeeeee;
+            }
+            .search-wrapper {
+                position: relative;
+                display: inline-block;
+            }
+            .search-wrapper button {
+                background-color: var(--thm-color-one);
+                color: #fff;
+            }
+            .search-dropdown {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                min-width: 250px;
+                background-color: var(--thm-color-one);
+                color: #fff;
+                border: none;
+                border-radius: 0.25rem;
+                padding: 0.5rem;
+                transform-origin: top right;
+                transform: scaleY(0);
+                opacity: 0;
+                visibility: hidden;
+                transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                z-index: 10;
+                display: flex !important;
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .search-dropdown input {
+                flex: 1 1 auto;
+                min-width: 200px;    
+                width: calc(100% - 3rem);
+                margin: 0;
+                padding: 0.25rem;
+                border: 1px solid #ddd;
+                border-radius: 0.25rem;
+                margin-right: 0.25rem;
+            }
+            .search-dropdown button {
+                flex: 0 0 auto;
+                margin: 0;
+            }
+            .search-wrapper:hover .search-dropdown {
+                visibility: visible;
+                transform: scaleY(1);
+                opacity: 1;
+                transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
+            }
+
+            /* 手機版漢堡選單美化樣式 (Max-width: 991px) */
+            @media (max-width: 991px) {
+                /* Logo 靠左微調 */
+                .header .logo {
+                    margin-left: -45px;
+                }
+
+                /* 選單容器背景改為白色，而非黑色 */
+                .navigation {
+                    background-color: #ffffff !important; 
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                    padding-top: 20px;
+                }
+
+                /* 選單項目樣式 */
+                .navigation .main-menu > li {
+                    border-bottom: 1px solid var(--thm-border-light); /* 淺灰色分隔線 */
+                    margin: 0;
+                }
+
+                .navigation .main-menu > li > a {
+                    color: var(--thm-text-dark) !important; /* 深色文字 */
+                    font-weight: 500;
+                    padding: 15px 20px;
+                    display: block;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                }
+
+                /* Hover 效果：文字變橘色，且稍微右移 */
+                .navigation .main-menu > li > a:hover {
+                    color: var(--thm-color-one) !important;
+                    background-color: #fff5f0; /* 極淺橘色背景 */
+                    padding-left: 25px;
+                }
+
+                /* 手機版搜尋框美化 */
+                .search-mobile {
+                    padding: 15px 20px;
+                    background-color: #f9f9f9; /* 搜尋區塊淺灰底 */
+                    margin: 10px 0;
+                }
+
+                #search-input-mobile {
+                    background-color: #ffffff;
+                    border: 1px solid #ddd;
+                    border-radius: 50px 0 0 50px; /* 左圓角 */
+                    color: #333;
+                    padding-left: 20px;
+                    height: 45px;
+                }
+                
+                #search-input-mobile:focus {
+                    border-color: var(--thm-color-one);
+                    box-shadow: none;
+                }
+
+                #search-input-mobile::placeholder {
+                    color: #999;
+                }
+
+                /* 搜尋按鈕 */
+                .search-mobile .thm-btn {
+                    border-radius: 0 50px 50px 0 !important; /* 右圓角 */
+                    height: 45px;
+                    padding: 0 25px;
+                    margin-left: -1px !important; /* 接合輸入框 */
+                }
+                
+                /* 修正漢堡按鈕顏色 (若原本背景是深色，需確保按鈕在白色Header上可見) */
+                .hamburger_btn span {
+                    background-color: var(--thm-text-dark);
+                }
+            }
+        </style>
+
         <div class="container">
             <div class="header_inner">
                 <div class="logo">
@@ -81,18 +220,80 @@
                 <div class="nav_actions">
                     <nav class="navigation">
                         <ul class="main-menu">
-                            <li class="menu-item"><a href="{{ url_for('my_memoirs')}}">回憶錄</a></li>
-                            <li class="menu-item"><a href="/active/all">探索活動</a></li>
-                            <li class="menu-item"><a href="/contact">聯絡我們</a></li>
+                            <li class="menu-item">
+                                <a href="{{ url_for('my_memoirs')}}">回憶錄</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/active/all">探索活動</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/contact">聯絡我們</a>
+                            </li>
+                            {% if session['token'] %}
+                            <li class="menu-item d-lg-none"> 
+                                <a href="/account_management?token={{ session['token'] }}">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li class="menu-item d-lg-none"> 
+                                <a href="{{ url_for('my_trips') }}">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="menu-item d-lg-none"> 
+                                <a href="/login">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="menu-item d-lg-none"> 
+                                <div class="search-mobile d-flex">
+                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動..." onkeydown="if(event.key==='Enter') goSearchMobile()" />
+                                    <button class="thm-btn" onclick="goSearchMobile()">Go</button>
+                                </div>
+                            </li>
                         </ul>
                     </nav>
+                    <div class="header_actions">
+                        <ul class="d-none d-lg-flex"> 
+                            <li>
+                                {% if session['token'] %}
+                                <a href="/account_management?token={{ session['token'] }}" class="login_btn me-2">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                                <a href="{{ url_for('my_trips') }}" class="login_btn">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                                {% else %}
+                                <a href="/login" class="login_btn">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                                {% endif %}
+                            </li>
+                            <li>
+                                <div class="search-wrapper">
+                                    <button class="thm-btn btn-rounded">
+                                        <i class="bi-search"></i> 搜尋活動
+                                    </button>
+                                    <div class="search-dropdown">
+                                        <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" />
+                                        <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="hamburger">
+                            <div class="hamburger_btn"><span></span><span></span><span></span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Banner Start -->
-    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;">
+    <div class="single_banner section-bg" style="background-image: url(https://static.wixstatic.com/media/85545b_a3276036a6ce48cfb1ca30ac935f6cdd~mv2.jpg/v1/fill/w_3958,h_2354,al_c,q_90/85545b_a3276036a6ce48cfb1ca30ac935f6cdd~mv2.webp); background-position: center;">
         <div class="relative text-center">
             <div class="container">
                 <div class="banner_text">

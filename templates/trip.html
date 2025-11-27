@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>行程規劃 - {{ trip_name }}</title>
+    <title>行程規劃</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link href="/assets/css/plugins/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/fonts/font-awesome.min.css" rel="stylesheet">
@@ -16,14 +16,14 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <style>
-        :root { --thm-color-one: #FF6600; } 
-        .thm-color-one { color: #FF6600; } 
-        .thm-btn { background-color: #FF6600; } 
-        .thm-btn:hover, .thm-btn:focus { background-color: #e65c00; } 
-        .section-header .title span { color: #FF6600; } 
-        .ft_widgets .ft_title { color: #FF6600; } 
-        .copyright a { color: #FF6600 !important; } 
-        .back-to-top { background-color: #FF6600; } 
+        :root { --thm-color-one: #FF6600; }
+        .thm-color-one { color: #FF6600; }
+        .thm-btn { background-color: #FF6600; }
+        .thm-btn:hover, .thm-btn:focus { background-color: #e65c00; }
+        .section-header .title span { color: #FF6600; }
+        .ft_widgets .ft_title { color: #FF6600; }
+        .copyright a { color: #FF6600 !important; }
+        .back-to-top { background-color: #FF6600; }
         body {
             background-color: #f8f9fa;
             font-family: Arial, sans-serif;
@@ -41,6 +41,7 @@
             margin-bottom: 10px;
             color: #FF6600;
         }
+        /* Activity 樣式微調以支援拖曳視覺效果 */
         .activity {
             display: flex;
             align-items: center;
@@ -51,6 +52,11 @@
             margin-bottom: 10px;
             background-color: #e9ecef;
             cursor: grab;
+            transition: all 0.2s;
+        }
+        .activity:hover {
+            border-color: #FF6600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .activity.dragging {
             opacity: 0.6;
@@ -73,123 +79,189 @@
             width: calc(100% - 30px);
             display: none;
         }
-        .single_banner .right_skew, .single_banner .left_skew { 
-            background-color: #f8f9fa; 
-            } 
-        .search-wrapper { 
-            position: relative; 
-            display: inline-block; 
-        } 
-        .search-wrapper button {
-            background-color: var(--thm-color-one); 
-            color: #fff; 
-        } 
-        .search-dropdown { 
-            position: absolute; 
-            top: 100%; 
-            right: 0; 
-            min-width: 100%; 
-            background-color: var(--thm-color-one); 
-            color: #fff; 
-            border: none; 
-            border-radius: 0.25rem; 
-            padding: 0.5rem; 
-            transform-origin: top right; 
-            transform: scaleY(0); 
-            opacity: 0; visibility: hidden; 
-            transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-            z-index: 10; 
-            display: flex !important; 
-            flex-direction: row; 
-            align-items: center; 
-            gap: 0.5rem; 
-            min-width: 250px; 
-        } 
-        .search-dropdown input { 
-            flex: 1 1 auto; 
-            min-width: 200px; 
-            width: auto !important; 
-            margin: 0; width: calc(100% - 3rem); 
-            padding: 0.25rem; border: 1px solid #ddd; 
-            border-radius: 0.25rem; 
-            margin-right: 0.25rem; 
-        } 
-        .search-dropdown button { 
-            flex: 0 0 auto; 
-            margin: 0; 
-        } 
-        .search-wrapper:hover .search-dropdown { 
-            visibility: visible; 
-            transform: scaleY(1); 
-            opacity: 1; 
-            transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s; 
-        } 
-        .pagination .page-link { 
-            border-radius: .375rem; 
-        } 
-        .pagination .page-item.disabled .page-link { 
-            color:#adb5bd; 
-        } 
-        input[type="button"] { 
-            background-color: var(--thm-color-one); 
-            color: white; 
-            border: none; 
-            padding: 0.5rem 1rem; 
-            border-radius: 0.25rem; 
-            cursor: pointer; 
-            margin: 0.25rem; 
-        }
-        .train-search-btn {
-            background-color: #FF6600;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .train-search-btn:hover {
-            background-color: #e65c00;
-        }
-        .train-results {
-            margin-top: 20px;
-            padding: 15px;
+        .single_banner .right_skew, .single_banner .left_skew {
             background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .drag-handle {
+            cursor: move;
+            color: #aaa;
+            margin-right: 8px;
+            padding: 5px;
         }
         
-        .search-container {
+        /* === 新增樣式：浮動按鈕 === */
+        .fab-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #FF6600;
+            color: white;
+            font-size: 24px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 1rem;
+            justify-content: center;
+            z-index: 1050;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        .spinner {
-            width: 28px;
-            height: 28px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #FF6600;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .fab-btn:hover {
+            transform: scale(1.1);
+            background-color: #e65c00;
+            color: white;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        /* === 新增樣式：推薦列表卡片 === */
+        .rec-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            transition: all 0.2s;
+            cursor: grab;
         }
-        #search-input-mobile {
-            background-color: #555;
-            color: #ffffff;
-            border: 1px solid #777;
+        .rec-item:hover {
+            border-color: #FF6600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        #search-input-mobile::placeholder {
-            color: #cccccc;
-            opacity: 1;
+        .rec-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .rec-item .btn-add {
+            background-color: #FF6600;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .rec-item .btn-add:hover {
+            background-color: #d95500;
         }
     </style>
 </head>
 <body>
     <header class="header can-sticky">
+        <style>
+            /* 桌面版與通用設定 */
+            :root {
+                --thm-color-one: #FF6600;
+                --thm-text-dark: #333333;
+                --thm-border-light: #eeeeee;
+            }
+            .search-wrapper {
+                position: relative;
+                display: inline-block;
+            }
+            .search-wrapper button {
+                background-color: var(--thm-color-one);
+                color: #fff;
+            }
+            .search-dropdown {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                min-width: 250px;
+                background-color: var(--thm-color-one);
+                color: #fff;
+                border: none;
+                border-radius: 0.25rem;
+                padding: 0.5rem;
+                transform-origin: top right;
+                transform: scaleY(0);
+                opacity: 0;
+                visibility: hidden;
+                transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                z-index: 10;
+                display: flex !important;
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .search-dropdown input {
+                flex: 1 1 auto;
+                min-width: 200px;
+                width: calc(100% - 3rem);
+                margin: 0;
+                padding: 0.25rem;
+                border: 1px solid #ddd;
+                border-radius: 0.25rem;
+                margin-right: 0.25rem;
+            }
+            .search-dropdown button {
+                flex: 0 0 auto;
+                margin: 0;
+            }
+            .search-wrapper:hover .search-dropdown {
+                visibility: visible;
+                transform: scaleY(1);
+                opacity: 1;
+                transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
+            }
+
+            /* 手機版漢堡選單美化樣式 (Max-width: 991px) */
+            @media (max-width: 991px) {
+                .header .logo { margin-left: -45px; }
+                .navigation {
+                    background-color: #ffffff !important;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                    padding-top: 20px;
+                }
+                .navigation .main-menu > li {
+                    border-bottom: 1px solid var(--thm-border-light);
+                    margin: 0;
+                }
+                .navigation .main-menu > li > a {
+                    color: var(--thm-text-dark) !important;
+                    font-weight: 500;
+                    padding: 15px 20px;
+                    display: block;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                }
+                .navigation .main-menu > li > a:hover {
+                    color: var(--thm-color-one) !important;
+                    background-color: #fff5f0;
+                    padding-left: 25px;
+                }
+                .search-mobile {
+                    padding: 15px 20px;
+                    background-color: #f9f9f9;
+                    margin: 10px 0;
+                }
+                #search-input-mobile {
+                    background-color: #ffffff;
+                    border: 1px solid #ddd;
+                    border-radius: 50px 0 0 50px;
+                    color: #333;
+                    padding-left: 20px;
+                    height: 45px;
+                }
+                #search-input-mobile:focus {
+                    border-color: var(--thm-color-one);
+                    box-shadow: none;
+                }
+                #search-input-mobile::placeholder { color: #999; }
+                .search-mobile .thm-btn {
+                    border-radius: 0 50px 50px 0 !important;
+                    height: 45px;
+                    padding: 0 25px;
+                    margin-left: -1px !important;
+                }
+                .hamburger_btn span { background-color: var(--thm-text-dark); }
+            }
+        </style>
+
         <div class="container">
             <div class="header_inner">
                 <div class="logo">
@@ -201,7 +273,7 @@
                     <nav class="navigation">
                         <ul class="main-menu">
                             <li class="menu-item">
-                                <a href="{{ url_for('home')}}">首頁</a>
+                                <a href="{{ url_for('my_memoirs')}}">回憶錄</a>
                             </li>
                             <li class="menu-item">
                                 <a href="/active/all">探索活動</a>
@@ -228,9 +300,9 @@
                             </li>
                             {% endif %}
                             <li class="menu-item d-lg-none">
-                                <div class="search-mobile d-flex p-2">
-                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" />
-                                    <button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button>
+                                <div class="search-mobile d-flex">
+                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動..." onkeydown="if(event.key==='Enter') goSearchMobile()" />
+                                    <button class="thm-btn" onclick="goSearchMobile()">Go</button>
                                 </div>
                             </li>
                         </ul>
@@ -239,23 +311,17 @@
                         <ul class="d-none d-lg-flex">
                             <li>
                                 {% if session['token'] %}
-                            <li>
                                 <a href="/account_management?token={{ session['token'] }}" class="login_btn me-2">
                                     <i class="fal fa-user-circle me-2"></i> 已登入
                                 </a>
-                            </li>
-                            <li>
                                 <a href="{{ url_for('my_trips') }}" class="login_btn">
                                     <i class="fal fa-route me-2"></i> 我的行程
                                 </a>
-                            </li>
-                            {% else %}
-                            <li>
+                                {% else %}
                                 <a href="/login" class="login_btn">
                                     <i class="fal fa-user-circle me-2"></i> 登入/註冊
                                 </a>
-                            </li>
-                            {% endif %}
+                                {% endif %}
                             </li>
                             <li>
                                 <div class="search-wrapper">
@@ -270,25 +336,23 @@
                             </li>
                         </ul>
                         <div class="hamburger">
-                            <div class="hamburger_btn"><span></span><span></span><span></span>
-                            </div>
+                            <div class="hamburger_btn"><span></span><span></span><span></span></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </header> 
-
-    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;"> 
-      <div class="relative text-center"> 
-        <div class="container"> 
-          <div class="banner_text"> 
-            <h1 class="title" style="color: white;"> 行程規劃 <span class="fw-bold" style="color: #FFD700;">{{ days }}</span> </h1> 
-          </div> 
-        </div> 
-      </div> 
-      <span class="left_skew"></span> 
-      <span class="right_skew"></span> 
+    </header>
+    <div class="single_banner section-bg" style="background-image: url(https://static.wixstatic.com/media/85545b_a3276036a6ce48cfb1ca30ac935f6cdd~mv2.jpg/v1/fill/w_3958,h_2354,al_c,q_90/85545b_a3276036a6ce48cfb1ca30ac935f6cdd~mv2.webp); background-position: center;">
+      <div class="relative text-center">
+        <div class="container">
+          <div class="banner_text">
+            <h1 class="title" style="color: white;"> 行程規劃 <span class="fw-bold" style="color: #FFD700;">{{ days }}</span> </h1>
+          </div>
+        </div>
+      </div>
+      <span class="left_skew"></span>
+      <span class="right_skew"></span>
     </div>
 
     <div class="container mt-4">
@@ -300,6 +364,9 @@
                 </a>
                 <button id="edit-name-btn" class="btn btn-secondary">
                     <i class="fas fa-pencil-alt"></i> 編輯名稱
+                </button>
+                <button class="btn thm-btn ms-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#recommendationSidebar">
+                    <i class="bi bi-plus-lg"></i> 新增活動
                 </button>
             </div>
         </div>
@@ -313,16 +380,22 @@
             <button class="train-search-btn" onclick="searchTrain('start')">查火車（出發）</button>
             <div class="spinner" id="spinner-start" style="display: none;"></div>
         </div>
+        
         {% if ai_response %}
             {% for day, activities in ai_response.items() %}
                 <div class="form-container day-section" id="day-{{ day }}">
-                    <div class="day-title">第 {{ day }} 天</div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="day-title">第 {{ day }} 天</div>
+                        <small class="text-muted">拖曳加入行程</small>
+                    </div>
                     {% for activity in activities %}
                         <div class="activity" draggable="true" data-day="{{ day }}" data-id="{{ loop.index }}">
+                            <div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
                             <div class="activity-content">
                                 <strong>{{ activity['title'] }}</strong> - {{ activity['time'] }} - {{ activity['location'] }}
                                 <div class="activity-tags">{{ activity['tags'] }}</div>
                             </div>
+                            <button class="btn btn-sm text-danger ms-2" onclick="removeActivity(this)"><i class="bi bi-trash"></i></button>
                         </div>
                     {% endfor %}
                 </div>
@@ -346,18 +419,16 @@
             <div id="results-content"></div>
         </div>
 
-        <div class="text-center mt-4">
-            <button id="regenerate-btn" class="thm-btn mx-2">重排行程</button>
-            <button id="save-as-btn" class="thm-btn mx-2">另存行程</button>
-            <button id="save-btn" class="thm-btn mx-2">儲存目前行程</button>
+        <div class="text-center m-4">
+            <button id="regenerate-btn" class="thm-btn m-2">重排行程</button>
+            <button id="save-as-btn" class="thm-btn m-2">另存行程</button>
+            <button id="save-btn" class="thm-btn m-2">儲存目前行程</button>
         </div>
     </div>
 
-    <!-- Footer Start -->
     <footer class="footer section-padding section-bg" style="background-image: url(/assets/images/bg/footer.jpg);">
         <div class="container">
             <div class="row">
-                <!-- item -->
                 <div class="col-lg-4 col-sm-6">
                     <div class="ft_widgets">
                         <div class="ft_about">
@@ -368,7 +439,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- item -->
                 <div class="col-lg-4 col-sm-6">
                     <div class="ft_widgets">
                         <h5 class="ft_title">網站導覽</h5>
@@ -379,7 +449,6 @@
                         </ul>
                     </div>
                 </div>
-                <!-- item -->
                 <div class="col-lg-4 col-sm-6">
                     <div class="ft_widgets">
                         <h5 class="ft_title">聯絡資訊</h5>
@@ -389,11 +458,9 @@
                         </ul>
                     </div>
                 </div>
-                <!-- item -->
-            </div>
+                </div>
         </div>
     </footer>
-    <!-- Footer End -->
     <div class="thm-bg-color-one">
         <div class="container">
             <div class="row">
@@ -405,7 +472,44 @@
             </div>
         </div>
     </div>
+
+    <button class="fab-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#recommendationSidebar" aria-controls="recommendationSidebar">
+        <i class="bi bi-plus-lg"></i>
+    </button>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="recommendationSidebar" aria-labelledby="sidebarLabel" style="width: 400px;">
+        <div class="offcanvas-header bg-light">
+            <h5 class="offcanvas-title" id="sidebarLabel"><i class="bi bi-magic me-2"></i>探索附近行程</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="p-3 border-bottom sticky-top bg-white" style="z-index: 10;">
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="rec-search" class="form-control border-start-0" placeholder="搜尋景點、餐廳...">
+                </div>
+                
+                <div class="nav nav-pills nav-fill gap-2" id="rec-filters">
+                    <button class="nav-link active btn-sm rounded-pill filter-btn" data-cat="all">全部</button>
+                    <button class="nav-link btn-sm rounded-pill filter-btn" data-cat="attraction">景點</button>
+                    <button class="nav-link btn-sm rounded-pill filter-btn" data-cat="food">美食</button>
+                    <button class="nav-link btn-sm rounded-pill filter-btn" data-cat="hotel">住宿</button>
+                </div>
+            </div>
+
+            <div id="rec-list" class="p-3">
+                </div>
+            
+            <div id="rec-loader" class="text-center p-3 text-muted" style="display: none;">
+                <div class="spinner-border spinner-border-sm" role="status"></div> 載入更多...
+            </div>
+            <div id="rec-end" class="text-center p-3 text-muted" style="display: none;">
+                沒有更多資料了
+            </div>
+        </div>
+    </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function goSearch() {
             const keyword = document.getElementById('search-input').value.trim();
@@ -419,18 +523,19 @@
                 window.location.href = '/search/' + encodeURIComponent(keyword);
             }
         }
+        // 刪除活動函式
+        function removeActivity(btn) {
+            if(confirm('確定要移除此活動嗎？')) {
+                btn.closest('.activity').remove();
+                window.isSaved = false;
+            }
+        }
     </script>
     <script>
-        // --- 修正：將所有操作 DOM 的 JS 都放入 DOMContentLoaded ---
         document.addEventListener('DOMContentLoaded', function() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const startLocation = "{{ start_location }}";
-            const endLocation   = "{{ end_location }}";
-            let isSaved = true;
+            window.isSaved = true;
 
-            const activities = document.querySelectorAll('.activity');
-            const daySections = document.querySelectorAll('.day-section');
-            let draggedItem = null;
             let indicator = document.createElement('div');
             indicator.classList.add('indicator');
 
@@ -439,52 +544,235 @@
             const active = "{{ active }}";
             let currentTripId = "{{ trip_id if trip_id is not none else '' }}";
 
-            // --- 拖曳功能 ---
-            activities.forEach(activity => {
-                activity.addEventListener('dragstart', () => {
-                    draggedItem = activity;
-                    activity.classList.add('dragging');
+            // 取得當前活動的行政區資訊，用於傳給後端做排序
+            const eventCounty = "{{ event['縣市名稱'] }}";
+            const eventDistrict = "{{ event['行政區(鄉鎮區)名稱'] }}";
+
+            // --- 拖曳功能 (優化版：支援從側邊欄拖入) ---
+            function initDragAndDrop() {
+                const activities = document.querySelectorAll('.activity');
+                const daySections = document.querySelectorAll('.day-section');
+                let draggedItem = null;
+
+                // 綁定現有活動
+                activities.forEach(activity => {
+                    activity.setAttribute('draggable', true);
+                    activity.addEventListener('dragstart', (e) => {
+                        draggedItem = activity;
+                        activity.classList.add('dragging');
+                        e.dataTransfer.setData('text/plain', 'internal'); // 標記為內部拖曳
+                    });
+                    activity.addEventListener('dragend', () => {
+                        draggedItem = null;
+                        activity.classList.remove('dragging');
+                        indicator.style.display = 'none';
+                        window.isSaved = false;
+                    });
                 });
 
-                activity.addEventListener('dragend', () => {
-                    draggedItem = null;
-                    activity.classList.remove('dragging');
-                    indicator.style.display = 'none';
-                    isSaved = false;
-                });
-            });
+                // 綁定 Drop Zones (Day Sections)
+                daySections.forEach(section => {
+                    section.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        const activitiesInSection = Array.from(section.querySelectorAll('.activity:not(.dragging)'));
+                        const closestActivity = activitiesInSection.find(activity => {
+                            const rect = activity.getBoundingClientRect();
+                            return e.clientY < rect.bottom && e.clientY > rect.top;
+                        });
 
-            daySections.forEach(section => {
-                section.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    const activitiesInSection = Array.from(section.querySelectorAll('.activity'));
-                    const closestActivity = activitiesInSection.find(activity => {
-                        const rect = activity.getBoundingClientRect();
-                        return e.clientY < rect.bottom + 15 && e.clientY > rect.top - 15;
+                        if (closestActivity) {
+                            section.insertBefore(indicator, closestActivity);
+                        } else {
+                            section.appendChild(indicator);
+                        }
+                        indicator.style.display = 'block';
                     });
 
-                    if (closestActivity) {
-                        section.insertBefore(indicator, closestActivity);
-                    } else {
-                        section.appendChild(indicator);
-                    }
-                    indicator.style.display = 'block';
-                });
+                    section.addEventListener('dragleave', () => {
+                        indicator.style.display = 'none';
+                    });
 
-                section.addEventListener('dragleave', () => {
-                    indicator.style.display = 'none';
-                });
+                    section.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        indicator.style.display = 'none';
+                        
+                        // 處理側邊欄拖曳 (外部資料)
+                        const sidebarData = e.dataTransfer.getData('application/json');
+                        if (sidebarData) {
+                            const data = JSON.parse(sidebarData);
+                            const newActivity = createActivityElement(data.title, '未定', data.address, data.category);
+                            if (indicator.parentNode === section) {
+                                section.insertBefore(newActivity, indicator);
+                            } else {
+                                section.appendChild(newActivity);
+                            }
+                            initDragAndDrop(); // 重新綁定新元素
+                            window.isSaved = false;
+                            return;
+                        }
 
-                section.addEventListener('drop', () => {
-                    indicator.style.display = 'none';
-                    if (draggedItem) {
-                        section.insertBefore(draggedItem, indicator);
-                        updateSchedule();
-                    }
+                        // 處理內部排序
+                        if (draggedItem) {
+                            section.insertBefore(draggedItem, indicator);
+                            window.isSaved = false;
+                        }
+                    });
+                });
+            }
+
+            initDragAndDrop(); // 初始執行
+
+            // --- 側邊欄邏輯 (推薦行程) ---
+            let recPage = 1;
+            let recLoading = false;
+            let recCategory = 'all';
+            let recHasNext = true;
+            const recList = document.getElementById('rec-list');
+            const recLoader = document.getElementById('rec-loader');
+            const recEnd = document.getElementById('rec-end');
+            const sidebarBody = document.querySelector('.offcanvas-body');
+
+            // 載入資料
+            async function loadRecommendations(reset = false) {
+                if (recLoading) return;
+                if (reset) {
+                    recPage = 1;
+                    recHasNext = true;
+                    recList.innerHTML = '';
+                    recEnd.style.display = 'none';
+                }
+                if (!recHasNext) return;
+
+                recLoading = true;
+                recLoader.style.display = 'block';
+                
+                const keyword = document.getElementById('rec-search').value;
+
+                try {
+                    // 呼叫 API，帶入行政區與關鍵字
+                    const res = await axios.get('/api/recommendations', {
+                        params: {
+                            category: recCategory,
+                            page: recPage,
+                            keyword: keyword,
+                            county: eventCounty,
+                            district: eventDistrict
+                        }
+                    });
+
+                    const data = res.data.data;
+                    recHasNext = res.data.has_next;
+
+                    data.forEach(item => {
+                        const el = document.createElement('div');
+                        el.className = 'rec-item';
+                        // 設置拖曳資料
+                        el.setAttribute('draggable', true);
+                        el.addEventListener('dragstart', (e) => {
+                            e.dataTransfer.setData('application/json', JSON.stringify({
+                                title: item.title,
+                                address: item.address,
+                                category: item.category
+                            }));
+                        });
+
+                        const imgHtml = item.image ? `<img src="${item.image}" alt="${item.title}">` : '';
+                        
+                        el.innerHTML = `
+                            ${imgHtml}
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">${item.title}</h6>
+                                    <div class="text-muted small mb-1"><i class="bi bi-geo-alt"></i> ${item.address || '無地址資訊'}</div>
+                                    <span class="badge bg-light text-dark border">${item.category}</span>
+                                </div>
+                                <button class="btn-add ms-2" title="加入至第一天">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        `;
+                        
+                        // 點擊「+」按鈕事件
+                        el.querySelector('.btn-add').addEventListener('click', () => {
+                            addToFirstDay(item.title, item.address, item.category);
+                        });
+
+                        recList.appendChild(el);
+                    });
+
+                    recPage++;
+                    if (!recHasNext) recEnd.style.display = 'block';
+
+                } catch (err) {
+                    console.error(err);
+                    recList.innerHTML += `<div class="text-danger text-center">載入失敗</div>`;
+                } finally {
+                    recLoading = false;
+                    recLoader.style.display = 'none';
+                }
+            }
+
+            // 建立行程 DOM 結構 helper
+            function createActivityElement(title, time, location, tags) {
+                const div = document.createElement('div');
+                div.className = 'activity';
+                div.setAttribute('draggable', true);
+                div.innerHTML = `
+                    <div class="drag-handle"><i class="bi bi-grip-vertical"></i></div>
+                    <div class="activity-content">
+                        <strong>${title}</strong> - ${time} - ${location}
+                        <div class="activity-tags">${tags}</div>
+                    </div>
+                    <button class="btn btn-sm text-danger ms-2" onclick="removeActivity(this)"><i class="bi bi-trash"></i></button>
+                `;
+                return div;
+            }
+
+            function addToFirstDay(title, location, tag) {
+                const firstDay = document.querySelector('.day-section'); // 預設加入第一天
+                if (firstDay) {
+                    const newActivity = createActivityElement(title, '未定', location, tag);
+                    firstDay.appendChild(newActivity);
+                    initDragAndDrop(); // 重新綁定事件
+                    
+                    // 簡單的視覺回饋
+                    alert(`已將「${title}」加入行程！`);
+                    window.isSaved = false;
+                }
+            }
+
+            // 側邊欄事件監聽
+            document.getElementById('recommendationSidebar').addEventListener('show.bs.offcanvas', () => {
+                if (recList.children.length === 0) loadRecommendations(true);
+            });
+
+            // 分類切換
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    recCategory = e.target.dataset.cat;
+                    loadRecommendations(true);
                 });
             });
 
-            // --- 按鈕事件監聽 ---
+            // 搜尋 (Debounce)
+            let searchTimeout;
+            document.getElementById('rec-search').addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadRecommendations(true);
+                }, 500);
+            });
+
+            // 無限捲動 (Infinite Scroll)
+            sidebarBody.addEventListener('scroll', () => {
+                if (sidebarBody.scrollTop + sidebarBody.clientHeight >= sidebarBody.scrollHeight - 50) {
+                    loadRecommendations();
+                }
+            });
+
+            // --- 原有按鈕功能 ---
             document.getElementById('regenerate-btn').addEventListener('click', () => {
                 window.location.href = `/trip/${days}/${active}?regenerate=true`;
             });
@@ -502,7 +790,7 @@
             });
 
             window.addEventListener('beforeunload', (event) => {
-                if (!isSaved) {
+                if (!window.isSaved) {
                     event.preventDefault();
                     event.returnValue = '';
                     alert("還沒儲存喔！");
@@ -570,89 +858,78 @@
                     editBtn.style.display = 'inline-block';
                 };
             });
+            
+            // --- 儲存功能 ---
+            function saveTrip(endpoint, tripId = null) {
+                let updatedSchedule = {};
+                // 修改為抓取 innerText 並簡單解析
+                document.querySelectorAll('.day-section').forEach(section => {
+                    const day = section.id.split('-')[1];
+                    updatedSchedule[day] = Array.from(section.querySelectorAll('.activity')).map(activity => {
+                        const contentText = activity.querySelector('.activity-content').innerText;
+                        // 假設格式為 Title - Time - Location，若無則依序填入
+                        const lines = contentText.split('\n');
+                        const mainLine = lines[0];
+                        const parts = mainLine.split(' - ');
+                        
+                        return {
+                            title: activity.querySelector('strong')?.textContent || parts[0] || '',
+                            time: parts[1] || '',
+                            location: parts[2] || '',
+                            tags: activity.querySelector('.activity-tags')?.textContent || ''
+                        };
+                    });
+                });
+
+                if (Object.keys(updatedSchedule).length === 0 || Object.values(updatedSchedule).every(arr => arr.length === 0)) {
+                    alert('沒有行程數據可儲存，請先添加或調整活動。');
+                    return;
+                }
+                
+                const payload = { 
+                    token, 
+                    schedule: updatedSchedule,
+                    days,
+                    active,
+                    trip_name: document.getElementById('trip-name-display').textContent.trim()
+                };
+
+                if (tripId) {
+                    payload.trip_id = tripId;
+                }
+
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || '發生未知錯誤') });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    window.isSaved = true;
+                    if (data.trip_id) {
+                        currentTripId = data.trip_id;
+                        const newUrl = `/trip/${days}/${active}/${data.trip_id}`;
+                        window.history.replaceState({path: newUrl}, '', newUrl);
+                        document.getElementById('edit-name-btn').disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(`發生錯誤：${error.message || '無法連線到伺服器'}`);
+                });
+            }
         });
 
-        // --- 全域函式 (不需要在 DOMContentLoaded 內) ---
-        let updatedSchedule = {}; 
-        function updateSchedule() {
-            updatedSchedule = {};
-            const daySections = document.querySelectorAll('.day-section');
-            daySections.forEach(section => {
-                const day = section.id.split('-')[1];
-                const activities = section.querySelectorAll('.activity');
-                updatedSchedule[day] = Array.from(activities).map(activity => {
-                    const contentText = activity.querySelector('.activity-content').textContent.trim();
-                    const parts = contentText.split(' - ');
-                    return {
-                        title: activity.querySelector('strong')?.textContent || '',
-                        time: parts[1] || '',
-                        location: parts[2] || '',
-                        tags: activity.querySelector('.activity-tags')?.textContent || ''
-                    };
-                });
-            });
-            console.log('更新後的行程順序：', updatedSchedule);
-        }
-
-        function saveTrip(endpoint, tripId = null) {
-            const token = "{{ token }}".trim();
-            const days = "{{ days }}";
-            const active = "{{ active }}";
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            let currentTripId = "{{ trip_id if trip_id is not none else '' }}";
-
-            if (!token) {
-                alert('請先登入以儲存行程。');
-                return;
-            }
-            updateSchedule();
-            if (Object.keys(updatedSchedule).length === 0 || Object.values(updatedSchedule).every(arr => arr.length === 0)) {
-                alert('沒有行程數據可儲存，請先添加或調整活動。');
-                return;
-            }
-            
-            const payload = { 
-                token, 
-                schedule: updatedSchedule,
-                days,
-                active,
-                trip_name: document.getElementById('trip-name-display').textContent.trim()
-            };
-
-            if (tripId) {
-                payload.trip_id = tripId;
-            }
-
-            fetch(endpoint, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message || '發生未知錯誤') });
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data.message);
-                isSaved = true;
-                if (data.trip_id) {
-                    currentTripId = data.trip_id;
-                    const newUrl = `/trip/${days}/${active}/${data.trip_id}`;
-                    window.history.replaceState({path: newUrl}, '', newUrl);
-                    document.getElementById('edit-name-btn').disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert(`發生錯誤：${error.message || '無法連線到伺服器'}`);
-            });
-        }
-
+        // --- 全域函式: 火車查詢 (保持不變) ---
         async function searchTrain(type) {
             const resultsDiv = document.getElementById('train-results');
             const resultsContent = document.getElementById('results-content');

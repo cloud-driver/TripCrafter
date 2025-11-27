@@ -61,88 +61,147 @@
             color: #ddd;
             margin-bottom: 1rem;
         }
-        .search-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-
-        .search-wrapper button {
-            /* 確保變數可用於按鈕 */
-            background-color: var(--thm-color-one);
-            color: #fff;
-        }
-
-        .search-dropdown {
-            position: absolute;
-            top: 100%;        /* 緊貼按鈕下邊 */
-            right: 0;         /* 右邊貼齊按鈕 */
-            min-width: 100%;  /* 寬度至少與按鈕一樣 */
-            background-color: var(--thm-color-one);
-            color: #fff;
-            border: none;
-            border-radius: 0.25rem 0.25rem 0.25rem 0.25rem; /* 底部兩角導圓 */
-            padding: 0.5rem;
-            transform-origin: top right;
-            transform: scaleY(0);
-            opacity: 0;
-            visibility: hidden;
-            transition:
-            transform 0.2s ease-out,
-            opacity   0.2s ease-out,
-            visibility 0s linear 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            z-index: 10;
-            display: flex !important;
-            flex-direction: row;
-            align-items: center;
-            gap: 0.5rem;
-            /* 整個下拉區塊設定一個最小寬度 */
-            min-width: 250px;  
-        }
-
-        .search-dropdown input {
-            flex: 1 1 auto;
-            min-width: 200px;    
-            width: auto !important;
-            margin: 0;           /* 清除上下 margin */
-            width: calc(100% - 3rem); /* 留出 Go 按鈕空間 */
-            padding: 0.25rem;
-            border: 1px solid #ddd;
-            border-radius: 0.25rem;
-            margin-right: 0.25rem;
-        }
-
-        /* 按鈕保持原本大小 */
-        .search-dropdown button {
-            flex: 0 0 auto;
-            margin: 0;
-        }
-
-        .search-wrapper:hover .search-dropdown {
-            visibility: visible;
-            transform: scaleY(1);
-            opacity: 1;
-            transition:
-            transform 0.2s ease-out,
-            opacity   0.2s ease-out,
-            visibility 0s;
-        }
-        #search-input-mobile {
-            background-color: #555; /* 將輸入框背景設為深灰色 */
-            color: #ffffff;         /* 將輸入的文字顏色設為白色 */
-            border: 1px solid #777;  /* 設定一個較亮的邊框顏色 */
-        }
-
-        #search-input-mobile::placeholder {
-            color: #cccccc;         /* 將提示文字(placeholder)的顏色設為淺灰色 */
-            opacity: 1;             /* 覆寫 Bootstrap 的預設透明度 */
-        }
+        
     </style>
 </head>
 
 <body>
     <!-- Header Start -->
     <header class="header can-sticky">
+        <style>
+            /* 桌面版與通用設定 */
+            :root {
+                --thm-color-one: #FF6600;
+                --thm-text-dark: #333333;
+                --thm-border-light: #eeeeee;
+            }
+            .search-wrapper {
+                position: relative;
+                display: inline-block;
+            }
+            .search-wrapper button {
+                background-color: var(--thm-color-one);
+                color: #fff;
+            }
+            .search-dropdown {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                min-width: 250px;
+                background-color: var(--thm-color-one);
+                color: #fff;
+                border: none;
+                border-radius: 0.25rem;
+                padding: 0.5rem;
+                transform-origin: top right;
+                transform: scaleY(0);
+                opacity: 0;
+                visibility: hidden;
+                transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                z-index: 10;
+                display: flex !important;
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .search-dropdown input {
+                flex: 1 1 auto;
+                min-width: 200px;    
+                width: calc(100% - 3rem);
+                margin: 0;
+                padding: 0.25rem;
+                border: 1px solid #ddd;
+                border-radius: 0.25rem;
+                margin-right: 0.25rem;
+            }
+            .search-dropdown button {
+                flex: 0 0 auto;
+                margin: 0;
+            }
+            .search-wrapper:hover .search-dropdown {
+                visibility: visible;
+                transform: scaleY(1);
+                opacity: 1;
+                transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
+            }
+
+            /* 手機版漢堡選單美化樣式 (Max-width: 991px) */
+            @media (max-width: 991px) {
+                /* Logo 靠左微調 */
+                .header .logo {
+                    margin-left: -45px;
+                }
+
+                /* 選單容器背景改為白色，而非黑色 */
+                .navigation {
+                    background-color: #ffffff !important; 
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                    padding-top: 20px;
+                }
+
+                /* 選單項目樣式 */
+                .navigation .main-menu > li {
+                    border-bottom: 1px solid var(--thm-border-light); /* 淺灰色分隔線 */
+                    margin: 0;
+                }
+
+                .navigation .main-menu > li > a {
+                    color: var(--thm-text-dark) !important; /* 深色文字 */
+                    font-weight: 500;
+                    padding: 15px 20px;
+                    display: block;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                }
+
+                /* Hover 效果：文字變橘色，且稍微右移 */
+                .navigation .main-menu > li > a:hover {
+                    color: var(--thm-color-one) !important;
+                    background-color: #fff5f0; /* 極淺橘色背景 */
+                    padding-left: 25px;
+                }
+
+                /* 手機版搜尋框美化 */
+                .search-mobile {
+                    padding: 15px 20px;
+                    background-color: #f9f9f9; /* 搜尋區塊淺灰底 */
+                    margin: 10px 0;
+                }
+
+                #search-input-mobile {
+                    background-color: #ffffff;
+                    border: 1px solid #ddd;
+                    border-radius: 50px 0 0 50px; /* 左圓角 */
+                    color: #333;
+                    padding-left: 20px;
+                    height: 45px;
+                }
+                
+                #search-input-mobile:focus {
+                    border-color: var(--thm-color-one);
+                    box-shadow: none;
+                }
+
+                #search-input-mobile::placeholder {
+                    color: #999;
+                }
+
+                /* 搜尋按鈕 */
+                .search-mobile .thm-btn {
+                    border-radius: 0 50px 50px 0 !important; /* 右圓角 */
+                    height: 45px;
+                    padding: 0 25px;
+                    margin-left: -1px !important; /* 接合輸入框 */
+                }
+                
+                /* 修正漢堡按鈕顏色 (若原本背景是深色，需確保按鈕在白色Header上可見) */
+                .hamburger_btn span {
+                    background-color: var(--thm-text-dark);
+                }
+            }
+        </style>
+
         <div class="container">
             <div class="header_inner">
                 <div class="logo">
@@ -163,47 +222,46 @@
                                 <a href="/contact">聯絡我們</a>
                             </li>
                             {% if session['token'] %}
-                            <li class="menu-item d-lg-none"> <a href="/account_management?token={{ session['token'] }}">
+                            <li class="menu-item d-lg-none"> 
+                                <a href="/account_management?token={{ session['token'] }}">
                                     <i class="fal fa-user-circle me-2"></i> 已登入
                                 </a>
                             </li>
-                            <li class="menu-item d-lg-none"> <a href="{{ url_for('my_trips') }}">
+                            <li class="menu-item d-lg-none"> 
+                                <a href="{{ url_for('my_trips') }}">
                                     <i class="fal fa-route me-2"></i> 我的行程
                                 </a>
                             </li>
                             {% else %}
-                            <li class="menu-item d-lg-none"> <a href="/login">
+                            <li class="menu-item d-lg-none"> 
+                                <a href="/login">
                                     <i class="fal fa-user-circle me-2"></i> 登入/註冊
                                 </a>
                             </li>
                             {% endif %}
-                            <li class="menu-item d-lg-none"> <div class="search-mobile d-flex p-2">
-                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" />
-                                    <button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button>
+                            <li class="menu-item d-lg-none"> 
+                                <div class="search-mobile d-flex">
+                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動..." onkeydown="if(event.key==='Enter') goSearchMobile()" />
+                                    <button class="thm-btn" onclick="goSearchMobile()">Go</button>
                                 </div>
                             </li>
                         </ul>
                     </nav>
                     <div class="header_actions">
-                        <ul class="d-none d-lg-flex"> <li>
-                                {% if session['token'] %}
+                        <ul class="d-none d-lg-flex"> 
                             <li>
+                                {% if session['token'] %}
                                 <a href="/account_management?token={{ session['token'] }}" class="login_btn me-2">
                                     <i class="fal fa-user-circle me-2"></i> 已登入
                                 </a>
-                            </li>
-                            <li>
                                 <a href="{{ url_for('my_trips') }}" class="login_btn">
                                     <i class="fal fa-route me-2"></i> 我的行程
                                 </a>
-                            </li>
-                            {% else %}
-                            <li>
+                                {% else %}
                                 <a href="/login" class="login_btn">
                                     <i class="fal fa-user-circle me-2"></i> 登入/註冊
                                 </a>
-                            </li>
-                            {% endif %}
+                                {% endif %}
                             </li>
                             <li>
                                 <div class="search-wrapper">
@@ -218,8 +276,7 @@
                             </li>
                         </ul>
                         <div class="hamburger">
-                            <div class="hamburger_btn"><span></span><span></span><span></span>
-                            </div>
+                            <div class="hamburger_btn"><span></span><span></span><span></span></div>
                         </div>
                     </div>
                 </div>
@@ -229,7 +286,7 @@
     <!-- Header End -->
 
     <!-- Banner Start -->
-    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;">
+    <div class="single_banner section-bg" style="background-image: url(https://static.wixstatic.com/media/85545b_a3276036a6ce48cfb1ca30ac935f6cdd~mv2.jpg/v1/fill/w_3958,h_2354,al_c,q_90/85545b_a3276036a6ce48cfb1ca30ac935f6cdd~mv2.webp); background-position: center;">
         <div class="relative text-center">
             <div class="container">
                 <div class="banner_text">
