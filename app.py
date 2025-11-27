@@ -30,31 +30,38 @@ from datetime import datetime
 import random
 from api_routes import api_bp
 from gevent.pywsgi import WSGIServer
+from werkzeug.utils import secure_filename
+
+# 引入 moviepy 與 PIL
+import threading
+from moviepy.editor import ImageClip, concatenate_videoclips, AudioFileClip
+from PIL import Image, ImageDraw, ImageFont
+import numpy as np
 
 COUNTY_MAP = {
     "Lienchiang": "連江縣",
-    "Taipei":    "臺北市",
-    "NewTaipei": "新北市",
-    "Taoyuan":   "桃園市",
-    "Taichung":  "臺中市",
-    "Tainan":    "臺南市",
-    "Kaohsiung": "高雄市",
-    "Keelung":   "基隆市",
-    "HsinchuCity":   "新竹市",
-    "Hsinchu": "新竹縣",
-    "Miaoli":    "苗栗縣",
-    "Changhua":  "彰化縣",
-    "Nantou":    "南投縣",
-    "Yunlin":    "雲林縣",
-    "ChiayiCity":    "嘉義市",
-    "Chiayi":"嘉義縣",
-    "Pingtung":  "屏東縣",
-    "Yilan":     "宜蘭縣",
-    "Hualien":   "花蓮縣",
-    "Taitung":   "臺東縣",
-    "Penghu":    "澎湖縣",
-    "Kinmen":    "金門縣",
-    "Matsu":     "連江縣"
+    "Taipei":     "臺北市",
+    "NewTaipei":  "新北市",
+    "Taoyuan":    "桃園市",
+    "Taichung":   "臺中市",
+    "Tainan":     "臺南市",
+    "Kaohsiung":  "高雄市",
+    "Keelung":    "基隆市",
+    "HsinchuCity":"新竹市",
+    "Hsinchu":    "新竹縣",
+    "Miaoli":     "苗栗縣",
+    "Changhua":   "彰化縣",
+    "Nantou":     "南投縣",
+    "Yunlin":     "雲林縣",
+    "ChiayiCity": "嘉義市",
+    "Chiayi":     "嘉義縣",
+    "Pingtung":   "屏東縣",
+    "Yilan":      "宜蘭縣",
+    "Hualien":    "花蓮縣",
+    "Taitung":    "臺東縣",
+    "Penghu":     "澎湖縣",
+    "Kinmen":     "金門縣",
+    "Matsu":      "連江縣"
 }
 
 if os.path.exists(".env"): load_dotenv()
@@ -70,23 +77,35 @@ app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESS
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 csrf = CSRFProtect(app)
 
-# 註冊 Blueprint
+UPLOAD_FOLDER = 'assets/uploads/memoirs'
+VIDEO_FOLDER = 'assets/videos'
+BGM_FOLDER = 'assets/bgm'
+FONT_PATH = 'assets/fonts/NotoSansTC-Bold.ttf' # 請確保有中文字型
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['VIDEO_FOLDER'] = VIDEO_FOLDER
+app.config['BGM_FOLDER'] = BGM_FOLDER
+
+os.makedirs(os.path.join(app.root_path, UPLOAD_FOLDER), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, VIDEO_FOLDER), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, BGM_FOLDER), exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 app.register_blueprint(api_bp)
 
-# 將整個 api_bp 從 CSRF 保護中豁免
 csrf.exempt(api_bp)
 
-# LINE 配置
 CLIENT_ID = int(os.getenv('LINE_LOGIN_CHANNEL_ID'))
 CLIENT_SECRET = str(os.getenv('LINE_LOGIN_CHANNEL_SECRET'))
 REDIRECT_URI = f"{str(os.getenv('URL'))}/callback/line"
 
-# Google 配置
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = f"{str(os.getenv('URL'))}/callback/google"
 
-# Google OAuth 2.0 授權終端點
 GOOGLE_AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -95,7 +114,6 @@ AES_KEY = os.getenv('TOKEN_AES_KEY', '')
 if len(AES_KEY.encode()) not in (16, 24, 32):
     raise RuntimeError("AES_KEY error")
 
-#打開活動.csv
 EVENTS = {}
 with open('datas/活動.csv', encoding='utf-8-sig') as f:
     reader = csv.DictReader(f)
@@ -107,24 +125,23 @@ ATTRACTIONS = {}
 with open('datas/景點.csv', encoding='utf-8-sig') as f:
     reader = csv.DictReader(f)
     for row in reader:
-        eid = row['縣市名稱']
+        eid = row['唯一識別碼']
         ATTRACTIONS[eid] = row
 
 HOTEL = {}
 with open('datas/景點.csv', encoding='utf-8-sig') as f:
     reader = csv.DictReader(f)
     for row in reader:
-        eid = row['縣市名稱']
+        eid = row['唯一識別碼']
         HOTEL[eid] = row
 
 RESTAURANT = {}
 with open('datas/餐飲.csv', encoding='utf-8-sig') as f:
     reader = csv.DictReader(f)
     for row in reader:
-        eid = row['縣市名稱']
+        eid = row['唯一識別碼']
         RESTAURANT[eid] = row
 
-# 載入所有車站資料 (新增：用於前端查找)
 ALL_STATIONS_DATA = {}
 try:
     with open('json/all_stations_data.json', encoding='utf-8') as f:
@@ -132,13 +149,7 @@ try:
 except Exception as e:
     save_log(f"Failed to load all_stations_data.json: {e}")
 
-# 根據城市名稱查找對應的資料
 def find(DATA, city_name):
-    """
-    根據城市名稱查找對應的資料。
-    如果找到的景點超過50個，則隨機選取50個。
-    回傳一個包含所有景點完整內容的純文字字串。
-    """
     found = {}
     for value in DATA.values():
         if value['縣市名稱'] == city_name:
@@ -160,30 +171,25 @@ def find(DATA, city_name):
     
     return "\n\n---\n\n".join(attraction_strings)
 
-#實作 pad / unpad
 BS = AES.block_size
 
-# 加密函式
 def encrypt_token(uid: str) -> str:
-    # 加入時間戳記（秒）
-    timestamp = str(int(time.time()))  # 獲取當前時間戳
-    data = f"{uid}:{timestamp}"  # 將 uid 和時間戳記組合
-    iv = secrets.token_bytes(BS)  # 隨機生成 IV
-    cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)  # 建立 AES 加密器
-    ct = cipher.encrypt(_pad(data.encode('utf-8'), BS))  # 加密並填充
-    return base64.urlsafe_b64encode(iv + ct).decode('utf-8')  # 返回加密後的 Token
+    timestamp = str(int(time.time()))
+    data = f"{uid}:{timestamp}"
+    iv = secrets.token_bytes(BS)
+    cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
+    ct = cipher.encrypt(_pad(data.encode('utf-8'), BS))
+    return base64.urlsafe_b64encode(iv + ct).decode('utf-8')
 
-# 解密函式
 def decrypt_token(token: str) -> tuple:
     if token:
         try:
-            data = base64.urlsafe_b64decode(token.encode('utf-8'))  # 解碼 Base64
-            iv, ct = data[:BS], data[BS:]  # 分離 IV 和密文
-            cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)  # 建立 AES 解密器
-            pt = _unpad(cipher.decrypt(ct), BS).decode('utf-8')  # 解密並去填充
-            uid, timestamp = pt.split(":")  # 分解 uid 和時間戳記
+            data = base64.urlsafe_b64decode(token.encode('utf-8'))
+            iv, ct = data[:BS], data[BS:]
+            cipher = AES.new(AES_KEY.encode(), AES.MODE_CBC, iv)
+            pt = _unpad(cipher.decrypt(ct), BS).decode('utf-8')
+            uid, timestamp = pt.split(":")
             
-            # 驗證時間戳記是否過期
             current_time = int(time.time())
             token_time = int(timestamp)
             if current_time - token_time > 3600:
@@ -196,23 +202,21 @@ def decrypt_token(token: str) -> tuple:
     else:
         return None
 
-# 初始化資料庫
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     
-    # 建立主表
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS schedules (
+        CREATE TABLE IF NOT EXISTS memoirs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             uid TEXT NOT NULL,
-            trip_id TEXT NOT NULL,
-            schedule TEXT NOT NULL,
+            image_path TEXT,
+            user_text TEXT,
+            ai_content TEXT,
             created_at TEXT NOT NULL
         )
     ''')
     
-    # 檢查並新增欄位，避免在已存在的資料庫上出錯
     try:
         cursor.execute("SELECT days FROM schedules LIMIT 1")
     except sqlite3.OperationalError:
@@ -223,16 +227,129 @@ def init_db():
     except sqlite3.OperationalError:
         cursor.execute("ALTER TABLE schedules ADD COLUMN active TEXT")
         
-    # 新增 trip_name 欄位
     try:
         cursor.execute("SELECT trip_name FROM schedules LIMIT 1")
     except sqlite3.OperationalError:
         cursor.execute("ALTER TABLE schedules ADD COLUMN trip_name TEXT")
 
+    try:
+        cursor.execute("SELECT layout_type FROM memoirs LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE memoirs ADD COLUMN layout_type TEXT DEFAULT '1'")
+
+    try:
+        cursor.execute("SELECT share_token FROM memoirs LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE memoirs ADD COLUMN share_token TEXT")
+
+    try:
+        cursor.execute("SELECT video_path FROM memoirs LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE memoirs ADD COLUMN video_path TEXT")
+
     conn.commit()
     conn.close()
 
 init_db()
+
+# === 背景生成影片與通知 ===
+def generate_video_task(memoir_id, uid, images_list, text_content, date_str):
+    try:
+        with app.app_context():
+            # 1. 準備 BGM
+            if not os.path.exists(app.config['BGM_FOLDER']):
+                save_log(f"BGM folder missing for {memoir_id}")
+                return
+            bgm_files = [f for f in os.listdir(app.config['BGM_FOLDER']) if f.endswith('.mp3')]
+            if not bgm_files:
+                save_log(f"No BGM files found for {memoir_id}")
+                return
+            selected_bgm = random.choice(bgm_files)
+            bgm_path = os.path.join(app.config['BGM_FOLDER'], selected_bgm)
+
+            # 2. 處理圖片與文字
+            clips = []
+            try:
+                font = ImageFont.truetype(FONT_PATH, 40)
+            except:
+                font = ImageFont.load_default()
+
+            for index, img_name in enumerate(images_list):
+                img_path = os.path.join(app.config['UPLOAD_FOLDER'], img_name)
+                pil_img = Image.open(img_path).convert("RGB")
+                
+                target_size = (1280, 720)
+                pil_img.thumbnail(target_size, Image.Resampling.LANCZOS)
+                
+                background = Image.new('RGB', target_size, (0, 0, 0))
+                offset = ((target_size[0] - pil_img.width) // 2, (target_size[1] - pil_img.height) // 2)
+                background.paste(pil_img, offset)
+                
+                draw = ImageDraw.Draw(background)
+                
+                if index == 0:
+                    display_text = f"旅行回憶 - {date_str}"
+                else:
+                    sentences = text_content.split('，')
+                    txt_idx = (index - 1) % len(sentences)
+                    display_text = sentences[txt_idx]
+                    if len(display_text) > 20: display_text = display_text[:20] + "..."
+
+                text_bbox = draw.textbbox((0, 0), display_text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
+                x = (target_size[0] - text_width) / 2
+                y = target_size[1] - text_height - 50 
+
+                draw.text((x+2, y+2), display_text, font=font, fill=(0, 0, 0))
+                draw.text((x, y), display_text, font=font, fill=(255, 255, 255))
+
+                img_array = np.array(background)
+                clip = ImageClip(img_array).set_duration(4).crossfadein(1)
+                clips.append(clip)
+
+            # 3. 合成影片
+            video = concatenate_videoclips(clips, method="compose")
+            audio = AudioFileClip(bgm_path)
+            if audio.duration > video.duration:
+                final_audio = audio.subclip(0, video.duration)
+            else:
+                final_audio = audio.loop(duration=video.duration)
+            
+            video = video.set_audio(final_audio).audio_fadeout(2)
+            
+            output_filename = f"memoir_{memoir_id}_{uuid.uuid4().hex[:8]}.mp4"
+            output_path = os.path.join(app.config['VIDEO_FOLDER'], output_filename)
+            
+            video.write_videofile(output_path, fps=24, codec='libx264', audio_codec='aac', preset='medium', threads=4)
+
+            # 4. 更新資料庫
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            cursor.execute("UPDATE memoirs SET video_path = ? WHERE id = ?", (output_filename, memoir_id))
+            conn.commit()
+            conn.close()
+            
+            # 5. 發送通知 (使用 send.py 的 get_user_data 讀取 JSON)
+            user_data = get_user_data(uid)
+            target_line_id = None
+            
+            if user_data:
+                # 優先嘗試讀取 line_account 中的 userId
+                line_acc = user_data.get('line_account')
+                if line_acc and isinstance(line_acc, dict):
+                    target_line_id = line_acc.get('userId')
+            
+            if target_line_id:
+                video_url = f"{str(os.getenv('URL'))}/memoir/{memoir_id}"
+                notify_msg = f"🎥 您的回憶錄影片已生成完畢！\n點擊觀看：{video_url}"
+                send_push_message(target_line_id, [{"type": "text", "text": notify_msg}])
+                save_log(f"Video notification sent to {target_line_id}")
+            else:
+                save_log(f"Video created but no LINE ID found for uid {uid} in users.json")
+
+    except Exception as e:
+        save_log(f"Background video generation failed: {e}")
 
 @app.context_processor
 def inject_csrf_token():
@@ -253,37 +370,39 @@ def home():
     return render_template('index.html')
 
 @csrf.exempt
+@app.route("/index")
+def index():
+    return redirect(url_for('home'))
+
+@csrf.exempt
 @app.route("/login")
 def login():
     token = session.get('token')
-    
-    # 建立車站代碼/名稱的映射，傳遞給前端
     code_to_name = {code: data['name'] for code, data in ALL_STATIONS_DATA.items()}
     name_to_code = {data['name']: code for code, data in ALL_STATIONS_DATA.items()}
     
-    if not token:
-        # 傳遞車站資料給模板
-        return render_template(
-            'login.html', 
-            code_to_name=code_to_name,
-            name_to_code=name_to_code
-        )
-    else:
-        # 登入成功時，檢查是否有 next_url 儲存，有的話導回，否則導向帳號管理頁
-        next_url = session.pop('next_url', None)
-        if next_url:
-            return redirect(next_url)
+    if token:
+        uid = decrypt_token(token)
+        if uid:
+            next_url = session.pop('next_url', None)
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(url_for('account_management', token=token))
         else:
-            return redirect(url_for('account_management', token=token))
+            session.pop('token', None)
+            session.pop('homeStationCode', None)
+            session.pop('homeStationName', None)
+            flash("登入已過期，請重新登入。", "error")
+    
+    return render_template('login.html', code_to_name=code_to_name, name_to_code=name_to_code)
     
 @csrf.exempt
 @app.route("/logout")
 def logout():
     token = session.pop('token', None)
-    # 登出時一併清除車站資訊
     session.pop('homeStationCode', None)
     session.pop('homeStationName', None)
-    # 清除 next_url
     session.pop('next_url', None)
     if token:
         try:
@@ -314,35 +433,30 @@ def delete_account():
         flash("刪除帳號失敗，請稍後再試。", "error")
         return redirect(url_for('account_management', token=token))
 
-# LINE 登入
 @csrf.exempt
 @limiter.limit("5 per minute")
 @app.route("/login/line")
 def login_line():
     uid = decrypt_token(request.args.get("token"))
     username = request.args.get("username")
-    # 從 request 取得車站資訊
     home_station_code = request.args.get("homeStationCode")
     home_station_name = request.args.get("homeStationName")
     state = secrets.token_hex(16)
 
-    # 根據參數判斷流程
     if username:
         session['flow'] = 'register'
         session['username'] = username
-        # 將車站資訊存入 session，以便 callback 流程使用
         session['home_station_code'] = home_station_code
         session['home_station_name'] = home_station_name
-        # 註冊流程，若無uid則產生新的
         if not uid: uid = str(uuid.uuid4())
     elif uid:
-        session['flow'] = 'link' # 從帳號管理頁來，有uid但無username
+        session['flow'] = 'link'
     else:
-        session['flow'] = 'login' # 從首頁登入來，無uid也無username
-        uid = str(uuid.uuid4()) # 為登入流程產生一個暫時的uid
+        session['flow'] = 'login' 
+        uid = str(uuid.uuid4())
 
     session['oauth_state_line'] = state
-    session['uid_id'] = uid  # 將 uid 存入 session
+    session['uid_id'] = uid
 
     login_url = (
         f"https://access.line.me/oauth2/v2.1/authorize"
@@ -351,6 +465,7 @@ def login_line():
         f"&redirect_uri={REDIRECT_URI}"
         f"&scope=openid%20profile%20email"
         f"&state={state}"
+        f"&bot_prompt=aggressive"
     )
     return redirect(login_url)
 
@@ -394,57 +509,47 @@ def callback_line():
         flow = session.pop("flow", None)
         uid = session.pop("uid_id", None)
         username = session.pop("username", None)
-        # 從 session 取出車站資訊
         home_station_code = session.pop("home_station_code", None)
         home_station_name = session.pop("home_station_name", None)
         
-        # 登入/註冊成功後要導向的網址
         next_url = session.pop('next_url', None)
 
         if flow in ['register', 'link']:
-            # 註冊 或 連結流程
             final_uid = update_user_profile(
                 uid=uid, login_type='line', user_id=user_id, 
                 display_name=display_name, email=email, username=username,
                 home_station_code=home_station_code, home_station_name=home_station_name
             )
             
-            # --- START: 註冊流程修改 ---
             if flow == 'register':
                 save_log(f"{user_id} (Line) registered with uid {final_uid}")
                 flash("註冊成功！", "success")
-                session['token'] = encrypt_token(final_uid) # 註冊成功後直接設定 token
+                session['token'] = encrypt_token(final_uid)
                 
-                # 註冊成功後，順便將車站資訊存入 session
                 if home_station_code and home_station_name:
                     session['homeStationCode'] = home_station_code
                     session['homeStationName'] = home_station_name
                 
-                # 導向邏輯
                 if next_url:
                     return redirect(next_url)
                 else:
                     return redirect(url_for('account_management', token=session['token']))
-            # --- END: 註冊流程修改 ---
             
-            else: # link
+            else:
                 save_log(f"Linked Line account {user_id} to uid {final_uid}")
                 flash("LINE 帳號連結成功！", "success")
                 return redirect(url_for('account_management', token=encrypt_token(final_uid)))
         
         elif flow == 'login':
-            # 登入流程
             found_user = find_user_by_identity(login_type='line', provider_id=user_id)
             if found_user:
                 save_log(f"{user_id} (Line) logged in with existing uid {found_user['uid']}")
                 flash("登入成功！", "success")
                 session['token'] = encrypt_token(found_user['uid'])
-                # 登入成功時，將使用者資料中的車站資訊寫入 session
                 if found_user.get("homeStationCode") and found_user.get("homeStationName"):
                     session['homeStationCode'] = found_user["homeStationCode"]
                     session['homeStationName'] = found_user["homeStationName"]
                 
-                # 導向邏輯
                 if next_url:
                     return redirect(next_url)
                 else:
@@ -469,16 +574,13 @@ def callback_line():
 def login_google():
     uid = decrypt_token(request.args.get("token"))
     username = request.args.get("username")
-    # 從 request 取得車站資訊
     home_station_code = request.args.get("homeStationCode")
     home_station_name = request.args.get("homeStationName")
     state = secrets.token_hex(16)
 
-    # 根據參數判斷流程
     if username:
         session['flow'] = 'register'
         session['username'] = username
-        # 將車站資訊存入 session，以便 callback 流程使用
         session['home_station_code'] = home_station_code
         session['home_station_name'] = home_station_name
         if not uid: uid = str(uuid.uuid4())
@@ -544,57 +646,47 @@ def callback_google():
         flow = session.pop("flow", None)
         uid = session.pop("uid_id", None)
         username = session.pop("username", None)
-        # 從 session 取出車站資訊
         home_station_code = session.pop("home_station_code", None)
         home_station_name = session.pop("home_station_name", None)
         
-        # 登入/註冊成功後要導向的網址
         next_url = session.pop('next_url', None)
 
         if flow in ['register', 'link']:
-            # 註冊 或 連結流程
             final_uid = update_user_profile(
                 uid=uid, login_type='google', user_id=user_id, 
                 display_name=display_name, email=email, username=username,
                 home_station_code=home_station_code, home_station_name=home_station_name
             )
             
-            # --- START: 註冊流程修改 ---
             if flow == 'register':
                 save_log(f"{user_id} (Google) registered with uid {final_uid}")
                 flash("註冊成功！", "success")
-                session['token'] = encrypt_token(final_uid) # 註冊成功後直接設定 token
+                session['token'] = encrypt_token(final_uid)
 
-                # 註冊成功後，順便將車站資訊存入 session
                 if home_station_code and home_station_name:
                     session['homeStationCode'] = home_station_code
                     session['homeStationName'] = home_station_name
                 
-                # 導向邏輯
                 if next_url:
                     return redirect(next_url)
                 else:
                     return redirect(url_for('account_management', token=session['token']))
-            # --- END: 註冊流程修改 ---
 
-            else: # link
+            else:
                 save_log(f"Linked Google account {email} to uid {final_uid}")
                 flash("Google 帳號連結成功！", "success")
                 return redirect(url_for('account_management', token=encrypt_token(final_uid)))
 
         elif flow == 'login':
-            # 登入流程
             found_user = find_user_by_identity(login_type='google', email=email)
             if found_user:
                 save_log(f"{user_id} (Google) logged in with existing uid {found_user['uid']}")
                 flash("登入成功！", "success")
                 session['token'] = encrypt_token(found_user['uid'])
-                # 登入成功時，將使用者資料中的車站資訊寫入 session
                 if found_user.get("homeStationCode") and found_user.get("homeStationName"):
                     session['homeStationCode'] = found_user["homeStationCode"]
                     session['homeStationName'] = found_user["homeStationName"]
                 
-                # 導向邏輯
                 if next_url:
                     return redirect(next_url)
                 else:
@@ -613,7 +705,6 @@ def callback_google():
         flash(f"ID Token驗證失敗：{e}", "error")
         return redirect(url_for('login'))
 
-# ... (其餘的 app.py 程式碼維持不變) ...
 @csrf.exempt
 @app.route('/favicon.ico')
 def favicon():
@@ -675,37 +766,29 @@ def internal_error(error):
 @csrf.exempt
 @app.route("/account_management", methods=["GET", "POST"])
 def account_management():
-    # 先從 query 讀 token
     token = request.args.get("token")
     if not token:
         flash("缺少 token，請重新登入。", "error")
         return redirect(url_for('login'))
     try:
         uid = decrypt_token(token)
-        # === 新增：檢查 uid 是否有效 ===
         if not uid:
              flash("無效的 token，請重新登入。", "error")
              return redirect(url_for('login'))
-        # ===============================
     except Exception:
         flash("無效的 token，請重新登入。", "error")
         return redirect(url_for('login'))
 
-    # GET：顯示帳號資訊 (這裡開始檢查使用者是否存在)
     user_data = get_user_data(uid)
     
-    # === 實作要求：如果使用者資料不存在，則視為帳號遺失/被刪除 ===
     if not user_data:
         flash("查無此帳號，請重新登入。", "error")
-        # 清除 session token 以確保強制登出
         session.pop('token', None) 
         session.pop('homeStationCode', None)
         session.pop('homeStationName', None)
         session.clear()
         return redirect(url_for('login'))
-    # ===============================================================
     
-    # POST：更新 username（和原本 uid 相同）
     if request.method == "POST":
         new_name = request.form.get("username", "").strip()
         if not new_name:
@@ -713,10 +796,8 @@ def account_management():
         else:
             update_user_profile(uid=uid, username=new_name)
             flash("使用者名稱已更新。", "success")
-        # 更新完後仍留在同一頁，token 不變
         return redirect(url_for('account_management', token=token))
 
-    # GET：顯示帳號資訊
     return render_template('account_management.html',
                            user_data=user_data,
                            token=token)
@@ -761,14 +842,12 @@ def update_home_station_route():
     if not new_station_name:
         flash('更新失敗：車站名稱不能為空', 'error')
     else:
-        # 更新使用者資料中的常用車站
         update_user_profile(
             uid=uid, 
             home_station_name=new_station_name, 
             home_station_code=new_station_code
         )
         
-        # 如果使用者已登入，同時更新 session 中的車站資訊
         if session.get('token') == token:
             session['homeStationCode'] = new_station_code
             session['homeStationName'] = new_station_name
@@ -781,7 +860,6 @@ def update_home_station_route():
 @csrf.exempt
 @app.route("/active/<county_en>")
 def active(county_en):
-    # 1. 參數合法性檢查（與您原本相同）
     if county_en != 'all':
         county_zh = COUNTY_MAP.get(county_en)
         if not county_zh:
@@ -792,7 +870,6 @@ def active(county_en):
     else:
         county_zh = None
 
-    # 2. 讀 CSV，蒐集所有符合縣市／all 的 events
     events = []
     with open("datas/活動.csv", newline="", encoding="utf-8-sig") as fp:
         reader = csv.DictReader(fp)
@@ -800,7 +877,6 @@ def active(county_en):
             if county_en!='all' and row["縣市名稱"]!=county_zh:
                 continue
 
-            # 清洗描述、組地址…（沿用您原本的邏輯）
             raw_desc = row.get("文字描述","").strip()
             m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', raw_desc, flags=re.S)
             desc = m.group(1).strip() if m else raw_desc
@@ -820,7 +896,6 @@ def active(county_en):
               "id":      row.get("唯一識別碼","").strip()
             })
 
-    # 3. all 模式：依 order_map 排序
     if county_en=='all':
         ordered = list(COUNTY_MAP.values())
         order_map = {c:i for i,c in enumerate(ordered)}
@@ -829,7 +904,6 @@ def active(county_en):
     else:
         display_county = county_zh
 
-    # 4. 讀取分頁參數
     try:
         per_page = int(request.args.get("per_page", 10))
     except ValueError:
@@ -843,11 +917,9 @@ def active(county_en):
     total_pages = math.ceil(total / per_page) or 1
     page = max(1, min(page, total_pages))
 
-    # 5. 切片分頁
     start = (page - 1) * per_page
     events_page = events[start : start + per_page]
 
-    # 6. render
     return render_template("active.html",
         county=display_county,
         events=events_page,
@@ -861,7 +933,6 @@ def active(county_en):
 @csrf.exempt
 @app.route("/search/<keyword>")
 def search(keyword):
-    # --- 1. 解析分頁參數 ---
     try:
         per_page = int(request.args.get("per_page", 10))
     except ValueError:
@@ -872,28 +943,23 @@ def search(keyword):
     except ValueError:
         page = 1
 
-    # --- 2. 關鍵字分詞（全轉小寫） ---
     words = [w.strip().lower() for w in keyword.split() if w.strip()]
 
-    # --- 3. 讀 CSV 並過濾 ---
     matched = []
     with open("datas/活動.csv", encoding="utf-8-sig", newline="") as fp:
         reader = csv.DictReader(fp)
         for row in reader:
-            # 先整理描述
             raw = row.get("文字描述", "").strip()
             m = re.match(r'(?i)^\s*<p>(.*)</p>\s*$', raw, flags=re.S)
             desc = m.group(1).strip() if m else raw
             desc = re.sub(r'<[^>]+>', '', desc)
             desc = html.unescape(desc).strip()
 
-            # 組地址
             addr_parts = [row.get("行政區","").strip(), row.get("街道名稱","").strip()]
             address = " ".join(p for p in addr_parts if p)
             if not address:
                 address = row.get("資料提供單位","").strip()
 
-            # 建立單筆 event
             event = {
                 "name":    row.get("資料名稱","").strip(),
                 "desc":    desc,
@@ -903,20 +969,16 @@ def search(keyword):
                 "id":      row.get("唯一識別碼","").strip()
             }
 
-            # 做關鍵字全包含檢查
             text = " ".join([event["name"], event["desc"], event["address"]]).lower()
             if all(w in text for w in words):
                 matched.append(event)
 
-    # --- 4. 分頁計算 ---
     total = len(matched)
     total_pages = math.ceil(total / per_page) or 1
     page = max(1, min(page, total_pages))
     start = (page - 1) * per_page
     events_page = matched[start : start + per_page]
 
-    # --- 5. 回傳 render_template ---
-    # 這裡我們用 active.html，並把 county 欄位傳成「搜尋『keyword'』」
     return render_template(
         "active.html",
         county=f"{'、'.join(list(keyword.split()))}相關",
@@ -984,7 +1046,6 @@ def trip(days, active, trip_id):
             flash("找不到指定的行程，或您沒有權限存取。", "error")
             return redirect(url_for('my_trips'))
     
-    # 檢查是否需要重排行程
     if request.args.get('regenerate') == 'true' or not ai_response:
         def package_data(event):
             return f"##{event['唯一識別碼']}:{event['資料名稱']}({event['縣市名稱']}{event['行政區(鄉鎮區)名稱']}) \n 景點資料：\n{find(ATTRACTIONS, event['縣市名稱'])}\n\n 餐廳資料：\n{find(RESTAURANT, event['縣市名稱'])}\n\n 住宿資料：\n{find(HOTEL, event['縣市名稱'])}\n\n 活動資料：\n名稱: {event['資料名稱']}\n地點: {event['行政區(鄉鎮區)名稱']} {event['街道名稱']}\n描述: {event['文字描述']}\n聯絡方式: {event['聯絡電話']}#{event['分機']}\n"
@@ -996,7 +1057,7 @@ def trip(days, active, trip_id):
         
         raw_ai_response = ask_ai(trip_data)
 
-        print("Raw AI Response:", raw_ai_response)  # 除錯用
+        print("Raw AI Response:", raw_ai_response)
 
         def fix_json_format_with_markers(json_string):
             if json_string.startswith("```json"):
@@ -1014,7 +1075,6 @@ def trip(days, active, trip_id):
             flash("AI 行程規劃失敗或回傳格式錯誤，請重試。", "error")
             ai_response = {}
 
-    # 清除舊的 trip_id，因為這是新行程
     if request.args.get('regenerate') == 'true':
         session.pop('current_trip_id', None)
 
@@ -1055,10 +1115,8 @@ def my_trips():
 
     trips = []
     for row in trips_data:
-        # 如果 trip_name 存在且不為空，則使用它
         if row['trip_name']:
             trip_name = row['trip_name']
-        # 否則，從 schedule 生成預設名稱
         else:
             schedule_data = json.loads(row['schedule'])
             first_day_activities = schedule_data.get('1', [])
@@ -1157,7 +1215,6 @@ def rename_trip():
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        # 檢查行程是否存在且屬於該使用者
         cursor.execute("SELECT id FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
         if not cursor.fetchone():
             conn.close()
@@ -1187,7 +1244,6 @@ def delete_trip():
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        # 檢查行程是否存在且屬於該使用者
         cursor.execute("SELECT id FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
         if not cursor.fetchone():
             conn.close()
@@ -1200,11 +1256,315 @@ def delete_trip():
     except Exception as e:
         return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
     
+@csrf.exempt
+@app.route("/memoir/create", methods=["GET", "POST"])
+def create_memoir():
+    token = session.get('token')
+    if not token:
+        flash("請先登入以製作回憶錄。", "error")
+        return redirect(url_for('login'))
+    
+    uid = decrypt_token(token)
+    if not uid:
+        return redirect(url_for('login'))
 
+    if request.method == "POST":
+        user_text = request.form.get("user_text")
+        layout_type = request.form.get("layout_type", "1")
+        files = request.files.getlist("photos")
+        
+        saved_filenames = []
+        if files:
+            for file in files:
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(f"{uuid.uuid4()}_{file.filename}")
+                    file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+                    saved_filenames.append(filename)
+        
+        image_path_json = json.dumps(saved_filenames)
+        
+        ai_article = ask_ai(user_text, trip_or_not="memoir")
+        
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO memoirs (uid, image_path, user_text, ai_content, created_at, layout_type) VALUES (?, ?, ?, ?, ?, ?)",
+            (uid, image_path_json, user_text, ai_article, datetime.now().isoformat(), layout_type)
+        )
+        conn.commit()
+        memoir_id = cursor.lastrowid
+        conn.close()
+        
+        return redirect(url_for('view_memoir', memoir_id=memoir_id))
+
+    return render_template("create_memoir.html")
+
+@csrf.exempt
+@app.route("/memoir/edit/<int:memoir_id>", methods=["GET", "POST"])
+def edit_memoir(memoir_id):
+    token = session.get('token')
+    if not token:
+        flash("請先登入。", "error")
+        return redirect(url_for('login'))
+        
+    uid = decrypt_token(token)
+    if not uid:
+        return redirect(url_for('login'))
+
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM memoirs WHERE id = ? AND uid = ?", (memoir_id, uid))
+    row = cursor.fetchone()
+    
+    if not row:
+        conn.close()
+        flash("找不到該回憶錄或無權限編輯。", "error")
+        return redirect(url_for('my_memoirs'))
+    
+    memoir = dict(row)
+
+    if request.method == "POST":
+        action = request.form.get("action")
+        new_layout_type = request.form.get("layout_type")
+
+        if action == "regenerate":
+            new_user_text = request.form.get("user_text")
+            ai_article = ask_ai(new_user_text, trip_or_not="memoir")
+            
+            cursor.execute(
+                "UPDATE memoirs SET user_text = ?, ai_content = ?, layout_type = ? WHERE id = ?",
+                (new_user_text, ai_article, new_layout_type, memoir_id)
+            )
+            flash("文章已根據新的關鍵字重新生成！", "success")
+
+        elif action == "save_manual":
+            manual_content = request.form.get("content_text")
+            cursor.execute(
+                "UPDATE memoirs SET ai_content = ?, layout_type = ? WHERE id = ?",
+                (manual_content, new_layout_type, memoir_id)
+            )
+            flash("文章修改已儲存！", "success")
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for('view_memoir', memoir_id=memoir_id))
+
+    conn.close()
+    return render_template("edit_memoir.html", memoir=memoir)
+
+@csrf.exempt
+@app.route("/memoir/share/create/<int:memoir_id>", methods=["POST"])
+def create_share_link(memoir_id):
+    token = session.get('token')
+    if not token:
+        return jsonify({"error": "請先登入"}), 401
+    
+    uid = decrypt_token(token)
+    if not uid:
+        return jsonify({"error": "無效的憑證"}), 401
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT share_token FROM memoirs WHERE id = ? AND uid = ?", (memoir_id, uid))
+    row = cursor.fetchone()
+    
+    if not row:
+        conn.close()
+        return jsonify({"error": "找不到回憶錄或無權限"}), 404
+
+    share_token = row[0]
+    if not share_token:
+        share_token = uuid.uuid4().hex
+        cursor.execute("UPDATE memoirs SET share_token = ? WHERE id = ?", (share_token, memoir_id))
+        conn.commit()
+    
+    conn.close()
+    
+    share_url = url_for('view_shared_memoir', token=share_token, _external=True)
+    return jsonify({"share_url": share_url}), 200
+
+@csrf.exempt
+@app.route("/share/<token>")
+def view_shared_memoir(token):
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM memoirs WHERE share_token = ?", (token,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        return render_template('404.html'), 404
+    
+    memoir = dict(row)
+    try:
+        images = json.loads(memoir['image_path'])
+        if not isinstance(images, list):
+            images = [memoir['image_path']] if memoir['image_path'] else []
+    except:
+        images = [memoir['image_path']] if memoir['image_path'] else []
+        
+    memoir['images_list'] = images
+    if not memoir.get('layout_type'):
+        memoir['layout_type'] = '1'
+
+    return render_template("view_memoir.html", memoir=memoir, is_public=True)
+
+@csrf.exempt
+@app.route("/memoir/<int:memoir_id>")
+def view_memoir(memoir_id):
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM memoirs WHERE id = ?", (memoir_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        abort(404)
+    
+    memoir = dict(row)
+    
+    try:
+        images = json.loads(memoir['image_path'])
+        if not isinstance(images, list):
+            images = [memoir['image_path']] if memoir['image_path'] else []
+    except:
+        images = [memoir['image_path']] if memoir['image_path'] else []
+        
+    memoir['images_list'] = images
+    
+    if not memoir.get('layout_type'):
+        memoir['layout_type'] = '1'
+    
+    is_owner = False
+    token = session.get('token')
+    if token:
+        uid = decrypt_token(token)
+        if uid and uid == memoir['uid']:
+            is_owner = True
+        
+    return render_template("view_memoir.html", memoir=memoir, is_owner=is_owner)
+
+@csrf.exempt
+@app.route("/my_memoirs")
+def my_memoirs():
+    token = session.get('token')
+    if not token: return redirect(url_for('login'))
+    uid = decrypt_token(token)
+    
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM memoirs WHERE uid = ? ORDER BY created_at DESC", (uid,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    memoirs = []
+    for row in rows:
+        m = dict(row)
+        try:
+            images = json.loads(m['image_path'])
+            if isinstance(images, list) and len(images) > 0:
+                m['cover_image'] = images[0]
+            else:
+                m['cover_image'] = m['image_path']
+        except:
+            m['cover_image'] = m['image_path']
+            
+        memoirs.append(m)
+    
+    return render_template("my_memoirs.html", memoirs=memoirs)
+
+@csrf.exempt
+@app.route("/memoir/delete/<int:memoir_id>", methods=["POST"])
+def delete_memoir(memoir_id):
+    token = session.get('token')
+    if not token:
+        flash("請先登入。", "error")
+        return redirect(url_for('login'))
+        
+    uid = decrypt_token(token)
+    if not uid:
+        return redirect(url_for('login'))
+
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM memoirs WHERE id = ? AND uid = ?", (memoir_id, uid))
+    memoir = cursor.fetchone()
+    
+    if not memoir:
+        conn.close()
+        flash("找不到該回憶錄或無權限刪除。", "error")
+        return redirect(url_for('my_memoirs'))
+    
+    cursor.execute("DELETE FROM memoirs WHERE id = ?", (memoir_id,))
+    conn.commit()
+    conn.close()
+    
+    flash("回憶錄已刪除。", "success")
+    return redirect(url_for('my_memoirs'))
+
+# === 修改：原本的路由改為觸發背景任務 ===
+@csrf.exempt
+@app.route("/memoir/video/create/<int:memoir_id>", methods=["POST"])
+def create_memoir_video(memoir_id):
+    token = session.get('token')
+    if not token: return jsonify({"error": "請先登入"}), 401
+    
+    uid = decrypt_token(token)
+    if not uid: return jsonify({"error": "無效憑證"}), 401
+
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM memoirs WHERE id = ? AND uid = ?", (memoir_id, uid))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        return jsonify({"error": "找不到回憶錄"}), 404
+    
+    memoir = dict(row)
+    
+    # 如果影片已經存在，直接回傳
+    if memoir.get('video_path'):
+        return jsonify({"video_url": f"/assets/videos/{memoir['video_path']}", "status": "completed"}), 200
+
+    try:
+        images_list = json.loads(memoir['image_path'])
+    except:
+        return jsonify({"error": "沒有圖片"}), 400
+
+    if not images_list:
+        return jsonify({"error": "圖片列表為空"}), 400
+
+    # 啟動背景執行緒
+    thread = threading.Thread(target=generate_video_task, args=(
+        memoir_id, 
+        uid, 
+        images_list, 
+        memoir.get('user_text', ''), 
+        memoir.get('created_at', '')[:10]
+    ))
+    thread.daemon = True 
+    thread.start()
+
+    # 立即回應給前端
+    return jsonify({
+        "message": "影片生成請求已接收！系統將在背景製作，完成後會透過 LINE 通知您。",
+        "status": "processing"
+    }), 202
+    
 with app.app_context():
     links = []
     for rule in app.url_map.iter_rules():
-        # 過濾掉靜態文件路由和一些內建路由
         if "static" not in rule.endpoint:
             links.append(f"Endpoint: {rule.endpoint}, Methods: {','.join(rule.methods)}, URL: {rule}")
     for link in sorted(links):
@@ -1213,9 +1573,8 @@ with app.app_context():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     print(f"Starting gevent WSGIServer on 0.0.0.0:{port}...")
+    print(f"Access the app at http://localhost:{port}/")
     
-    # 建立 WSGI 伺服器並監聽指定的 host 和 port
     http_server = WSGIServer(('0.0.0.0', port), app)
     
-    # 啟動伺服器
     http_server.serve_forever()

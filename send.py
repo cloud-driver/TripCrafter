@@ -43,52 +43,60 @@ def save_log(message):
 
 def ask_ai(data, trip_or_not="trip"):
     """
-    使用 Google Gemini 模型生成行程規劃。
+    使用 Google Gemini 模型生成行程規劃或回憶錄。
     """
     if trip_or_not == "notrip":
         prompt = data
         
     elif trip_or_not == "trip":   
-        # 定義非常完整的 Prompt
         prompt = f"""
-        你是一個專業的行程規劃師，負責根據輸入的活動資料和天數來設計行程。
-        請根據以下的活動資料，規劃出一個清晰、有條理的行程，並以以下格式回答：
+        你是一個專業且嚴謹的台灣旅遊行程規劃師。你的任務是根據輸入資料中的【指定天數】和【可用資料庫】來規劃行程。
 
-        ### 回答格式(幫我用成json)：
-        請根據行程資料生成 JSON 格式的行程表，格式如下：
+        ### 核心規則 (違反將導致系統錯誤)：
+        1. **嚴格遵守天數**：輸入資料的第一行會標註天數（例如 "# 1 Days"）。你產生的 JSON **必須**只包含該天數的鍵值（例如只包含 "1"）。絕對**不可以**自己增加額外的天數。
+        2. **禁止幻覺**：你安排的所有景點、餐廳、住宿，**必須**完全來自下方的【可用資料庫】。絕對不可以自己編造地點，也不可以使用資料庫以外的知名地點。
+        3. **資料引用**：在行程中提及地點時，請使用資料庫中的完整名稱。
+        4. **若資料不足**：不要硬塞不存在的店。
+        5. **JSON 格式**：必須輸出合法的 JSON 字串，不要包含 Markdown (```json) 標記。
+        6. **使用繁體中文**。
+
+        ### 回答格式範例 (JSON)：
         {{
             "1": [
                 {{
-                    "title": "活動名稱",
-                    "time": "活動時間",
-                    "location": "活動地點(詳細地址)",
-                    "tags": "活動標籤"
-                }}          
-            ],
-            "2": [
-                {{
-                    "title": "第二天活動名稱",
-                    "time": "第二天活動時間",
-                    "location": "第二天活動地點(詳細地址)",
-                    "tags": "第二天活動標籤"
+                    "title": "活動或第一個行程的名稱 (必須來自資料庫)",
+                    "time": "HH:MM - HH:MM",
+                    "location": "完整地址 (來自資料庫)",
+                    "tags": "標籤 (如: 景點, 美食)"
                 }}
+                // ... 更多活動
             ]
-            ...
+            // 注意：只有在要求 2 天以上時，才會有 "2" 這個鍵
         }}
-
-        請確保輸出的 JSON 格式正確，並且活動按照天數分組。
         
         ### 輸入資料：
         {data}
 
-        ### 注意事項：
-        1. 如果輸入的活動資料不足以填滿所有天數，請合理分配活動並在行程中加入適合的休息時間。
-        2. 每一天的行程最多包含 3 個活動 + 1 個住住，活動之間請合理安排時間。
-        3. 如果活動有重疊，請根據地點和時間進行優化分配，避免衝突。
-        4. 請確保行程既充實又不過於緊湊，適合一般旅遊者。
-        5. 請用繁體中文回答。
-        6. 每一個行程成都要是從資料裡面找到的，不要寫XXX附近的飯店等不清楚的東西，一定也寫清楚飯店、景點、餐飲的名稱
-        7. 請嚴格依照行程天數來排行程！！！
+        ### 規劃要求：
+        1. 每天最多 3 個主要活動 + 1 個住宿 + 1 個午餐 + 1 個晚餐。
+        2. **時間先後要合理優先**
+        3. 路線要順暢。
+        """
+    elif trip_or_not == "memoir":
+        # 新增回憶錄功能的 Prompt
+        prompt = f"""
+        你是一個感性的旅遊作家。使用者會提供一段他在旅途中的簡短想法或關鍵字。
+        請你根據這些內容，擴寫成一篇溫暖、動人且文筆優美的「旅行回憶錄」。
+        
+        ### 使用者提供的內容：
+        {data}
+
+        ### 寫作要求：
+        1. 文章標題要吸引人。
+        2. 使用繁體中文。
+        3. 字數約 300-500 字。
+        4. 分段清晰，帶有情感共鳴。
+        5. 回傳格式請使用 HTML (包含 <h3>標題</h3> 和 <p>內文</p>)，不要包含 ```html 標記。
         """
     else:
         return "抱歉，我現在無法回答問題。"
@@ -97,17 +105,26 @@ def ask_ai(data, trip_or_not="trip"):
         # 呼叫 Gemini API
         model = genai.GenerativeModel('gemini-2.5-flash-lite')
         response = model.generate_content(prompt)
-        save_log(f"Google AI response: {response.text}")
-        return response.text
+        text_response = response.text
+        
+        # 簡單的清理，確保 JSON 解析順利 (針對 trip 模式)
+        if trip_or_not == "trip":
+            if text_response.startswith("```json"):
+                text_response = text_response[7:]
+            if text_response.endswith("```"):
+                text_response = text_response[:-3]
+            text_response = text_response.strip()
+
+        save_log(f"Google AI response ({trip_or_not}): {text_response}")
+        return text_response
     except Exception as e:
         save_log(f"Error calling Google AI: {e}")
-        return "抱歉，我現在無法回答問題。"
+        return "抱歉，AI 目前忙碌中，請稍後再試。"
 
 def replay_msg(user_message):
     """處理使用者訊息並回傳答覆"""
-    # 在這裡你可以加入更多判斷邏輯，例如關鍵字回覆
-    # 現在預設是將所有訊息都交給 AI 處理
-    reply = ask_ai(user_message)
+    # === 修正：這裡必須指定 'notrip'，否則一般聊天會被當成行程規劃 ===
+    reply = ask_ai(user_message, trip_or_not="notrip")
     return reply
 
 def send_push_message(user_id, messages):
@@ -122,23 +139,27 @@ def send_push_message(user_id, messages):
         "to": user_id,
         "messages": messages
     }
-    save_log(f"Have allready send {messages} to {user_id}")
+    # 修正 log 記錄方式，避免直接把物件轉字串造成的格式混亂
+    save_log(f"Pushing message to {user_id}")
     response = requests.post(url, headers=headers, json=payload)
     return response.status_code, response.text
 
 def send_grip_data(uid, grip_value):
     """根據uid 發送握力訊息給對應 userLineId"""
     user_data = get_user_data(uid)
-    if not user_data or "line_account" not in user_data:
+    if not user_data or "line_account" not in user_data or not user_data["line_account"]:
         error_msg = f"找不到對應的uid: {uid} 或未綁定 Line 帳戶"
-        save_log({"error": error_msg})
+        save_log(error_msg)
         return {"error": error_msg}, 404
 
-    target_user_id = user_data["line_account"]["userId"]
+    target_user_id = user_data["line_account"].get("userId")
+    if not target_user_id:
+        return {"error": "Line userId not found"}, 404
+
     message = {"type": "text", "text": f"今日握力紀錄：{grip_value} kg"}
     status, response_text = send_push_message(target_user_id, [message])
     log_msg = f"已發送給 {target_user_id}：{status}, {response_text}"
-    save_log({"message": log_msg})
+    save_log(log_msg)
     return {"message": log_msg}, 200
 
 def get_uid():
@@ -188,15 +209,7 @@ def save_all_users(users):
         json.dump(users, f, ensure_ascii=False, indent=4)
 
 def delete_user_profile(uid):
-    """
-    根據 UID 刪除使用者設定檔。
-
-    Args:
-        uid (str): 要刪除的使用者的唯一識別碼。
-
-    Returns:
-        bool: 如果成功刪除則返回 True，否則返回 False (例如找不到使用者)。
-    """
+    """根據 UID 刪除使用者設定檔"""
     users = get_all_users()
     user_found = any(user.get('uid') == uid for user in users)
     if not user_found:
@@ -207,7 +220,6 @@ def delete_user_profile(uid):
     save_log(f"Successfully deleted user profile for UID: {uid}")
     return True
 
-
 def update_user_profile(uid,
                         login_type=None,
                         user_id=None,
@@ -217,10 +229,7 @@ def update_user_profile(uid,
                         home_station_code=None,
                         home_station_name=None):
     """
-    更新或建立使用者資料，包含家車站資訊。
-    - Google 登入：若有 email，先試試用 email 找現有帳號來合併；
-      找不到就用傳入的 uid 建新帳號。
-    - LINE 登入：一律透過 uid 來建／更新 line_account。
+    更新或建立使用者資料
     """
     os.makedirs(os.path.dirname(USER_FILE), exist_ok=True)
     if not os.path.exists(USER_FILE):
@@ -253,20 +262,16 @@ def update_user_profile(uid,
 
         # 3. 更新或建立
         if target_user:
-            # 更新使用者名稱
             if username:
                 target_user["username"] = username
-            # 更新家車站資訊 (只有在提供時才更新)
             if home_station_code and home_station_name:
                 target_user["homeStationCode"] = home_station_code
                 target_user["homeStationName"] = home_station_name
-            # 更新對應的登入方式
             if login_type and user_id:
                 key = f"{login_type}_account"
                 target_user[key] = {
                     "userId": user_id,
                     "display_name": display_name,
-                    # LINE 這邊的 email 可能是 None → 不影響
                     "email": email
                 }
             save_log(f"Updated user {uid} via {login_type}")
@@ -282,17 +287,11 @@ def update_user_profile(uid,
             }
             if login_type and user_id:
                 key = f"{login_type}_account"
+                account_data = {"userId": user_id, "display_name": display_name}
                 if login_type == "google":
-                    new_user[key] = {
-                        "userId": user_id,
-                        "display_name": display_name,
-                        "email": email
-                    }
-                else:
-                    new_user[key] = {
-                        "userId": user_id,
-                        "display_name": display_name
-                    }
+                    account_data["email"] = email
+                new_user[key] = account_data
+            
             users.append(new_user)
             save_log(f"Created new user {uid} via {login_type}")
 
@@ -305,11 +304,7 @@ def update_user_profile(uid,
 
 def find_user_by_identity(login_type, provider_id=None, email=None):
     """
-    根據登入類型 (line/google) 和其唯一識別碼 (provider_id/email) 查找使用者。
-    - login_type: 'line' 或 'google'
-    - provider_id: LINE 的 user ID
-    - email: Google 的 email
-    返回：找到的使用者資料 (dict) 或 None
+    根據登入類型查找使用者
     """
     if not os.path.exists(USER_FILE):
         return None

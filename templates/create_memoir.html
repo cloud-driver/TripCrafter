@@ -1,0 +1,357 @@
+<!DOCTYPE HTML>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <base href="../" />
+    <title>製作旅行回憶錄 - 台灣活動資訊網</title>
+    <link href="assets/css/plugins/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/fonts/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/responsive.css" rel="stylesheet">
+    <style>
+        :root {
+            --thm-color-one: #FF6600;
+        }
+        .thm-btn {
+            background-color: #FF6600;
+            color: #fff;
+            border: none;
+        }
+        .thm-btn:hover {
+            background-color: #e65c00;
+            color: #fff;
+        }
+        .form-control:focus {
+            border-color: #FF6600;
+            box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
+        }
+        .upload-box {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f9f9f9;
+            transition: all 0.3s;
+        }
+        .upload-box:hover {
+            border-color: #FF6600;
+            background: #fff5f0;
+        }
+        .border-theme {
+            border-color: #FF6600 !important;
+            background: #fff5f0;
+        }
+        .layout-option {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+        .layout-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #FF6600;
+        }
+        .layout-input:checked + .layout-option {
+            border-color: #FF6600;
+            background-color: #fff5f0;
+        }
+        .layout-input:checked + .layout-option .check-icon {
+            opacity: 1;
+        }
+        .layout-option:hover .check-icon {
+            opacity: 1;
+        }
+        .check-icon {
+            color: #FF6600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #eee;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .search-wrapper { position: relative; display: inline-block; }
+        .search-wrapper button { background-color: var(--thm-color-one); color: #fff; }
+        .search-dropdown { position: absolute; top: 100%; right: 0; min-width: 100%; background-color: var(--thm-color-one); color: #fff; border: none; border-radius: 0.25rem; padding: 0.5rem; transform-origin: top right; transform: scaleY(0); opacity: 0; visibility: hidden; transition: all 0.2s ease-out; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; display: flex !important; flex-direction: row; align-items: center; gap: 0.5rem; min-width: 250px; }
+        .search-dropdown input { flex: 1 1 auto; width: calc(100% - 3rem); padding: 0.25rem; border: 1px solid #ddd; border-radius: 0.25rem; margin-right: 0.25rem; }
+        .search-dropdown button { flex: 0 0 auto; margin: 0; }
+        .search-wrapper:hover .search-dropdown { visibility: visible; transform: scaleY(1); opacity: 1; }
+        #search-input-mobile { background-color: #555; color: #ffffff; border: 1px solid #777; }
+        #search-input-mobile::placeholder { color: #cccccc; opacity: 1; }
+    </style>
+</head>
+
+<body>
+    <header class="header can-sticky">
+        <div class="container">
+            <div class="header_inner">
+                <div class="logo">
+                    <a href="{{ url_for('home')}}" class="d-flex h-100">
+                        <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                    </a>
+                </div>
+                <div class="nav_actions">
+                    <nav class="navigation">
+                        <ul class="main-menu">
+                            <li class="menu-item"><a href="{{ url_for('my_memoirs')}}">回憶錄</a></li>
+                            <li class="menu-item"><a href="/active/all">探索活動</a></li>
+                            <li class="menu-item"><a href="/contact">聯絡我們</a></li>
+                            {% if session['token'] %}
+                            <li class="menu-item d-lg-none"> <a href="/account_management?token={{ session['token'] }}"><i class="fal fa-user-circle me-2"></i> 已登入</a></li>
+                            <li class="menu-item d-lg-none"> <a href="{{ url_for('my_trips') }}"><i class="fal fa-route me-2"></i> 我的行程</a></li>
+                            {% else %}
+                            <li class="menu-item d-lg-none"> <a href="/login"><i class="fal fa-user-circle me-2"></i> 登入/註冊</a></li>
+                            {% endif %}
+                            <li class="menu-item d-lg-none"> <div class="search-mobile d-flex p-2"><input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" /><button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button></div></li>
+                        </ul>
+                    </nav>
+                    <div class="header_actions">
+                        <ul class="d-none d-lg-flex">
+                            {% if session['token'] %}
+                            <li><a href="/account_management?token={{ session['token'] }}" class="login_btn me-2"><i class="fal fa-user-circle me-2"></i> 已登入</a></li>
+                            <li><a href="{{ url_for('my_trips') }}" class="login_btn"><i class="fal fa-route me-2"></i> 我的行程</a></li>
+                            {% else %}
+                            <li><a href="/login" class="login_btn"><i class="fal fa-user-circle me-2"></i> 登入/註冊</a></li>
+                            {% endif %}
+                            <li>
+                                <div class="search-wrapper">
+                                    <button class="thm-btn btn-rounded"><i class="bi-search"></i> 搜尋活動</button>
+                                    <div class="search-dropdown">
+                                        <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" />
+                                        <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="hamburger"><div class="hamburger_btn"><span></span><span></span><span></span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;">
+        <div class="relative text-center">
+            <div class="container">
+                <div class="banner_text">
+                    <h2 class="title" style="color: white;">製作 <span class="fw-bold" style="color: #FFD700;">專屬回憶</span></h2>
+                    <p class="subtitle" style="color: white;">讓 AI 為您的旅行照片寫下動人篇章</p>
+                </div>
+            </div>
+        </div>
+        <span class="left_skew"></span><span class="right_skew"></span>
+    </div>
+
+    <section class="section section-padding">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <h3 class="title">開始<span>創作</span></h3>
+                <p class="text">上傳照片、選擇風格，剩下的交給我們</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div class="card shadow-lg border-0 rounded-3">
+                        <div class="card-body p-5">
+                            <form action="{{ url_for('create_memoir') }}" method="POST" enctype="multipart/form-data">
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold mb-2">上傳精彩照片 (可多選)</label>
+                                    
+                                    <div class="upload-box position-relative" id="upload-dropzone">
+                                        
+                                        <div id="initial-upload-text">
+                                            <i class="bi bi-images fs-1 text-muted"></i>
+                                            <p class="mb-0 mt-2 text-muted">點擊選擇或拖放多張圖片至此</p>
+                                        </div>
+
+                                        <input type="file" name="photos" id="image-upload-input" class="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0" accept="image/*" multiple required style="cursor: pointer;">
+                                    </div>
+
+                                    <div id="image-preview-container" class="row g-2 mt-3 px-2"></div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold mb-3">選擇排版風格</label>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="w-100">
+                                                <input type="radio" name="layout_type" value="1" class="d-none layout-input" checked>
+                                                <div class="layout-option p-3 text-center h-100">
+                                                    <i class="bi bi-check-circle-fill check-icon position-absolute top-0 end-0 m-2"></i>
+                                                    <i class="bi bi-layout-text-window-reverse fs-1 mb-2 text-secondary"></i>
+                                                    <h6 class="fw-bold">經典雜誌</h6>
+                                                    <small class="text-muted">圖文穿插，優雅大方</small>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="w-100">
+                                                <input type="radio" name="layout_type" value="2" class="d-none layout-input">
+                                                <div class="layout-option p-3 text-center h-100">
+                                                    <i class="bi bi-check-circle-fill check-icon position-absolute top-0 end-0 m-2"></i>
+                                                    <i class="bi bi-grid-3x3-gap fs-1 mb-2 text-secondary"></i>
+                                                    <h6 class="fw-bold">藝廊拼貼</h6>
+                                                    <small class="text-muted">瀑布流多圖展示</small>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="w-100">
+                                                <input type="radio" name="layout_type" value="3" class="d-none layout-input">
+                                                <div class="layout-option p-3 text-center h-100">
+                                                    <i class="bi bi-check-circle-fill check-icon position-absolute top-0 end-0 m-2"></i>
+                                                    <i class="bi bi-film fs-1 mb-2 text-secondary"></i>
+                                                    <h6 class="fw-bold">電影寬幅</h6>
+                                                    <small class="text-muted">沉浸式大圖輪播</small>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold mb-2">心情與關鍵字</label>
+                                    <textarea name="user_text" class="form-control bg-light border-0" rows="6" placeholder="例如：今天去了日月潭，天氣很好，湖水很藍，心情很放鬆..." style="padding: 15px;" required></textarea>
+                                </div>
+
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="thm-btn btn-rounded btn-lg w-100 py-3 fw-bold">
+                                        <i class="fas fa-magic me-2"></i> 讓 AI 幫我寫回憶錄
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('my_memoirs') }}" class="text-muted text-decoration-none">取消並返回列表</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Start -->
+    <footer class="footer section-padding section-bg" style="background-image: url(assets/images/bg/footer.jpg);">
+        <div class="container">
+            <div class="row">
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <div class="ft_about">
+                            <div class="ft_logo">
+                                <img src="assets/images/logo_two.png" alt="logo" class="image-fit-contain">
+                            </div>
+                            <p>分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 <br>#活動瘋台灣</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">網站導覽</h5>
+                        <ul class="ft_menu">
+                            <li><a href="index">首頁</a></li>
+                            <li><a href="active/all">探索活動</a></li>
+                            <li><a href="my_memoirs">回憶錄</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">聯絡資訊</h5>
+                        <p>有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
+                        <ul class="ft_contact ft_menu">
+                            <li><a href="mailto:tripcrafter.cs@gmail.com"><i class="fas fa-envelope"></i> tripcrafter.cs@gmail.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+    <div class="thm-bg-color-one">
+        <div class="container"><div class="row"><div class="col-12 text-center"><div class="copyright"><p class="mb-0 text-white">Copyright © 2025 台灣活動資訊網. All Right Reserved.</p></div></div></div></div>
+    </div>
+
+<script src="assets/js/plugins/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.min.js"></script>
+    <script src="assets/js/plugins/jquery.nice-select.js"></script>
+    <script src="assets/js/custom.js"></script>
+    <script>
+    function goSearch(){ const kw = document.getElementById('search-input').value.trim(); if(!kw) return; window.location.href = `/search/${encodeURIComponent(kw)}`; }
+    function goSearchMobile(){ const kw = document.getElementById('search-input-mobile').value.trim(); if(!kw) return; window.location.href = `/search/${encodeURIComponent(kw)}`; }
+
+    // === 新增 JavaScript：處理圖片上傳預覽 ===
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('image-upload-input');
+        const previewContainer = document.getElementById('image-preview-container');
+        const uploadDropzone = document.getElementById('upload-dropzone');
+        const initialText = document.getElementById('initial-upload-text');
+
+        // 監聽檔案選擇事件
+        fileInput.addEventListener('change', function(e) {
+            previewContainer.innerHTML = ''; // 清空舊的預覽
+            const files = e.target.files;
+
+            if (files.length > 0) {
+                // 如果有選擇檔案，隱藏原本的提示文字和圖示
+                initialText.style.display = 'none';
+                uploadDropzone.style.padding = '20px'; // 稍微調整 padding
+
+                Array.from(files).forEach(file => {
+                    // 確保是圖片格式
+                    if (!file.type.startsWith('image/')) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        // 建立縮圖元素
+                        const col = document.createElement('div');
+                        col.className = 'col-4 col-md-3 fade-in'; // 使用 Bootstrap grid 排列
+                        col.innerHTML = `<img src="${event.target.result}" class="preview-image" alt="Preview">`;
+                        previewContainer.appendChild(col);
+                    }
+                    // 讀取檔案內容
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                // 如果取消選擇，恢復顯示提示文字
+                initialText.style.display = 'block';
+                uploadDropzone.style.padding = '30px';
+            }
+        });
+
+        // (選用) 增加拖放時的視覺回饋
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadDropzone.addEventListener(eventName, (e) => {
+                uploadDropzone.classList.add('border-theme');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadDropzone.addEventListener(eventName, (e) => {
+                uploadDropzone.classList.remove('border-theme');
+            }, false);
+        });
+    });
+    </script>
+</body>
+</html>

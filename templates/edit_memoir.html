@@ -1,0 +1,278 @@
+<!DOCTYPE HTML>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <base href="../" />
+    <title>編輯旅行回憶錄 - 台灣活動資訊網</title>
+    <link href="/assets/css/plugins/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/fonts/font-awesome.min.css" rel="stylesheet">
+    <link href="/assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <link href="/assets/css/responsive.css" rel="stylesheet">
+    <style>
+        :root {
+            --thm-color-one: #FF6600;
+        }
+        .thm-btn {
+            background-color: #FF6600;
+            color: #fff;
+            border: none;
+        }
+        .thm-btn:hover {
+            background-color: #e65c00;
+            color: #fff;
+        }
+        .form-control:focus {
+            border-color: #FF6600;
+            box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
+        }
+        .layout-option {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+        .layout-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #FF6600;
+        }
+        .layout-input:checked + .layout-option {
+            border-color: #FF6600;
+            background-color: #fff5f0;
+        }
+        .layout-input:checked + .layout-option .check-icon {
+            opacity: 1;
+        }
+        .layout-option:hover .check-icon {
+            opacity: 1;
+        }
+        .check-icon {
+            color: #FF6600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+        }
+        .search-wrapper { position: relative; display: inline-block; }
+        .search-wrapper button { background-color: var(--thm-color-one); color: #fff; }
+        .search-dropdown { position: absolute; top: 100%; right: 0; min-width: 100%; background-color: var(--thm-color-one); color: #fff; border: none; border-radius: 0.25rem; padding: 0.5rem; transform-origin: top right; transform: scaleY(0); opacity: 0; visibility: hidden; transition: all 0.2s ease-out; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; display: flex !important; flex-direction: row; align-items: center; gap: 0.5rem; min-width: 250px; }
+        .search-dropdown input { flex: 1 1 auto; width: calc(100% - 3rem); padding: 0.25rem; border: 1px solid #ddd; border-radius: 0.25rem; margin-right: 0.25rem; }
+        .search-dropdown button { flex: 0 0 auto; margin: 0; }
+        .search-wrapper:hover .search-dropdown { visibility: visible; transform: scaleY(1); opacity: 1; }
+        #search-input-mobile { background-color: #555; color: #ffffff; border: 1px solid #777; }
+        #search-input-mobile::placeholder { color: #cccccc; opacity: 1; }
+    </style>
+</head>
+
+<body>
+    <header class="header can-sticky">
+        <div class="container">
+            <div class="header_inner">
+                <div class="logo">
+                    <a href="{{ url_for('home')}}" class="d-flex h-100">
+                        <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                    </a>
+                </div>
+                <div class="nav_actions">
+                    <nav class="navigation">
+                        <ul class="main-menu">
+                            <li class="menu-item"><a href="{{ url_for('my_memoirs')}}">回憶錄</a></li>
+                            <li class="menu-item"><a href="/active/all">探索活動</a></li>
+                            <li class="menu-item"><a href="/contact">聯絡我們</a></li>
+                            {% if session['token'] %}
+                            <li class="menu-item d-lg-none"> <a href="/account_management?token={{ session['token'] }}"><i class="fal fa-user-circle me-2"></i> 已登入</a></li>
+                            <li class="menu-item d-lg-none"> <a href="{{ url_for('my_trips') }}"><i class="fal fa-route me-2"></i> 我的行程</a></li>
+                            {% else %}
+                            <li class="menu-item d-lg-none"> <a href="/login"><i class="fal fa-user-circle me-2"></i> 登入/註冊</a></li>
+                            {% endif %}
+                            <li class="menu-item d-lg-none"> <div class="search-mobile d-flex p-2"><input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" /><button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button></div></li>
+                        </ul>
+                    </nav>
+                    <div class="header_actions">
+                        <ul class="d-none d-lg-flex">
+                            {% if session['token'] %}
+                            <li><a href="/account_management?token={{ session['token'] }}" class="login_btn me-2"><i class="fal fa-user-circle me-2"></i> 已登入</a></li>
+                            <li><a href="{{ url_for('my_trips') }}" class="login_btn"><i class="fal fa-route me-2"></i> 我的行程</a></li>
+                            {% else %}
+                            <li><a href="/login" class="login_btn"><i class="fal fa-user-circle me-2"></i> 登入/註冊</a></li>
+                            {% endif %}
+                            <li>
+                                <div class="search-wrapper">
+                                    <button class="thm-btn btn-rounded"><i class="bi-search"></i> 搜尋活動</button>
+                                    <div class="search-dropdown">
+                                        <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" />
+                                        <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="hamburger"><div class="hamburger_btn"><span></span><span></span><span></span></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;">
+        <div class="relative text-center">
+            <div class="container">
+                <div class="banner_text">
+                    <h2 class="title" style="color: white;">編輯 <span class="fw-bold" style="color: #FFD700;">回憶錄</span></h2>
+                </div>
+            </div>
+        </div>
+        <span class="left_skew"></span><span class="right_skew"></span>
+    </div>
+
+    <section class="section section-padding">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div class="card shadow-lg border-0 rounded-3">
+                        <div class="card-body p-5">
+                            <form action="{{ url_for('edit_memoir', memoir_id=memoir['id']) }}" method="POST">
+                                
+                                <div class="mb-5">
+                                    <h5 class="fw-bold mb-3 border-start border-4 border-warning ps-3">1. 選擇排版風格</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="w-100">
+                                                <input type="radio" name="layout_type" value="1" class="d-none layout-input" {% if memoir['layout_type'] == '1' %}checked{% endif %}>
+                                                <div class="layout-option p-3 text-center h-100">
+                                                    <i class="bi bi-check-circle-fill check-icon position-absolute top-0 end-0 m-2"></i>
+                                                    <i class="bi bi-layout-text-window-reverse fs-1 mb-2 text-secondary"></i>
+                                                    <h6 class="fw-bold">經典雜誌</h6>
+                                                    <small class="text-muted">圖文穿插，優雅大方</small>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="w-100">
+                                                <input type="radio" name="layout_type" value="2" class="d-none layout-input" {% if memoir['layout_type'] == '2' %}checked{% endif %}>
+                                                <div class="layout-option p-3 text-center h-100">
+                                                    <i class="bi bi-check-circle-fill check-icon position-absolute top-0 end-0 m-2"></i>
+                                                    <i class="bi bi-grid-3x3-gap fs-1 mb-2 text-secondary"></i>
+                                                    <h6 class="fw-bold">藝廊拼貼</h6>
+                                                    <small class="text-muted">瀑布流多圖展示</small>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="w-100">
+                                                <input type="radio" name="layout_type" value="3" class="d-none layout-input" {% if memoir['layout_type'] == '3' %}checked{% endif %}>
+                                                <div class="layout-option p-3 text-center h-100">
+                                                    <i class="bi bi-check-circle-fill check-icon position-absolute top-0 end-0 m-2"></i>
+                                                    <i class="bi bi-film fs-1 mb-2 text-secondary"></i>
+                                                    <h6 class="fw-bold">電影寬幅</h6>
+                                                    <small class="text-muted">沉浸式大圖輪播</small>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-5">
+                                    <h5 class="fw-bold mb-3 border-start border-4 border-info ps-3">2. 編輯方式 A：AI 重新生成</h5>
+                                    <div class="bg-light p-4 rounded-3">
+                                        <label class="form-label fw-bold mb-2">心情與關鍵字</label>
+                                        <textarea name="user_text" class="form-control border-0 bg-white" rows="4" placeholder="修改這些文字，讓 AI 幫您重新寫一篇..." style="padding: 15px;">{{ memoir['user_text'] }}</textarea>
+                                        <div class="mt-3 text-end">
+                                            <button type="submit" name="action" value="regenerate" class="btn btn-outline-primary rounded-pill px-4">
+                                                <i class="fas fa-magic me-2"></i> 根據關鍵字重新生成
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h5 class="fw-bold mb-3 border-start border-4 border-success ps-3">3. 編輯方式 B：直接修改文章</h5>
+                                    <div class="bg-light p-4 rounded-3">
+                                        <label class="form-label fw-bold mb-2">文章內容 (HTML 模式)</label>
+                                        <textarea name="content_text" class="form-control border-0 bg-white font-monospace" rows="12" style="padding: 15px;">{{ memoir['ai_content'] }}</textarea>
+                                        <div class="form-text mt-2 mb-3">
+                                            <i class="bi bi-exclamation-circle me-1"></i> 您可以直接編輯上方的文字內容。請保留 &lt;p&gt; 等標籤以維持格式。
+                                        </div>
+                                        <div class="text-center">
+                                            <button type="submit" name="action" value="save_manual" class="thm-btn btn-rounded btn-lg w-100 py-3 fw-bold">
+                                                <i class="fas fa-save me-2"></i> 儲存直接修改的內容
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('view_memoir', memoir_id=memoir['id']) }}" class="text-muted text-decoration-none">取消並返回</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Start -->
+    <footer class="footer section-padding section-bg" style="background-image: url(/assets/images/bg/footer.jpg);">
+        <div class="container">
+            <div class="row">
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <div class="ft_about">
+                            <div class="ft_logo">
+                                <img src="/assets/images/logo_two.png" alt="logo" class="image-fit-contain">
+                            </div>
+                            <p>分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 <br>#活動瘋台灣</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">網站導覽</h5>
+                        <ul class="ft_menu">
+                            <li><a href="index">首頁</a></li>
+                            <li><a href="active/all">探索活動</a></li>
+                            <li><a href="my_memoirs">回憶錄</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">聯絡資訊</h5>
+                        <p>有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
+                        <ul class="ft_contact ft_menu">
+                            <li><a href="mailto:tripcrafter.cs@gmail.com"><i class="fas fa-envelope"></i> tripcrafter.cs@gmail.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+
+    <div class="thm-bg-color-one">
+        <div class="container"><div class="row"><div class="col-12 text-center"><div class="copyright"><p class="mb-0 text-white">Copyright © 2025 台灣活動資訊網. All Right Reserved.</p></div></div></div></div>
+    </div>
+
+    <script src="assets/js/plugins/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.min.js"></script>
+    <script src="assets/js/plugins/jquery.nice-select.js"></script>
+    <script src="assets/js/custom.js"></script>
+    <script>
+    function goSearch(){ const kw = document.getElementById('search-input').value.trim(); if(!kw) return; window.location.href = `/search/${encodeURIComponent(kw)}`; }
+    function goSearchMobile(){ const kw = document.getElementById('search-input-mobile').value.trim(); if(!kw) return; window.location.href = `/search/${encodeURIComponent(kw)}`; }
+    </script>
+</body>
+</html>

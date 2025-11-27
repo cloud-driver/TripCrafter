@@ -1,354 +1,441 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登入/註冊頁面</title>
+    <title>登入/註冊 - 台灣活動資訊網</title>
+    <link rel="icon" href="favicon.ico">
+    <base href="../" />
+    <!-- Css -->
+    <link href="assets/css/plugins/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/fonts/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/plugins/slick.css" rel="stylesheet">
+    <link href="assets/css/plugins/nice-select.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/responsive.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
+        :root {
+            --thm-color-one: #FF6600;
         }
-        .container {
-            text-align: center;
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 350px;
-        }
-        .tab-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
+        .thm-btn {
+            background-color: #FF6600;
+            color: #fff;
             border: none;
-            background: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: #777;
         }
-        .tab.active {
-            color: #4285F4;
-            border-bottom: 2px solid #4285F4;
+        .thm-btn:hover {
+            background-color: #e65c00;
+            color: #fff;
         }
-        .form-container {
-            margin-top: 20px;
+        .form-control:focus {
+            border-color: #FF6600;
+            box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
         }
-        .form {
-            display: none;
+        .login-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-        .form.active {
-            display: block;
+        .nav-tabs .nav-link {
+            color: #666;
+            font-weight: 600;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 1rem;
         }
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
+        .nav-tabs .nav-link.active {
+            color: #FF6600;
+            border-bottom: 3px solid #FF6600;
+            background: transparent;
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
+        .nav-tabs .nav-link:hover {
+            color: #FF6600;
+            border-color: transparent;
         }
-        .input-group input {
+        /* 修正後的按鈕樣式 */
+        .btn-social {
+            display: flex;           /* 使用 Flexbox */
+            align-items: center;     /* 垂直置中 */
+            justify-content: center; /* 水平置中 */
+            gap: 10px;               /* Icon 與文字的間距 */
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .input-group .address-finder {
-            display: flex;
-            gap: 5px;
-        }
-        .input-group .address-finder input {
-            flex-grow: 1;
-        }
-        .input-group .address-finder button {
-            padding: 0 10px;
-            border: 1px solid #ddd;
-            background-color: #f0f0f0;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        button.auth-btn{
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
+            padding: 12px;
             border: none;
-            border-radius: 5px;
-            color: white;
-            width: calc(100% - 20px);
+            color: white !important; /* 強制文字白色 */
+            border-radius: 5px;      /* 稍微圓角，類似您的截圖 */
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: opacity 0.3s;
         }
-        #line-login, #line-register {
+        .btn-social i {
+            font-size: 1.3rem;       /* Icon 大小 */
+            color: white !important; /* 強制 Icon 白色 */
+        }
+        .btn-social:hover {
+            opacity: 0.9;
+            color: white;
+        }
+        .btn-line {
             background-color: #00B900;
         }
-        #google-login, #google-register {
+        .btn-google {
             background-color: #4285F4;
         }
-        button:hover {
-            opacity: 0.9;
-        }
+        
         .divider {
-            margin: 20px 0;
+            display: flex;
+            align-items: center;
             text-align: center;
-            position: relative;
+            color: #999;
+            margin: 1.5rem 0;
         }
-        .divider::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background-color: #ddd;
-            z-index: 1;
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #eee;
         }
         .divider span {
-            position: relative;
-            background-color: white;
             padding: 0 10px;
-            color: #777;
-            z-index: 2;
+            font-size: 0.9rem;
         }
         .error-message {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 5px;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
             display: none;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>歡迎使用我們的服務</h1>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div style="padding: 10px; margin-bottom: 15px; border-radius: 5px; color: #fff; background-color: {{ '#dc3545' if category == 'error' else '#28a745' }};">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        
-        <div class="tab-container">
-            <button class="tab active" onclick="showTab('login', event)">登入</button>
-            <button class="tab" onclick="showTab('register', event)">註冊</button>
+    <header class="header can-sticky">
+        <div class="container">
+            <div class="header_inner">
+                <div class="logo">
+                    <a href="{{ url_for('home')}}" class="d-flex h-100">
+                        <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                    </a>
+                </div>
+                <div class="nav_actions">
+                    <nav class="navigation">
+                        <ul class="main-menu">
+                            <li class="menu-item"><a href="{{ url_for('my_memoirs')}}">回憶錄</a></li>
+                            <li class="menu-item"><a href="/active/all">探索活動</a></li>
+                            <li class="menu-item"><a href="/contact">聯絡我們</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
-        
-        <div class="form-container">
-            <div id="login-form" class="form active">
-                <p>請選擇一種方式登入</p>
-                <button id="line-login" class="auth-btn" onclick="location.href='/login/line'">使用 LINE 登入</button>
-                <button id="google-login" class="auth-btn" onclick="location.href='/login/google'">使用 Gmail 登入</button>
-            </div>
-            
-            <div id="register-form" class="form">
-                <div class="input-group">
-                    <label for="username">用戶名稱</label>
-                    <input type="text" id="username" name="username" placeholder="請輸入您的用戶名稱" required>
-                    <div id="username-error" class="error-message">請輸入用戶名稱</div>
-                </div>
+    </header>
 
-                <div class="input-group">
-                    <label>常用家車站設定</label>
-                    <small style="color: #666; display: block; margin-bottom: 10px;">請輸入車站名稱或代碼 (必填)。</small>
-                    
-                    <label for="homeAddress">用地址查詢最近車站</label>
-                    <div class="address-finder">
-                        <input type="text" id="homeAddress" placeholder="請輸入完整住址">
-                        <button type="button" onclick="findStation()">查詢</button>
-                    </div>
-                    
-                    <label for="homeStationCode" style="margin-top:10px;">車站代碼</label>
-                    <input type="text" id="homeStationCode" name="homeStationCode" placeholder="例如：1000" oninput="autoFillStation('code')" required>
-                    <div id="station-error" class="error-message">請填寫車站代碼或名稱</div>
-
-                    <label for="homeStationName" style="margin-top:10px;">車站名稱</label>
-                    <input type="text" id="homeStationName" name="homeStationName" placeholder="輸入車站代號後將自動出現" oninput="autoFillStation('name')" required>
+    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center; height: 250px;">
+        <div class="relative text-center">
+            <div class="container">
+                <div class="banner_text">
+                    <h2 class="title" style="color: white;">
+                        歡迎
+                        <span class="fw-bold" style="color: #FFD700;">加入我們</span>
+                    </h2>
                 </div>
-                
-                <div class="divider"><span>使用以下方式註冊</span></div>
-                
-                <button id="line-register" class="auth-btn" onclick="handleRegister('/login/line')">使用 LINE 註冊</button>
-                <button id="google-register" class="auth-btn" onclick="handleRegister('/login/google')">使用 Gmail 註冊</button>
             </div>
-            <a href="/" ><button>回主頁</button></a> 
         </div>
     </div>
-    
-<script>
-    // 1. 取得後端傳遞的車站資料映射
-    const CODE_TO_NAME = JSON.parse('{{ code_to_name | tojson }}');
-    const NAME_TO_CODE = JSON.parse('{{ name_to_code | tojson }}');
 
-    function showTab(tabName, event) {
-        document.querySelectorAll('.form').forEach(form => {
-            form.classList.remove('active');
-        });
-        document.getElementById(tabName + '-form').classList.add('active');
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        event.currentTarget.classList.add('active');
-        document.getElementById('username-error').style.display = 'none';
-        document.getElementById('station-error').style.display = 'none'; // 新增：切換時隱藏車站錯誤
-    }
-    
-    // Helper function for debounce
-    let autofillTimeout;
-    
-    function autoFillStation(changedField) {
-        clearTimeout(autofillTimeout);
-        autofillTimeout = setTimeout(() => {
-            const codeInput = document.getElementById('homeStationCode');
-            const nameInput = document.getElementById('homeStationName');
-            const code = codeInput.value.trim();
-            const name = nameInput.value.trim();
+    <section class="section section-padding">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-7">
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4 rounded-3" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
 
-            if (changedField === 'code') {
-                // 如果代碼輸入了，查找名稱
-                const foundName = CODE_TO_NAME[code];
-                if (foundName) {
-                    // 如果找到名稱且名稱不同，則補齊
-                    if (foundName !== name) {
-                        nameInput.value = foundName;
-                    }
-                } else if (name) {
-                    // 如果代碼無效且名稱欄位有值，則清空名稱
-                    nameInput.value = "";
-                }
-            } else if (changedField === 'name') {
-                // 如果名稱輸入了，查找代碼
-                const foundCode = NAME_TO_CODE[name];
-                if (foundCode) {
-                    // 如果找到代碼且代碼不同，則補齊
-                    if (foundCode !== code) {
-                        codeInput.value = foundCode;
-                    }
-                } else if (code) {
-                    // 如果名稱無效且代碼欄位有值，則清空代碼
-                    codeInput.value = "";
-                }
-            }
+                    <div class="card login-card bg-white">
+                        <div class="card-header bg-white p-0 border-0">
+                            <ul class="nav nav-tabs nav-fill" id="authTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="login-tab" onclick="showTab('login', event)" type="button">登入</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="register-tab" onclick="showTab('register', event)" type="button">註冊</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body p-4 p-md-5">
+                            
+                            <div id="login-form" class="form-content active">
+                                <p class="text-center text-muted mb-4">請選擇一種方式快速登入</p>
+                                <div class="d-grid gap-3">
+                                    <button class="btn-social btn-line" onclick="location.href='/login/line'">
+                                        <i class="fab fa-line"></i> <span>使用 LINE 登入</span>
+                                    </button>
+                                    <button class="btn-social btn-google" onclick="location.href='/login/google'">
+                                        <i class="fab fa-google"></i> <span>使用 Gmail 登入</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="register-form" class="form-content" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label fw-bold">用戶名稱</label>
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="請輸入您的用戶名稱" required>
+                                    <div id="username-error" class="error-message">請輸入用戶名稱</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">常用家車站設定</label>
+                                    <p class="text-muted small mb-2">請輸入車站名稱或代碼 (必填)</p>
+                                    
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" id="homeAddress" placeholder="輸入地址查詢最近車站">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="findStation()">查詢</button>
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label for="homeStationCode" class="form-label small text-muted">車站代碼</label>
+                                            <input type="text" class="form-control" id="homeStationCode" name="homeStationCode" placeholder="例：1000" oninput="autoFillStation('code')" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="homeStationName" class="form-label small text-muted">車站名稱</label>
+                                            <input type="text" class="form-control" id="homeStationName" name="homeStationName" placeholder="自動帶入" oninput="autoFillStation('name')" required>
+                                        </div>
+                                    </div>
+                                    <div id="station-error" class="error-message">請填寫車站代碼或名稱</div>
+                                </div>
+
+                                <div class="divider"><span>使用以下方式註冊</span></div>
+
+                                <div class="d-grid gap-3">
+                                    <button class="btn-social btn-line" onclick="handleRegister('/login/line')">
+                                        <i class="fab fa-line"></i> <span>LINE 註冊</span>
+                                    </button>
+                                    <button class="btn-social btn-google" onclick="handleRegister('/login/google')">
+                                        <i class="fab fa-google"></i> <span>Gmail 註冊</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="/" class="text-muted text-decoration-none hover-orange">
+                            <i class="bi bi-house-door"></i> 回首頁
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Start -->
+    <footer class="footer section-padding section-bg" style="background-image: url(assets/images/bg/footer.jpg);">
+        <div class="container">
+            <div class="row">
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <div class="ft_about">
+                            <div class="ft_logo">
+                                <img src="assets/images/logo_two.png" alt="logo" class="image-fit-contain">
+                            </div>
+                            <p>分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 <br>#活動瘋台灣</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">網站導覽</h5>
+                        <ul class="ft_menu">
+                            <li><a href="index">首頁</a></li>
+                            <li><a href="active/all">探索活動</a></li>
+                            <li><a href="my_memoirs">回憶錄</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title">聯絡資訊</h5>
+                        <p>有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
+                        <ul class="ft_contact ft_menu">
+                            <li><a href="mailto:tripcrafter.cs@gmail.com"><i class="fas fa-envelope"></i> tripcrafter.cs@gmail.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- item -->
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+
+    <div class="thm-bg-color-one">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="copyright">
+                        <p class="mb-0 text-white">Copyright © 2025 台灣活動資訊網. All Right Reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/plugins/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/custom.js"></script>
+    
+    <script>
+        const CODE_TO_NAME = JSON.parse('{{ code_to_name | tojson }}');
+        const NAME_TO_CODE = JSON.parse('{{ name_to_code | tojson }}');
+    
+        function showTab(tabName, event) {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-tab').classList.remove('active');
+            document.getElementById('register-tab').classList.remove('active');
+    
+            document.getElementById(tabName + '-form').style.display = 'block';
+            event.currentTarget.classList.add('active');
             
-            // 每次輸入後都進行驗證
-            validateStationFields();
-        }, 300); // 300ms debounce
-    }
-
-    // 新增：車站欄位驗證函數
-    function validateStationFields() {
-        const code = document.getElementById('homeStationCode').value.trim();
-        const name = document.getElementById('homeStationName').value.trim();
-        const errorDiv = document.getElementById('station-error');
-        
-        // 1. 檢查是否都已填寫
-        if (code === '' || name === '') {
-            errorDiv.textContent = '請填寫車站名稱和代碼';
-            errorDiv.style.display = 'block';
-            return false;
+            document.getElementById('username-error').style.display = 'none';
+            document.getElementById('station-error').style.display = 'none';
         }
-
-        // 2. 檢查名稱和代碼是否匹配 (使用快取資料)
-        const matchedName = CODE_TO_NAME[code];
         
-        // 檢查 代碼是否有效 且 匹配的名稱是否與輸入的名稱一致
-        if (!matchedName || matchedName !== name) {
-             errorDiv.textContent = '車站代碼和名稱不匹配，請確認代碼是否正確或使用「查詢」按鈕。';
-             errorDiv.style.display = 'block';
-             return false;
-        }
-
-        errorDiv.style.display = 'none';
-        return true;
-    }
+        let autofillTimeout;
+        
+        function autoFillStation(changedField) {
+            clearTimeout(autofillTimeout);
+            autofillTimeout = setTimeout(() => {
+                const codeInput = document.getElementById('homeStationCode');
+                const nameInput = document.getElementById('homeStationName');
+                const code = codeInput.value.trim();
+                const name = nameInput.value.trim();
     
-    // --- 這邊是更新後的函式 ---
-    async function findStation() {
-        const address = document.getElementById('homeAddress').value.trim();
-        if (address === '') {
-            alert('請輸入地址！');
-            return;
-        }
-
-        try {
-            // 將 fetch 方法改為 'POST'
-            const response = await fetch('/api/closest-station', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                // 將地址打包成 JSON 格式放在 body 中
-                body: JSON.stringify({ address: address })
-            });
-
-            if (!response.ok) {
-                // 嘗試解析錯誤訊息
-                const errorData = await response.json().catch(() => null);
-                const errorMessage = errorData ? errorData.error : `伺服器錯誤: ${response.status}`;
-                throw new Error(errorMessage);
-            }
-
-            const data = await response.json();
-            if (data.closest_station) {
-                document.getElementById('homeStationCode').value = data.closest_station.code;
-                document.getElementById('homeStationName').value = data.closest_station.name;
-                alert(`找到最近車站：${data.closest_station.name} (${data.closest_station.code})`);
-                
-                // 查詢成功後，呼叫驗證函數
+                if (changedField === 'code') {
+                    const foundName = CODE_TO_NAME[code];
+                    if (foundName) {
+                        if (foundName !== name) {
+                            nameInput.value = foundName;
+                        }
+                    } else if (name) {
+                        nameInput.value = "";
+                    }
+                } else if (changedField === 'name') {
+                    const foundCode = NAME_TO_CODE[name];
+                    if (foundCode) {
+                        if (foundCode !== code) {
+                            codeInput.value = foundCode;
+                        }
+                    } else if (code) {
+                        codeInput.value = "";
+                    }
+                }
                 validateStationFields();
-            } else {
-                // 如果 API 回傳成功但沒有車站資料
-                alert(data.error || '找不到對應的車站，請確認地址是否正確。');
-            }
-        } catch (error) {
-            console.error('查詢車站時發生錯誤:', error);
-            alert(`查詢車站時發生錯誤：${error.message}`);
+            }, 300);
         }
-    }
-
-    function handleRegister(baseUrl) {
-        const usernameInput = document.getElementById('username');
-        const username = usernameInput.value.trim();
-        const usernameErrorDiv = document.getElementById('username-error');
+    
+        function validateStationFields() {
+            const code = document.getElementById('homeStationCode').value.trim();
+            const name = document.getElementById('homeStationName').value.trim();
+            const errorDiv = document.getElementById('station-error');
+            
+            if (code === '' || name === '') {
+                errorDiv.textContent = '請填寫車站名稱和代碼';
+                errorDiv.style.display = 'block';
+                return false;
+            }
+    
+            const matchedName = CODE_TO_NAME[code];
+            
+            if (!matchedName || matchedName !== name) {
+                 errorDiv.textContent = '車站代碼和名稱不匹配，請確認代碼是否正確或使用「查詢」按鈕。';
+                 errorDiv.style.display = 'block';
+                 return false;
+            }
+    
+            errorDiv.style.display = 'none';
+            return true;
+        }
         
-        // 1. 驗證用戶名稱
-        if (username === '') {
-            usernameErrorDiv.style.display = 'block';
+        async function findStation() {
+            const address = document.getElementById('homeAddress').value.trim();
+            if (address === '') {
+                alert('請輸入地址！');
+                return;
+            }
+    
+            try {
+                const response = await fetch('/api/closest-station', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ address: address })
+                });
+    
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData ? errorData.error : `伺服器錯誤: ${response.status}`;
+                    throw new Error(errorMessage);
+                }
+    
+                const data = await response.json();
+                if (data.closest_station) {
+                    document.getElementById('homeStationCode').value = data.closest_station.code;
+                    document.getElementById('homeStationName').value = data.closest_station.name;
+                    alert(`找到最近車站：${data.closest_station.name} (${data.closest_station.code})`);
+                    validateStationFields();
+                } else {
+                    alert(data.error || '找不到對應的車站，請確認地址是否正確。');
+                }
+            } catch (error) {
+                console.error('查詢車站時發生錯誤:', error);
+                alert(`查詢車站時發生錯誤：${error.message}`);
+            }
+        }
+    
+        function handleRegister(baseUrl) {
+            const usernameInput = document.getElementById('username');
+            const username = usernameInput.value.trim();
+            const usernameErrorDiv = document.getElementById('username-error');
+            
+            if (username === '') {
+                usernameErrorDiv.style.display = 'block';
+                return false;
+            }
+            usernameErrorDiv.style.display = 'none';
+            
+            if (!validateStationFields()) {
+                 return false;
+            }
+    
+            const homeStationCode = document.getElementById('homeStationCode').value.trim();
+            const homeStationName = document.getElementById('homeStationName').value.trim();
+    
+            let redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
+    
+            if (homeStationCode && homeStationName) {
+                redirectUrl += `&homeStationCode=${encodeURIComponent(homeStationCode)}`;
+                redirectUrl += `&homeStationName=${encodeURIComponent(homeStationName)}`;
+            }
+    
+            window.location.href = redirectUrl;
             return false;
         }
-        usernameErrorDiv.style.display = 'none';
-        
-        // 2. 驗證車站欄位 (必填檢查)
-        if (!validateStationFields()) {
-             // 如果驗證失敗，錯誤訊息已由 validateStationFields() 顯示
-             return false;
-        }
-
-        const homeStationCode = document.getElementById('homeStationCode').value.trim();
-        const homeStationName = document.getElementById('homeStationName').value.trim();
-
-        let redirectUrl = `${baseUrl}?username=${encodeURIComponent(username)}`;
-
-        if (homeStationCode && homeStationName) {
-            redirectUrl += `&homeStationCode=${encodeURIComponent(homeStationCode)}`;
-            redirectUrl += `&homeStationName=${encodeURIComponent(homeStationName)}`;
-        }
-
-        window.location.href = redirectUrl;
-        return false;
-    }
-</script>
+    </script>
 </body>
 </html>
