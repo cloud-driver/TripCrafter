@@ -5,7 +5,7 @@ Flask-Limiter
 python-dotenv
 Flask-WTF
 google-auth
-google-genai==1.30.0
+google-genai
 google-generativeai
 gunicorn
 pycryptodome
@@ -13,3 +13,6 @@ protobuf<5
 aiohttp
 geopy
 gevent
+moviepy
+Pillow
+numpy
