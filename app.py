@@ -369,6 +369,21 @@ def test():
 def home():
     return render_template('index.html')
 
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        
+        send_push_message("U19f5c7ea1eb5591d7d374a4a62374f0f", f"收到聯絡表單: {name}, {email}, {subject}, {message}")
+        
+        flash('您的訊息已成功送出！我們會盡快聯絡您。', 'success')
+        return redirect(url_for('contact'))
+        
+    return render_template('contact.html')
+
 @csrf.exempt
 @app.route("/index")
 def index():

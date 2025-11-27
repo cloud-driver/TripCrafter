@@ -128,7 +128,7 @@ def replay_msg(user_message):
     return reply
 
 def send_push_message(user_id, messages):
-    """發送打包好的訊息給指定使用者"""
+    """發送打包好的訊息給指定使用者 (user_id, messages)"""
     url = "https://api.line.me/v2/bot/message/push"
     headers = {
         "Content-Type": "application/json",

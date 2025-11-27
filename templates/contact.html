@@ -1,0 +1,399 @@
+<!DOCTYPE HTML>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>聯絡我們 - 台灣活動資訊網</title>
+    <link rel="icon" href="favicon.ico">
+    <base href="../" />
+    <link href="assets/css/plugins/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/fonts/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/fonts/bs-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/responsive.css" rel="stylesheet">
+    <style>
+        :root {
+            --thm-color-one: #FF6600;
+        }
+        .thm-btn {
+            background-color: #FF6600;
+            color: #fff;
+            border: none;
+        }
+        .thm-btn:hover {
+            background-color: #e65c00;
+            color: #fff;
+        }
+        .form-control:focus {
+            border-color: #FF6600;
+            box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
+        }
+        .section-header .title span {
+            color: #FF6600;
+        }
+        .contact-box {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            height: 100%;
+            transition: transform 0.3s;
+        }
+        .contact-box:hover {
+            transform: translateY(-5px);
+        }
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            background: rgba(255, 102, 0, 0.1);
+            color: #FF6600;
+            border-radius: 50%;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .map-container {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        .search-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .search-wrapper button {
+            background-color: var(--thm-color-one);
+            color: #fff;
+        }
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            min-width: 100%;
+            background-color: var(--thm-color-one);
+            color: #fff;
+            border: none;
+            border-radius: 0.25rem 0.25rem 0.25rem 0.25rem;
+            padding: 0.5rem;
+            transform-origin: top right;
+            transform: scaleY(0);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s linear 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+            display: flex !important;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 250px;  
+        }
+        .search-dropdown input {
+            flex: 1 1 auto;
+            min-width: 200px;    
+            width: auto !important;
+            margin: 0;
+            width: calc(100% - 3rem);
+            padding: 0.25rem;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            margin-right: 0.25rem;
+        }
+        .search-dropdown button {
+            flex: 0 0 auto;
+            margin: 0;
+        }
+        .search-wrapper:hover .search-dropdown {
+            visibility: visible;
+            transform: scaleY(1);
+            opacity: 1;
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out, visibility 0s;
+        }
+        #search-input-mobile {
+            background-color: #555;
+            color: #ffffff;
+            border: 1px solid #777;
+        }
+        #search-input-mobile::placeholder {
+            color: #cccccc;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header can-sticky">
+        <div class="container">
+            <div class="header_inner">
+                <div class="logo">
+                    <a href="{{ url_for('home')}}" class="d-flex h-100">
+                        <img src="/assets/images/logo_copy.png" alt="logo" class="image-fit-contain">
+                    </a>
+                </div>
+                <div class="nav_actions">
+                    <nav class="navigation">
+                        <ul class="main-menu">
+                            <li class="menu-item">
+                                <a href="{{ url_for('my_memoirs')}}">回憶錄</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/active/all">探索活動</a>
+                            </li>
+                            <li class="menu-item active">
+                                <a href="/contact">聯絡我們</a>
+                            </li>
+                            {% if session['token'] %}
+                            <li class="menu-item d-lg-none"> <a href="/account_management?token={{ session['token'] }}">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li class="menu-item d-lg-none"> <a href="{{ url_for('my_trips') }}">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="menu-item d-lg-none"> <a href="/login">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="menu-item d-lg-none"> <div class="search-mobile d-flex p-2">
+                                    <input type="text" id="search-input-mobile" class="form-control" placeholder="搜尋活動" onkeydown="if(event.key==='Enter') goSearchMobile()" />
+                                    <button class="thm-btn btn-rounded ms-2" onclick="goSearchMobile()">Go</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="header_actions">
+                        <ul class="d-none d-lg-flex"> <li>
+                                {% if session['token'] %}
+                            <li>
+                                <a href="/account_management?token={{ session['token'] }}" class="login_btn me-2">
+                                    <i class="fal fa-user-circle me-2"></i> 已登入
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('my_trips') }}" class="login_btn">
+                                    <i class="fal fa-route me-2"></i> 我的行程
+                                </a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <a href="/login" class="login_btn">
+                                    <i class="fal fa-user-circle me-2"></i> 登入/註冊
+                                </a>
+                            </li>
+                            {% endif %}
+                            </li>
+                            <li>
+                                <div class="search-wrapper">
+                                    <button class="thm-btn btn-rounded">
+                                        <i class="bi-search"></i> 搜尋活動
+                                    </button>
+                                    <div class="search-dropdown">
+                                        <input type="text" id="search-input" placeholder="輸入關鍵字 可用空格分割" onkeydown="if(event.key==='Enter') goSearch()" />
+                                        <button class="thm-btn btn-rounded" onclick="goSearch()">Go</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="hamburger">
+                            <div class="hamburger_btn"><span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="single_banner section-bg" style="background-image: url(https://cyberisland.teldap.tw/S/JQTdIjSSgYmhvlESsltwmTSldP); background-position: center;">
+        <div class="relative text-center">
+            <div class="container">
+                <div class="banner_text">
+                    <h2 class="title" style="color: white;">
+                        保持
+                        <span class="fw-bold" style="color: #FFD700;">聯繫</span>
+                    </h2>
+                    <p class="subtitle" style="color: white;">我們隨時樂意聆聽您的聲音</p>
+                </div>
+            </div>
+        </div>
+        <span class="left_skew"></span>
+        <span class="right_skew"></span>
+    </div>
+
+    <section class="section section-padding">
+        <div class="container">
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4 rounded-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <div class="section-header text-center mb-5">
+                <h3 class="title">聯絡<span>資訊</span></h3>
+                <p class="text">有任何問題、建議或合作提案，歡迎透過以下方式聯繫我們</p>
+            </div>
+
+            <div class="row mb-5 g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-box text-center">
+                        <div class="contact-icon d-inline-block">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">學校地址</h5>
+                        <p class="text-muted mb-0">403 台中市西區<br>五權路 49 號</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-box text-center">
+                        <div class="contact-icon d-inline-block">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">電子郵件</h5>
+                        <p class="text-muted mb-0">
+                            <a href="mailto:tripcrafter.cs@gmail.com" class="text-decoration-none text-muted">tripcrafter.cs@gmail.com</a><br>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mx-auto">
+                    <div class="contact-box text-center">
+                        <div class="contact-icon d-inline-block">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">聯絡電話</h5>
+                        <p class="text-muted mb-0">
+                            0975-228-710<br>
+                            週一至週五 09:00 - 18:00
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-start g-5">
+                <div class="col-lg-6">
+                    <h4 class="fw-bold mb-4">傳送訊息給我們</h4>
+                    <form action="/contact" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name" class="form-label fw-bold">您的姓名</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="請輸入姓名" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="email" class="form-label fw-bold">電子郵件</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="請輸入 Email" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="subject" class="form-label fw-bold">主旨</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" placeholder="請輸入主旨" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="message" class="form-label fw-bold">訊息內容</label>
+                                    <textarea class="form-control" id="message" name="message" rows="6" placeholder="請輸入您的訊息..." required></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="thm-btn btn-rounded w-100 py-3 fw-bold">
+                                    <i class="bi bi-send-fill me-2"></i> 送出訊息
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="col-lg-6">
+                    <h4 class="fw-bold mb-4">地理位置</h4>
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3640.769987342629!2d120.6756063!3d24.1441907!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x34693d71046091d9%3A0x8551354489059569!2zNDAz5Y-w5Lit5biC6KW_5Y2A5LqU5qyK6LevNDnomZ8!5e0!3m2!1szh-TW!2stw!4v1700000000000!5m2!1szh-TW!2stw" 
+                            width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer section-padding section-bg" style="background-image: url(assets/images/bg/footer.jpg);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <div class="ft_about">
+                            <div class="ft_logo">
+                                <img src="assets/images/logo_two.png" alt="logo" class="image-fit-contain">
+                            </div>
+                            <p class="text-white">分享您在台灣的美好活動時刻。在社群媒體上追蹤我們，並標註 #活動瘋台灣</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title" style="color: #FF6600;">網站導覽</h5>
+                        <ul class="ft_menu">
+                            <li><a href="index" class="text-white">首頁</a></li>
+                            <li><a href="active/all" class="text-white">探索活動</a></li>
+                            <li><a href="my_memoirs" class="text-white">回憶錄</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <div class="ft_widgets">
+                        <h5 class="ft_title" style="color: #FF6600;">聯絡資訊</h5>
+                        <p class="text-white">有任何問題或合作提案，歡迎隨時與我們聯繫。</p>
+                        <ul class="ft_contact ft_menu">
+                            <li><a href="mailto:tripcrafter.cs@gmail.com" class="text-white"><i class="fas fa-envelope me-2"></i> tripcrafter.cs@gmail.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="thm-bg-color-one">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="copyright">
+                        <p class="mb-0 text-white">Copyright © 2025 台灣活動資訊網. All Right Reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/plugins/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.min.js"></script>
+    <script src="assets/js/plugins/jquery.nice-select.js"></script>
+    <script src="assets/js/custom.js"></script>
+    <script>
+    function goSearch(){
+        const kw = document.getElementById('search-input').value.trim();
+        if(!kw) return;
+        window.location.href = `/search/${encodeURIComponent(kw)}`;
+    }
+    function goSearchMobile(){
+        const kw = document.getElementById('search-input-mobile').value.trim();
+        if(!kw) return;
+        window.location.href = `/search/${encodeURIComponent(kw)}`;
+    }
+    </script>
+</body>
+</html>
