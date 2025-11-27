@@ -13,6 +13,6 @@ protobuf<5
 aiohttp
 geopy
 gevent
-moviepy
+moviepy<2.0
 Pillow
-numpy
+numpy<2.0
