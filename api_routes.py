@@ -4,7 +4,7 @@ from search_station import search_station, get_coordinates, initialize_all_stati
 import json
 import traceback
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+api_bp = Blueprint('api', __name__)
 
 @api_bp.route("/search-station", methods=["POST", "OPTIONS"])
 def api_search_station():

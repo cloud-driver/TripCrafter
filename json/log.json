@@ -2402,5 +2402,313 @@
     {
         "timestamp": "2025-11-28 01:22:40",
         "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"2025 FireBall Fest. 火球祭\",\n            \"time\": \"12:00 - 18:00\",\n            \"location\": \"樂天桃園棒球場 (桃園市中壢區領航北路一段1號)\",\n            \"tags\": \"活動\"\n        },\n        {\n            \"title\": \"晚餐\",\n            \"time\": \"18:30 - 19:30\",\n            \"location\": \"中壢觀光夜市 (桃園市中壢區新明路及中央西路段)\",\n            \"tags\": \"美食\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"早餐\",\n            \"time\": \"09:00 - 10:00\",\n            \"location\": \"阿金嫂傳統小吃 (桃園市八德區永福西街68之6號)\",\n            \"tags\": \"美食\"\n        },\n        {\n            \"title\": \"祥儀機器人夢工廠\",\n            \"time\": \"10:30 - 12:30\",\n            \"location\": \"桃園市桃園區桃鶯路461號\",\n            \"tags\": \"景點\"\n        },\n        {\n            \"title\": \"午餐\",\n            \"time\": \"13:00 - 14:00\",\n            \"location\": \"陸軍小館 (桃園市桃園區中山東路147號)\",\n            \"tags\": \"美食\"\n        },\n        {\n            \"title\": \"虎頭山公園\",\n            \"time\": \"14:30 - 16:30\",\n            \"location\": \"桃園市桃園區公園路42號\",\n            \"tags\": \"景點\"\n        },\n        {\n            \"title\": \"晚餐\",\n            \"time\": \"17:00 - 18:00\",\n            \"location\": \"泰味館-泰式料理 (桃園市桃園區中山路939號)\",\n            \"tags\": \"美食\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:33",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:33",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-11-29T08:07:00\", \"destination_address\": \"18:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:33",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 18:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:33",
+        "message": "Geocoding API 狀態錯誤 for '18:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:33",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:43",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:43",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-11-29T08:07:00\", \"destination_address\": \"18:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:43",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 18:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:43",
+        "message": "Geocoding API 狀態錯誤 for '18:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:07:43",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:16:26",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:16:26",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-12-01T20:07:00\", \"destination_address\": \"18:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:16:26",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 18:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:16:26",
+        "message": "Geocoding API 狀態錯誤 for '18:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:16:26",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:21:11",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:21:11",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-12-09T08:20:00\", \"destination_address\": \"18:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:21:11",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 18:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:21:11",
+        "message": "Geocoding API 狀態錯誤 for '18:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:21:11",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:22:21",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:22:21",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-12-09T08:20:00\", \"destination_address\": \"18:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:22:21",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 18:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:22:21",
+        "message": "Geocoding API 狀態錯誤 for '18:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:22:21",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:24:50",
+        "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"2025 FireBall Fest. 火球祭\",\n            \"time\": \"12:00 - 20:00\",\n            \"location\": \"中壢區 領航北路一段1號\",\n            \"tags\": \"活動\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"桃園：雅聞魅力博覽館\",\n            \"time\": \"10:00 - 12:00\",\n            \"location\": \"桃園市 楊梅區 中山北路1段21巷1號\",\n            \"tags\": \"景點,觀光工廠\"\n        },\n        {\n            \"title\": \"午餐：欣園餐館\",\n            \"time\": \"12:30 - 13:30\",\n            \"location\": \"桃園市 中壢區 中美路二段142號\",\n            \"tags\": \"美食\"\n        },\n        {\n            \"title\": \"1895乙未保台紀念公園\",\n            \"time\": \"14:00 - 16:00\",\n            \"location\": \"桃園市 平鎮區 復旦路二段66號\",\n            \"tags\": \"景點\"\n        },\n        {\n            \"title\": \"晚餐：原味海鮮(中壢原味)\",\n            \"time\": \"18:00 - 19:30\",\n            \"location\": \"桃園市 新屋區 中山西路三段1165號A5、A10(永安漁港觀光漁市熟食區)\",\n            \"tags\": \"美食\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-28 22:25:20",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:25:20",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-12-01T08:25:00\", \"destination_address\": \"20:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:25:20",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 20:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:25:20",
+        "message": "Geocoding API 狀態錯誤 for '20:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:25:20",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:26:26",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:26:26",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-12-01T08:26:00\", \"destination_address\": \"11:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:26:26",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 11:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:26:27",
+        "message": "Geocoding API 狀態錯誤 for '11:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:26:27",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:32:40",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:32:40",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-11-27T08:32:00\", \"destination_address\": \"11:00\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:32:40",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 11:00"
+    },
+    {
+        "timestamp": "2025-11-28 22:32:40",
+        "message": "Geocoding API 狀態錯誤 for '11:00': ZERO_RESULTS"
+    },
+    {
+        "timestamp": "2025-11-28 22:32:40",
+        "message": "無法獲取目的地座標。"
+    },
+    {
+        "timestamp": "2025-11-28 22:55:44",
+        "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"DAY6 3RD WORLD TOUR ＜FOREVER YOUNG＞ in KAOHSIUNG\",\n            \"time\": \"18:00 - 21:00\",\n            \"location\": \"高雄流行音樂中心海音館\",\n            \"tags\": \"活動\"\n        },\n        {\n            \"title\": \"高雄流行音樂中心(愛河灣)\",\n            \"time\": \"16:00 - 17:30\",\n            \"location\": \"高雄市鹽埕區真愛路1號\",\n            \"tags\": \"景點\"\n        },\n        {\n            \"title\": \"愛河\",\n            \"time\": \"15:00 - 16:00\",\n            \"location\": \"高雄市前金區同盟路接前金區河東路、河西路\",\n            \"tags\": \"景點\"\n        },\n        {\n            \"title\": \"菜粽李\",\n            \"time\": \"12:30 - 13:30\",\n            \"location\": \"高雄市苓雅區成功一路159號\",\n            \"tags\": \"美食\"\n        },\n        {\n            \"title\": \"牛老大涮牛肉 (自強二路)\",\n            \"time\": \"19:00 - 20:30\",\n            \"location\": \"高雄市前金區自強二路18號\",\n            \"tags\": \"美食\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-28 22:56:14",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 22:56:14",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-12-01T07:56:00\", \"destination_address\": \"高雄流行音樂中心海音館\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 22:56:14",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 高雄流行音樂中心海音館"
+    },
+    {
+        "timestamp": "2025-11-28 22:56:16",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 4390): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 22:56:16",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-11-28 22:56:16",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 22:58:32",
+        "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"DAY6 3RD WORLD TOUR ＜FOREVER YOUNG＞ in KAOHSIUNG\",\n            \"time\": \"18:00 - 21:00\",\n            \"location\": \"高雄流行音樂中心海音館\",\n            \"tags\": \"演唱會\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-28 22:58:55",
+        "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"DAY6 3RD WORLD TOUR ＜FOREVER YOUNG＞ in KAOHSIUNG\",\n            \"time\": \"18:00 - 21:00\",\n            \"location\": \"高雄流行音樂中心海音館\",\n            \"tags\": \"演唱會\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:11",
+        "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"多羅滿賞鯨\",\n            \"time\": \"08:30 - 11:30\",\n            \"location\": \"花蓮縣花蓮市民權路37號\",\n            \"tags\": \"活動, 戶外體驗, 海洋\"\n        },\n        {\n            \"title\": \"三番兩次原住民風味餐廳\",\n            \"time\": \"12:00 - 13:00\",\n            \"location\": \"花蓮縣花蓮市中山路一段386之6號\",\n            \"tags\": \"美食, 原住民風味餐\"\n        },\n        {\n            \"title\": \"花蓮鐵道文化園區\",\n            \"time\": \"13:30 - 16:00\",\n            \"location\": \"花蓮縣花蓮市中山路71號\",\n            \"tags\": \"景點, 文化歷史\"\n        },\n        {\n            \"title\": \"七星潭海岸風景特定區\",\n            \"time\": \"16:30 - 18:00\",\n            \"location\": \"花蓮縣新城鄉大漢村七星街32號\",\n            \"tags\": \"景點, 自然風景\"\n        },\n        {\n            \"title\": \"賴桑壽司屋\",\n            \"time\": \"18:30 - 19:30\",\n            \"location\": \"花蓮縣花蓮市林森路90號\",\n            \"tags\": \"美食, 日式料理\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:39",
+        "message": "DEBUG: api_search_station function was CALLED!"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:39",
+        "message": "API_PARAMS_RECEIVED: {\"home_station_code\": \"1000\", \"home_station_name\": \"臺北\", \"departure_datetime\": \"2025-12-01T21:02:00\", \"destination_address\": \"花蓮縣花蓮市民權路37號\", \"is_return_trip\": false}"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:39",
+        "message": "DEPARTURE_TRIP: Searching 臺北 -> 花蓮縣花蓮市民權路37號"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:41",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 1020): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:41",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:41",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 7000): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:41",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0980): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:41",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0930): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:41",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-11-28 23:02:41",
+        "message": "查詢時刻表時發生錯誤 (1000 -> 0990): 400 Client Error: Bad Request for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:10:34",
+        "message": "查詢時刻表時發生錯誤 (0980 -> 1020): 405 Client Error: Method Not Allowed for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:10:34",
+        "message": "查詢時刻表時發生錯誤 (0980 -> 0990): 405 Client Error: Method Not Allowed for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:10:34",
+        "message": "查詢時刻表時發生錯誤 (0980 -> 1000): 405 Client Error: Method Not Allowed for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:10:34",
+        "message": "查詢時刻表時發生錯誤 (0980 -> 0930): 405 Client Error: Method Not Allowed for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:10:34",
+        "message": "查詢時刻表時發生錯誤 (0980 -> 7000): 405 Client Error: Method Not Allowed for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-28 23:10:34",
+        "message": "--- 直達與單次轉乘無結果，嘗試備用方案：搜尋兩次轉乘 ---"
+    },
+    {
+        "timestamp": "2025-11-28 23:10:34",
+        "message": "查詢時刻表時發生錯誤 (0980 -> 0990): 405 Client Error: Method Not Allowed for url: https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/8e150c9487e6/pub_8e150e53827d"
+    },
+    {
+        "timestamp": "2025-11-29 00:02:15",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-11-29 00:02:15",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-11-29 00:03:20",
+        "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"2025臺南熱氣球派對\",\n            \"time\": \"05:30 - 07:30\",\n            \"location\": \"臺南市安平區 永華市政中心西側廣場及西拉雅廣場\",\n            \"tags\": \"活動, 景點\"\n        },\n        {\n            \"title\": \"謝掌櫃\",\n            \"time\": \"08:30 - 09:30\",\n            \"location\": \"臺南市安平區運河路23巷5號\",\n            \"tags\": \"美食\"\n        },\n        {\n            \"title\": \"臺灣城殘蹟(安平古堡內牆)\",\n            \"time\": \"09:30 - 11:30\",\n            \"location\": \"臺南市安平區國勝路82號\",\n            \"tags\": \"景點\"\n        },\n        {\n            \"title\": \"孔廟文化園區「臺南孔子廟」\",\n            \"time\": \"12:30 - 14:30\",\n            \"location\": \"臺南市中西區南門路2號\",\n            \"tags\": \"景點, 文化\"\n        },\n        {\n            \"title\": \"進福炒鱔魚專家\",\n            \"time\": \"17:30 - 18:30\",\n            \"location\": \"臺南市中西區府前路一段46號\",\n            \"tags\": \"美食\"\n        },\n        {\n            \"title\": \"水交社文化園區\",\n            \"time\": \"19:00 - 20:30\",\n            \"location\": \"臺南市南區興中街118號\",\n            \"tags\": \"景點, 文化\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-29 00:05:44",
+        "message": "Google AI response (trip): {\n    \"1\": [\n        {\n            \"title\": \"葡萄王健康活力能量館\",\n            \"time\": \"09:30 - 11:30\",\n            \"location\": \"桃園市平鎮區金陵路二段402號\",\n            \"tags\": \"景點, 工廠參觀\"\n        },\n        {\n            \"title\": \"午餐：七彩雲南(忠貞店)\",\n            \"time\": \"12:00 - 13:00\",\n            \"location\": \"桃園市平鎮區中山路124號\",\n            \"tags\": \"美食, 雲南料理\"\n        },\n        {\n            \"title\": \"2025 FireBall Fest. 火球祭\",\n            \"time\": \"14:00 - 21:00\",\n            \"location\": \"桃園市中壢區 領航北路一段1號\",\n            \"tags\": \"活動, 音樂祭\"\n        },\n        {\n            \"title\": \"晚餐：中壢觀光夜市-瘋壽司\",\n            \"time\": \"21:00 - 22:00\",\n            \"location\": \"桃園市中壢區新明路 (攤號:350A)\",\n            \"tags\": \"美食, 夜市小吃\"\n        },\n        {\n            \"title\": \"住宿：渴望園區\",\n            \"time\": \"22:30 - \",\n            \"location\": \"桃園市龍潭區渴望路185號\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"2\": [\n        {\n            \"title\": \"忠貞新村文化園區\",\n            \"time\": \"09:30 - 11:30\",\n            \"location\": \"桃園市平鎮區中山路70號\",\n            \"tags\": \"景點, 文化園區\"\n        },\n        {\n            \"title\": \"午餐：忠貞米干\",\n            \"time\": \"12:00 - 13:00\",\n            \"location\": \"桃園市中壢區中正五路210號\",\n            \"tags\": \"美食, 米干\"\n        },\n        {\n            \"title\": \"2025 FireBall Fest. 火球祭\",\n            \"time\": \"14:00 - 21:00\",\n            \"location\": \"桃園市中壢區 領航北路一段1號\",\n            \"tags\": \"活動, 音樂祭\"\n        },\n        {\n            \"title\": \"晚餐：大四喜北方麵食(中央店)\",\n            \"time\": \"21:00 - 22:00\",\n            \"location\": \"桃園市中壢區中央東路38號\",\n            \"tags\": \"美食, 北方麵食\"\n        },\n        {\n            \"title\": \"住宿：渴望園區\",\n            \"time\": \"22:30 - \",\n            \"location\": \"桃園市龍潭區渴望路185號\",\n            \"tags\": \"住宿\"\n        }\n    ],\n    \"3\": [\n        {\n            \"title\": \"慈湖紀念雕塑公園\",\n            \"time\": \"09:30 - 11:30\",\n            \"location\": \"桃園市大溪區復興路一段1097號\",\n            \"tags\": \"景點, 歷史\"\n        },\n        {\n            \"title\": \"午餐：大溪山水庭園餐廳\",\n            \"time\": \"12:00 - 13:00\",\n            \"location\": \"桃園市大溪區仁二街8號\",\n            \"tags\": \"美食, 客家料理\"\n        },\n        {\n            \"title\": \"大溪木藝生態博物館﹣壹號館\",\n            \"time\": \"13:30 - 15:00\",\n            \"location\": \"桃園市大溪區中正路68號\",\n            \"tags\": \"景點, 博物館\"\n        },\n        {\n            \"title\": \"金蘭醬油博物館\",\n            \"time\": \"15:30 - 17:00\",\n            \"location\": \"桃園市大溪區介壽路236號\",\n            \"tags\": \"景點, 工廠參觀\"\n        },\n        {\n            \"title\": \"晚餐：姚茶館私房料理\",\n            \"time\": \"17:30 - 18:30\",\n            \"location\": \"桃園市大溪區和平路91號\",\n            \"tags\": \"美食, 私房料理\"\n        }\n    ]\n}"
+    },
+    {
+        "timestamp": "2025-11-29 01:08:16",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-11-29 01:08:16",
+        "message": "解密錯誤：Token 已過期"
+    },
+    {
+        "timestamp": "2025-11-29 01:22:47",
+        "message": "Pushing message to U19f5c7ea1eb5591d7d374a4a62374f0f"
+    },
+    {
+        "timestamp": "2025-11-29 01:23:44",
+        "message": "Google AI response (memoir): <h3>在塵與汗中，遇見「活著」的真諦</h3>\n\n<p>當那熟悉的「滅火器」前奏，如同一道號角劃破夜空，理智的閘門應聲而開，身體竟比大腦更早一步，以一種近乎本能的衝動，直直地闖進了那片沸騰的 Circle Pit。那不是思考，而是一種呼喚，是靈魂深處對自由與釋放的渴望，在腎上腺素的激盪下找到了出口。</p>\n\n<p>瞬間，我被捲入一場感官的狂歡。漫天的塵土如同微粒般的煙花，在燈光下閃爍，空氣中彌漫著汗水與熱情的鹹濕氣味。在那個無序卻又充滿默契的衝撞區裡，我們這些原本互不相識的陌生人，卻像被一股無形的力量牽引，肩並肩地組成了一列人肉火車。每一次的推擠、每一次的撞擊，都像是將平日裡累積的壓力與煩憂，狠狠地甩進了夜空。汗水沿著髮梢滴落，模糊了視線，卻也洗去了心頭的蒙塵，只剩下最原始、最純粹的激動。</p>\n\n<p>喉嚨在一次又一次的嘶吼、合唱中變得沙啞，雙腳因連續的跳動而痠痛不已，彷彿每塊肌肉都在抗議這超負荷的劇烈運動。然而，當音樂來到高潮，數百、數千個聲音在同一刻匯聚成一股震耳欲聾的洪流，大聲唱出那句句直抵人心的歌詞時，所有的疲憊瞬間消散。那一刻，你不再是你，我不再是我，我們都是那股巨大能量的一部分，一同呼吸，一同燃燒。那份共鳴，那份連結，是如此真實而強烈，穿越了皮膚與骨骼，直達靈魂深處。</p>\n\n<p>那一夜，在塵土飛揚與汗水淋漓之中，我深刻地體驗到，活著，不僅僅是呼吸與心跳，更是這般毫無保留地釋放，這般與萬物連結的瞬間。當最後一聲嘶吼迴盪，周遭的陌生面孔帶著疲憊卻滿足的笑容，我才意識到，這份「活著真好」的感動，早已深植於心。它是一段記憶，更是一種提醒，提醒我在每一次的日常裡，別忘了找回那份純粹的熱情與生命力。</p>"
+    },
+    {
+        "timestamp": "2025-11-29 01:27:40",
+        "message": "Google AI response (memoir): <h3>衝撞的詩篇：在汗水與塵土中，與生命共鳴</h3>\n\n<p>當滅火器樂團的前奏響起，那音牆炸裂，旋律如野火般蔓延開來，瞬間點燃了空氣中每一絲躁動。我的身體比思緒反應更快，沒有任何猶豫，那股原始的衝動驅使著我，直接躍入了人群深處的圓圈核心。不假思索，只為那即將燃燒的一切。</p>\n\n<p>漫天塵土飛揚，混雜著汗水鹹澀的氣味，模糊了視線，卻清晰了感知。我們像一列沒有終點的火車，在衝撞區裡肩並肩、背靠背地奔馳著。那些原本陌生的臉孔，此刻因共同的頻率而閃耀著一種無以名狀的光芒。每一次的推擠，不是侵犯，而是一種無聲的邀請，一次釋放壓力的共舞。在那個由熱情與汗水構築的場域裡，界線消弭，我們都是同一場狂歡的共犯。</p>\n\n<p>喉嚨早已沙啞，雙腳也傳來陣陣的痠痛，然而當滅火器那激昂的旋律達到高潮，全場數千人的歌聲匯聚成一道洪流，那是震耳欲聾卻又無比和諧的生命交響。那一刻，所有的疲憊、所有的煩惱都煙消雲散，只剩下純粹的生命力在激盪。我們不再是個體，而是巨大能量場中的一分子，大聲唱著，吶喊著，彷彿要將靈魂深處的渴望，毫無保留地釋放出來。</p>\n\n<p>當最後一個音符落下，餘韻仍在空氣中迴盪，我才真切地明白，什麼叫做「活著真好」。那不僅是音樂的魔力，更是人與人之間，在極致的熱情中，所創造出的瞬間連結與共鳴。那是一場無需言語的旅行，一趟身體與心靈的釋放之旅。它教會我，生命的真實與美好，往往藏匿在最狂野、最赤裸的體驗之中，等待我們勇敢地衝撞，然後感受那份淋漓盡致的感動。</p>"
     }
 ]

@@ -8,7 +8,7 @@ import secrets
 import jwt as pyjwt
 import json
 import uuid
-from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash, abort
+from flask import Flask, request, redirect, jsonify, session, send_from_directory, Response, render_template, url_for, flash, abort, send_file
 from send import Keep, update_user_profile, get_user_data, save_log, send_push_message, replay_msg, find_user_by_identity, delete_user_profile, ask_ai
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -93,7 +93,7 @@ os.makedirs(os.path.join(app.root_path, BGM_FOLDER), exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-app.register_blueprint(api_bp)
+app.register_blueprint(api_bp, url_prefix='/api')
 
 csrf.exempt(api_bp)
 
@@ -147,6 +147,21 @@ try:
         ALL_STATIONS_DATA = json.load(f)
 except Exception as e:
     save_log(f"Failed to load all_stations_data.json: {e}")
+
+def link_callback(uri, rel):
+    """
+    將 HTML 中的相對路徑轉換為系統絕對路徑
+    """
+    # 如果是 /assets 開頭的資源 (字型、圖片、CSS)
+    if uri.startswith('/assets'):
+        # 去掉開頭的 /
+        uri_path = uri.lstrip('/')
+        # 組合專案根目錄與檔案路徑
+        path = os.path.join(app.root_path, uri_path)
+        # 確保路徑是絕對路徑
+        abs_path = os.path.abspath(path)
+        return abs_path
+    return uri
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -988,7 +1003,7 @@ def get_recommendations():
     for item in sources:
         # 欄位正規化
         name = item.get('Name', item.get('名稱', item.get('資料名稱', '')))
-        addr = item.get('Add', item.get('地址', item.get('地址', '')))
+        addr = item.get('Add', item.get('地址', item.get('街道名稱', '')))
         desc = item.get('Description', item.get('說明', item.get('文字描述', '')))
         region = item.get('Region', item.get('行政區', item.get('鄉鎮市區', '')))
         town = item.get('Town', item.get('縣市', item.get('縣市名稱', '')))
@@ -1205,8 +1220,13 @@ def trip(days, active, trip_id):
         session.pop('current_trip_id', None)
 
     total_days = len(ai_response.keys())
-    raw_start = ai_response.get('1', [{}])[0].get('location', '臺北')
-    raw_end = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')
+    # 避免 ai_response 為空或結構錯誤
+    try:
+        raw_start = ai_response.get('1', [{}])[0].get('location', '臺北')
+        raw_end = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')
+    except:
+        raw_start = '臺北'
+        raw_end = '臺北'
 
     def clean_addr(addr: str) -> str:
         cleaned = addr.split('(')[0].strip()
@@ -1218,6 +1238,76 @@ def trip(days, active, trip_id):
     print(ai_response)
 
     return render_template('trip.html', days=days, active=active, ai_response=ai_response, event=event_data, token=token, start_location=start_location, end_location=end_location, trip_id=trip_id)
+
+# === 在 app.py 中新增或替換以下路由 ===
+
+@app.route('/trip/send_line/<trip_id>', methods=['POST'])
+@csrf.exempt
+def send_trip_to_line(trip_id):
+    token = session.get('token')
+    if not token:
+        return jsonify({"error": "請先登入"}), 401
+        
+    uid = decrypt_token(token)
+    if not uid:
+        return jsonify({"error": "無效的憑證"}), 401
+        
+    # 1. 檢查使用者是否有綁定 LINE
+    user_data = get_user_data(uid) # 使用 send.py 的函式
+    line_user_id = None
+    if user_data and 'line_account' in user_data and user_data['line_account']:
+        line_user_id = user_data['line_account'].get('userId')
+        
+    if not line_user_id:
+        return jsonify({"error": "您尚未綁定 LINE 帳號，無法傳送行程。請先至「帳號管理」綁定 LINE。"}), 400
+
+    # 2. 取得行程資料
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM schedules WHERE trip_id = ? AND uid = ?", (trip_id, uid))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        return jsonify({"error": "找不到行程"}), 404
+        
+    schedule = json.loads(row['schedule'])
+    trip_name = row['trip_name'] if row['trip_name'] else "我的行程"
+    
+    # 3. 格式化訊息內容
+    msg_lines = [f"📅 {trip_name}", ""] # 標題
+    
+    for day, activities in schedule.items():
+        msg_lines.append(f"【第 {day} 天】")
+        for act in activities:
+            time_str = act.get('time', '')
+            title = act.get('title', '未命名活動')
+            location = act.get('location', '').split(' ')[0] # 簡化地址
+            
+            # 組合單行行程: 09:00 台北101 (信義區...)
+            if time_str:
+                msg_lines.append(f"🕒 {time_str} | {title}")
+            else:
+                msg_lines.append(f"📍 {title}")
+            
+            if location:
+                msg_lines.append(f"   ↳ {location}")
+        msg_lines.append("") # 每天之間空一行
+        
+    msg_lines.append("---")
+    msg_lines.append("此行程由 TripCrafter 規劃")
+    
+    final_text = "\n".join(msg_lines)
+    
+    # 4. 發送 LINE 訊息
+    try:
+        # 呼叫 send.py 的函式
+        send_push_message(line_user_id, [{"type": "text", "text": final_text}])
+        return jsonify({"message": "行程已成功傳送到您的 LINE！"}), 200
+    except Exception as e:
+        save_log(f"Send Line Error: {e}")
+        return jsonify({"error": "發送失敗，請稍後再試"}), 500
 
 @app.route('/my_trips')
 @csrf.exempt
@@ -1265,6 +1355,7 @@ def save_data_new():
     schedule = data.get('schedule')
     days = data.get('days')
     active = data.get('active')
+    trip_name = data.get('trip_name')
 
     if not all([token, schedule, days, active]):
         return jsonify({"error": "缺少必要參數"}), 400
@@ -1281,8 +1372,8 @@ def save_data_new():
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO schedules (uid, trip_id, schedule, created_at, days, active) VALUES (?, ?, ?, ?, ?, ?)",
-            (uid, trip_id, schedule_json, current_time, days, active)
+            "INSERT INTO schedules (uid, trip_id, schedule, created_at, days, active, trip_name) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (uid, trip_id, schedule_json, current_time, days, active, trip_name)
         )
         conn.commit()
         conn.close()
@@ -1297,6 +1388,7 @@ def save_data_update():
     token = data.get('token')
     schedule = data.get('schedule')
     trip_id = data.get('trip_id')
+    trip_name = data.get('trip_name')
 
     if not all([token, schedule, trip_id]):
         return jsonify({"error": "缺少必要參數"}), 400
@@ -1316,7 +1408,12 @@ def save_data_update():
             return jsonify({"error": "未找到該行程ID！"}), 404
         
         schedule_json = json.dumps(schedule, ensure_ascii=False)
-        cursor.execute("UPDATE schedules SET schedule = ? WHERE trip_id = ?", (schedule_json, trip_id))
+        # 同步更新名稱 (如果有的話)
+        if trip_name:
+            cursor.execute("UPDATE schedules SET schedule = ?, trip_name = ? WHERE trip_id = ?", (schedule_json, trip_name, trip_id))
+        else:
+            cursor.execute("UPDATE schedules SET schedule = ? WHERE trip_id = ?", (schedule_json, trip_id))
+            
         conn.commit()
         conn.close()
         return jsonify({"message": "行程更新成功"}), 200
@@ -1668,7 +1765,6 @@ def delete_memoir(memoir_id):
     flash("回憶錄與相關檔案已刪除。", "success")
     return redirect(url_for('my_memoirs'))
 
-# === 修改：原本的路由改為觸發背景任務 ===
 @csrf.exempt
 @app.route("/memoir/video/create/<int:memoir_id>", methods=["POST"])
 def create_memoir_video(memoir_id):
@@ -1691,7 +1787,6 @@ def create_memoir_video(memoir_id):
     
     memoir = dict(row)
     
-    # 如果影片已經存在，直接回傳
     if memoir.get('video_path'):
         return jsonify({"video_url": f"/assets/videos/{memoir['video_path']}", "status": "completed"}), 200
 
@@ -1703,7 +1798,6 @@ def create_memoir_video(memoir_id):
     if not images_list:
         return jsonify({"error": "圖片列表為空"}), 400
 
-    # 啟動背景執行緒
     thread = threading.Thread(target=generate_video_task, args=(
         memoir_id, 
         uid, 
@@ -1714,7 +1808,6 @@ def create_memoir_video(memoir_id):
     thread.daemon = True 
     thread.start()
 
-    # 立即回應給前端
     return jsonify({
         "message": "影片生成請求已接收！系統將在背景製作，完成後會透過 LINE 通知您。",
         "status": "processing"

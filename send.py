@@ -103,7 +103,7 @@ def ask_ai(data, trip_or_not="trip"):
     
     try:
         # 呼叫 Gemini API
-        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         text_response = response.text
         

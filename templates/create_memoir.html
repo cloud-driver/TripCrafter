@@ -330,7 +330,7 @@
                 <div class="col-lg-8 col-md-10">
                     <div class="card shadow-lg border-0 rounded-3">
                         <div class="card-body p-5">
-                            <form action="{{ url_for('create_memoir') }}" method="POST" enctype="multipart/form-data">
+                            <form id="memoir-form" action="{{ url_for('create_memoir') }}" method="POST" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <label class="form-label fw-bold mb-2">上傳精彩照片 (可多選)</label>
                                     
@@ -392,7 +392,7 @@
                                 </div>
 
                                 <div class="text-center mt-4">
-                                    <button type="submit" class="thm-btn btn-rounded btn-lg w-100 py-3 fw-bold">
+                                    <button type="submit" id="submit-btn" class="thm-btn btn-rounded btn-lg w-100 py-3 fw-bold">
                                         <i class="fas fa-magic me-2"></i> 讓 AI 幫我寫回憶錄
                                     </button>
                                 </div>
@@ -407,11 +407,9 @@
         </div>
     </section>
 
-    <!-- Footer Start -->
     <footer class="footer section-padding section-bg" style="background-image: url(assets/images/bg/footer.jpg);">
         <div class="container">
             <div class="row">
-                <!-- item -->
                 <div class="col-lg-4 col-sm-6">
                     <div class="ft_widgets">
                         <div class="ft_about">
@@ -422,7 +420,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- item -->
                 <div class="col-lg-4 col-sm-6">
                     <div class="ft_widgets">
                         <h5 class="ft_title">網站導覽</h5>
@@ -433,7 +430,6 @@
                         </ul>
                     </div>
                 </div>
-                <!-- item -->
                 <div class="col-lg-4 col-sm-6">
                     <div class="ft_widgets">
                         <h5 class="ft_title">聯絡資訊</h5>
@@ -443,11 +439,9 @@
                         </ul>
                     </div>
                 </div>
-                <!-- item -->
-            </div>
+                </div>
         </div>
     </footer>
-    <!-- Footer End -->
     <div class="thm-bg-color-one">
         <div class="container"><div class="row"><div class="col-12 text-center"><div class="copyright"><p class="mb-0 text-white">Copyright © 2025 台灣活動資訊網. All Right Reserved.</p></div></div></div></div>
     </div>
@@ -512,6 +506,26 @@
                 uploadDropzone.classList.remove('border-theme');
             }, false);
         });
+
+        // === 新增：處理表單提交時的 Loading 效果 ===
+        const memoirForm = document.getElementById('memoir-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if(memoirForm && submitBtn) {
+            memoirForm.addEventListener('submit', function(e) {
+                // 檢查表單是否有效 (例如是否有選擇照片、是否填寫文字)
+                // 如果使用了 HTML5 的 required 屬性，瀏覽器通常會先攔截
+                
+                // 鎖定按鈕，避免重複點擊
+                submitBtn.disabled = true;
+                
+                // 改變按鈕內容為轉圈圈
+                submitBtn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-2">AI 正在撰寫中，請稍候...</span>
+                `;
+            });
+        }
     });
     </script>
 </body>

@@ -16,3 +16,4 @@ gevent
 moviepy<2.0
 Pillow
 numpy<2.0
+xhtml2pdf
