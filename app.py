@@ -1174,6 +1174,8 @@ def trip(days, active, trip_id):
     event_data = EVENTS[active]
     ai_response = None
     
+    user_memo = request.args.get('memo', '').strip() 
+
     if trip_id:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
@@ -1194,7 +1196,13 @@ def trip(days, active, trip_id):
         packaged_data = package_data(event_data)
         days_map = {'one-day': 1, 'two-day': 2, 'three-day': 3}
         total_days = days_map[days]
+        
         trip_data = f"# {total_days} Days\n{packaged_data}"
+        
+        # === 新增：將使用者備註加入 Prompt ===
+        if user_memo:
+            trip_data += f"\n\n【重要】使用者有以下特別行程需求，請務必在規劃時遵守：\n{user_memo}"
+        # ==================================
         
         raw_ai_response = ask_ai(trip_data)
 
@@ -1220,7 +1228,6 @@ def trip(days, active, trip_id):
         session.pop('current_trip_id', None)
 
     total_days = len(ai_response.keys())
-    # 避免 ai_response 為空或結構錯誤
     try:
         raw_start = ai_response.get('1', [{}])[0].get('location', '臺北')
         raw_end = ai_response.get(str(total_days), [{}])[-1].get('location', '臺北')

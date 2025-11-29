@@ -638,5 +638,17 @@
             return false;
         }
     </script>
+    <script>
+        function goSearch() {
+            const kw = document.getElementById('search-input').value.trim();
+            if (!kw) return;
+            window.location.href = `/search/${encodeURIComponent(kw)}`;
+        }
+        function goSearchMobile() {
+            const kw = document.getElementById('search-input-mobile').value.trim();
+            if (!kw) return;
+            window.location.href = `/search/${encodeURIComponent(kw)}`;
+        }
+    </script>
 </body>
 </html>

@@ -494,5 +494,17 @@
     <script src="assets/js/plugins/jquery-3.6.0.min.js"></script>
     <script src="assets/js/plugins/bootstrap.bundle.min.js"></script>
     <script src="assets/js/custom.js"></script>
+    <script>
+        function goSearch() {
+            const kw = document.getElementById('search-input').value.trim();
+            if (!kw) return;
+            window.location.href = `/search/${encodeURIComponent(kw)}`;
+        }
+        function goSearchMobile() {
+            const kw = document.getElementById('search-input-mobile').value.trim();
+            if (!kw) return;
+            window.location.href = `/search/${encodeURIComponent(kw)}`;
+        }
+    </script>
 </body>
 </html>
